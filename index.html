@@ -335,9 +335,10 @@ th{ background:#252525; color:#aaa; }
 
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
-  <div class="bottom-btn" onclick="document.getElementById('importFile').click()">Import CSV</div>
-  <div class="bottom-btn" onclick="exportAll()">Export CSV</div>
+    <div class="bottom-btn" onclick="importCSV()">Import CSV</div>
+    <div class="bottom-btn" onclick="exportCSV()">Export CSV</div>
 </div>
+
 <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
 
 <script>
