@@ -2,826 +2,1037 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>EV Charge Log Pro</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+<title>EV Charge Log Pro – v4-ODO-20251207</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <style>
-:root{
-  --bg:#000;
-  --card:#1c1c1e;
-  --text:#fff;
-  --tesla-red:#E31937;
-  --gray:#333;
-  --border:#2c2c2e;
-  --focus:#007AFF;
-}
+    :root{
+        color-scheme: dark;
+        --bg-main:#000000;
+        --bg-card:#171717;
+        --bg-card-soft:#1f1f1f;
+        --border-soft:#333333;
+        --text-main:#ffffff;
+        --text-sub:#9e9e9e;
+        --accent-red:#e50914;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",system-ui,sans-serif;}
+    body{
+        background:radial-gradient(circle at top,#220000 0,#000 55%);
+        color:var(--text-main);
+        min-height:100vh;
+    }
+    .app-shell{
+        max-width:900px;
+        margin:0 auto;
+        padding:14px 16px 40px;
+    }
+    .app-header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        margin-bottom:10px;
+    }
+    .title-wrap{
+        display:flex;
+        flex-direction:column;
+        gap:2px;
+    }
+    .app-title{
+        font-size:18px;
+        font-weight:600;
+        letter-spacing:0.02em;
+    }
+    .app-subtitle{
+        font-size:11px;
+        color:var(--text-sub);
+    }
+    .tesla-pill{
+        padding:4px 10px;
+        border-radius:999px;
+        border:1px solid var(--border-soft);
+        font-size:11px;
+        color:var(--text-sub);
+    }
+    /* Add Record button */
+    .add-record-btn{
+        width:100%;
+        margin:8px 0 16px;
+        padding:14px 0;
+        border-radius:16px;
+        border:none;
+        background:var(--accent-red);
+        color:#fff;
+        font-size:17px;
+        font-weight:600;
+        letter-spacing:0.04em;
+        text-transform:uppercase;
+        box-shadow:0 12px 26px rgba(229,9,20,0.35);
+    }
+    .add-record-btn:active{
+        transform:scale(0.98);
+        box-shadow:0 6px 16px rgba(0,0,0,0.6);
+    }
 
-body{
-  margin:0;
-  font-family:-apple-system, BlinkMacSystemFont, sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  padding-bottom:120px; /* 避开底部bar */
-}
+    /* Cards */
+    .card{
+        background:var(--bg-card);
+        border-radius:24px;
+        border:1px solid var(--border-soft);
+        padding:14px 16px 18px;
+        margin-bottom:12px;
+    }
+    .card-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:8px;
+    }
+    .card-title{
+        font-size:15px;
+        font-weight:600;
+    }
+    .card-sub{
+        font-size:11px;
+        color:var(--text-sub);
+    }
 
-.c{
-  max-width:600px;
-  margin:0 auto;
-  padding:0 16px 40px;
-}
+    /* Form */
+    #recordForm{
+        display:none;
+        margin-top:4px;
+    }
+    .form-grid{
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:8px 10px;
+        margin-bottom:8px;
+    }
+    .form-row-full{
+        grid-column:1 / -1;
+    }
+    label{
+        font-size:11px;
+        color:var(--text-sub);
+        margin-bottom:3px;
+        display:block;
+    }
+    input[type="date"],
+    input[type="number"],
+    input[type="text"]{
+        width:100%;
+        padding:8px 9px;
+        border-radius:10px;
+        border:1px solid #2e2e2e;
+        background:#111111;
+        color:var(--text-main);
+        font-size:13px;
+    }
+    input[type="date"]{
+        padding-right:4px;
+    }
+    input::placeholder{color:#555;}
+    .form-actions{
+        display:flex;
+        justify-content:flex-end;
+        gap:8px;
+        margin-top:6px;
+    }
+    .btn-ghost{
+        padding:7px 14px;
+        border-radius:999px;
+        border:1px solid #444;
+        background:#111;
+        color:var(--text-main);
+        font-size:13px;
+    }
+    .btn-primary{
+        padding:7px 16px;
+        border-radius:999px;
+        border:none;
+        background:var(--accent-red);
+        color:#fff;
+        font-size:13px;
+        font-weight:500;
+    }
+    .btn-ghost:active,.btn-primary:active{
+        transform:scale(0.97);
+    }
 
-header{
-  padding:32px 0 20px;
-  text-align:center;
-  font-size:34px;
-  font-weight:800;
-  color:var(--tesla-red);
-}
+    /* Table */
+    .table-wrap{
+        overflow-x:auto;
+        margin-top:6px;
+    }
+    table{
+        width:100%;
+        border-collapse:collapse;
+        font-size:12px;
+    }
+    thead{
+        background:linear-gradient(to bottom,#262626,#1b1b1b);
+    }
+    th,td{
+        padding:6px 6px;
+        border-bottom:1px solid #242424;
+        text-align:left;
+        white-space:nowrap;
+    }
+    th{
+        font-size:11px;
+        color:var(--text-sub);
+        font-weight:500;
+    }
+    tbody tr:nth-child(even){
+        background:#151515;
+    }
+    .text-right{text-align:right;}
+    .tag-location{
+        font-size:11px;
+        color:var(--text-main);
+    }
+    .row-actions{
+        display:flex;
+        gap:4px;
+        justify-content:center;
+    }
+    .icon-btn{
+        background:none;
+        border:none;
+        font-size:15px;
+        cursor:pointer;
+    }
 
-.card{
-  background:var(--card);
-  border-radius:22px;
-  margin:22px 0;
-  border:1px solid var(--border);
-  box-shadow:0 8px 32px rgba(227,25,55,0.12);
-}
-.section{
-  padding:22px 20px 26px;
-}
-.section:not(:last-child){
-  border-bottom:1px solid var(--border);
-}
+    /* Monthly Summary */
+    .summary-grid{
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:4px 16px;
+        margin-top:4px;
+        font-size:12px;
+    }
+    .summary-label{
+        color:var(--text-sub);
+        font-size:11px;
+    }
+    .summary-value{
+        font-weight:500;
+    }
+    .summary-empty{
+        font-size:12px;
+        color:var(--text-sub);
+        margin-top:4px;
+    }
 
-/* Inputs */
-input, select{
-  width:100%;
-  padding:18px;
-  height:58px;
-  border:none;
-  border-radius:16px;
-  background:#2c2c2e;
-  color:white;
-  font-size:18px;
-  box-sizing:border-box;
-}
-input:focus, select:focus{
-  background:#3a3a3c;
-  outline:none;
-  box-shadow:0 0 0 3px var(--focus);
-}
+    /* Saved Locations */
+    .locations-list{
+        margin-top:6px;
+        border-top:1px solid #272727;
+    }
+    .location-row{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:6px 0;
+        border-bottom:1px solid #202020;
+        font-size:13px;
+    }
+    .location-actions{
+        display:flex;
+        gap:8px;
+        font-size:16px;
+    }
+    .location-input-row{
+        display:flex;
+        gap:8px;
+        margin-top:8px;
+    }
+    .location-input-row input{
+        flex:1;
+    }
 
-/* iOS date */
-input[type="date"]{
-  -webkit-appearance:none;
-  appearance:none;
-  color:white;
-  padding:0 18px !important;
-  height:58px !important;
-  line-height:58px !important;
-}
-input[type="date"]::-webkit-calendar-picker-indicator{
-  filter:invert(1);
-  opacity:.7;
-}
+    /* Bottom import/export row */
+    .bottom-bar{
+        position:static;
+        width:100%;
+        margin:12px 0 0;
+        display:flex;
+        justify-content:space-between;
+        gap:12px;
+        padding:0 0;
+        background:transparent;
+        border:none;
+    }
+    .bottom-btn{
+        flex:1;
+        padding:14px 0;
+        border-radius:50px;
+        background:#1f1f1f;
+        color:#ffffff;
+        text-align:center;
+        font-size:15px;
+        font-weight:500;
+        border:1px solid #333;
+        box-shadow:0 0 8px rgba(0,0,0,0.35);
+        white-space:nowrap;
+        transition:background 0.12s, transform 0.12s;
+    }
+    .bottom-btn:active{
+        background:#2a2a2a;
+        transform:scale(0.98);
+    }
 
-#location{
-  font-weight:600;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right 18px center;
-}
-#location option[data-divider]{
-  height:1px;
-  background:#444;
-  margin:8px 16px;
-}
+    .version-text{
+        margin:6px 0 14px;
+        text-align:center;
+        font-size:11px;
+        color:#666666;
+    }
 
-.row{
-  display:flex;
-  gap:14px;
-}
-.row > input{
-  flex:1;
-}
+    .footer-link{
+        display:flex;
+        justify-content:center;
+        margin-bottom:8px;
+    }
+    .chip-link{
+        display:inline-block;
+        padding:6px 14px;
+        border-radius:999px;
+        border:1px solid var(--border-soft);
+        background:#141414;
+        color:var(--text-sub);
+        font-size:11px;
+        text-decoration:none;
+    }
 
-/* Rate quick buttons */
-.quick-btns{
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-  justify-content:center;
-}
-.qb{
-  padding:12px 22px;
-  background:var(--gray);
-  color:white;
-  border-radius:40px;
-  border:1px solid #555;
-  cursor:pointer;
-}
-
-/* Main buttons */
-.btn{
-  width:100%;
-  background:linear-gradient(180deg,#ff2a47,#e31937);
-  color:white;
-  padding:20px;
-  border-radius:18px;
-  border:none;
-  margin-top:18px;
-  font-size:20px;
-  font-weight:700;
-  cursor:pointer;
-}
-.btn.secondary{
-  background:#333;
-  display:none;
-}
-
-/* Table */
-.table-wrapper{
-  overflow:auto;
-  border-radius:16px;
-}
-table{
-  width:100%;
-  min-width:880px;
-}
-th,td{
-  padding:16px 10px;
-  text-align:center;
-  border-bottom:1px solid var(--border);
-  border-right:1px solid var(--border);
-}
-th:last-child,td:last-child{ border-right:none; }
-th{ background:#252525; color:#aaa; }
-.empty-row{
-  padding:16px;
-  color:#777;
-}
-
-/* Icons */
-.action{
-  font-size:18px;
-  cursor:pointer;
-  opacity:.7;
-  margin:0 4px;
-}
-.action:hover{ opacity:1; }
-
-/* Location list */
-.loc-row{
-  display:flex;
-  justify-content:space-between;
-  padding:10px 0;
-  border-bottom:1px solid var(--border);
-}
-.loc-actions span{
-  margin-left:10px;
-  cursor:pointer;
-  opacity:.75;
-}
-
-/* Monthly summary */
-.summary-row{
-  display:flex;
-  justify-content:space-between;
-  padding:8px 0;
-  border-bottom:1px solid var(--border);
-}
-.summary-month{ font-weight:600; }
-.summary-values{ text-align:right; }
-
-/* Bottom bar */
-.bottom-bar{
-    position: static;                 /* 不再固定在最底 */
-    width: 100%;
-    margin: 16px 16px 0;              /* 左右 16，跟上面卡片对齐 */
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 0;                       /* 不要额外背景和边框 */
-    background: transparent;
-    border: none;
-}
-
-.bottom-btn{
-    flex: 1;
-    padding: 14px 0;
-    border-radius: 50px;
-    background: #1f1f1f;
-    color: #fff;
-    text-align: center;
-    font-size: 15px;
-    font-weight: 500;
-    border: 1px solid #333;
-    box-shadow: 0 0 8px rgba(0,0,0,0.35);
-    white-space: nowrap;
-    transition: background 0.12s, transform 0.12s;
-}
-
-.bottom-btn:active{
-    background: #2a2a2a;
-    transform: scale(0.98);
-}
-
-
-
-
-
-.version{
-  text-align:center;
-  color:#555;
-  margin-top:40px;
-  font-size:11px;
-}
+    @media (min-width:720px){
+        .form-grid{
+            grid-template-columns:repeat(4,minmax(0,1fr));
+        }
+    }
 </style>
 </head>
-
 <body>
+<div class="app-shell">
+    <header class="app-header">
+        <div class="title-wrap">
+            <div class="app-title">EV Charge Log Pro</div>
+            <div class="app-subtitle">Model Y Juniper RWD · 60 kWh pack · ODO mode</div>
+        </div>
+        <div class="tesla-pill">小帅 · v4-ODO</div>
+    </header>
 
-<div class="c">
-  <header>EV Charge Log Pro</header>
+    <button class="add-record-btn" id="toggleFormBtn">Add Record</button>
 
-  <!-- FORM -->
-  <div class="card">
-    <div class="section">
-      <input type="date" id="date">
+    <!-- Add record form card -->
+    <section class="card" id="formCard" style="display:none;">
+        <div class="card-header">
+            <div>
+                <div class="card-title">New Charge Record</div>
+                <div class="card-sub">Date, SOC, ODO, Location, Rate &amp; Cost</div>
+            </div>
+        </div>
+
+        <form id="recordForm">
+            <div class="form-grid">
+                <div>
+                    <label for="dateInput">Date</label>
+                    <input type="date" id="dateInput">
+                </div>
+                <div>
+                    <label for="startInput">Start %</label>
+                    <input id="startInput" type="number" inputmode="numeric" pattern="\d*" min="0" max="100" placeholder="e.g. 20">
+                </div>
+                <div>
+                    <label for="endInput">End %</label>
+                    <input id="endInput" type="number" inputmode="numeric" pattern="\d*" min="0" max="100" placeholder="e.g. 80">
+                </div>
+                <div>
+                    <label for="odoInput">ODO km</label>
+                    <input id="odoInput" type="number" inputmode="numeric" pattern="\d*" min="0" placeholder="e.g. 12345">
+                </div>
+                <div class="form-row-full">
+                    <label for="locationInput">Location</label>
+                    <input id="locationInput" type="text" list="locationsDatalist" placeholder="e.g. PV-KL">
+                    <datalist id="locationsDatalist"></datalist>
+                </div>
+                <div>
+                    <label for="rateInput">Rate RM/kWh</label>
+                    <input id="rateInput" type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 1.25">
+                </div>
+                <div>
+                    <label for="costInput">Cost RM</label>
+                    <input id="costInput" type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 25.30">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-ghost" id="cancelFormBtn">Cancel</button>
+                <button type="submit" class="btn-primary">Save</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Monthly Summary -->
+    <section class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Monthly Summary (60 kWh pack)</div>
+                <div class="card-sub" id="summaryMonthLabel">No drive data yet</div>
+            </div>
+        </div>
+        <div id="summaryBody"></div>
+    </section>
+
+    <!-- Records table -->
+    <section class="card">
+        <div class="card-header">
+            <div class="card-title">Charge Records</div>
+            <div class="card-sub">Based on previous record · v4-ODO logic</div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th class="text-right">Start</th>
+                        <th class="text-right">End</th>
+                        <th class="text-right">Used kWh</th>
+                        <th class="text-right">KM</th>
+                        <th>Location</th>
+                        <th class="text-right">Rate</th>
+                        <th class="text-right">Cost</th>
+                        <th style="text-align:center;">Edit</th>
+                        <th style="text-align:center;">Del</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsBody">
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Saved locations -->
+    <section class="card">
+        <div class="card-header">
+            <div class="card-title">Saved Locations</div>
+            <div class="card-sub">For quick input · editable</div>
+        </div>
+
+        <div class="location-input-row">
+            <input type="text" id="newLocationInput" placeholder="Add new location (e.g. PV-D)">
+            <button class="btn-primary" type="button" id="addLocationBtn">Add</button>
+        </div>
+
+        <div class="locations-list" id="locationsList">
+            <!-- dynamic rows -->
+        </div>
+    </section>
+
+    <!-- Import / Export row -->
+    <div class="bottom-bar">
+        <button id="importBtn" class="bottom-btn">Import CSV</button>
+        <button id="exportBtn" class="bottom-btn">Export CSV</button>
     </div>
+    <input type="file" id="importFile" accept=".csv" style="display:none;">
 
-    <div class="section">
-      <div class="row">
-        <!-- Start / End: text + inputmode=numeric，自动跳 -->
-        <input id="start" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Start %" maxlength="3">
-        <input id="end"   type="text" inputmode="numeric" pattern="[0-9]*" placeholder="End %"   maxlength="3">
-      </div>
+    <div class="version-text">Version v4-ODO-20251207</div>
+
+    <div class="footer-link">
+        <a href="https://lgsony.github.io" target="_blank" class="chip-link">lgsony.github.io</a>
     </div>
-
-    <div class="section">
-      <!-- 新增 ODO -->
-      <input id="odo" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="ODO (km)">
-    </div>
-
-    <div class="section">
-      <select id="location">
-        <option value="">Select Location</option>
-        <option value="__ADD__">+ Add New Location</option>
-        <option data-divider></option>
-      </select>
-    </div>
-
-    <div class="section">
-      <div class="quick-btns">
-        <button class="qb" onclick="setRate(0.84)">0.84</button>
-        <button class="qb" onclick="setRate(1.00)">1.00</button>
-        <button class="qb" onclick="setRate(1.30)">1.30</button>
-        <button class="qb" onclick="setRate(1.50)">1.50</button>
-        <button class="qb" onclick="setRate(1.80)">1.80</button>
-        <button class="qb" onclick="setRate(0)">Free</button>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="row">
-        <!-- Rate / Cost: decimal keypad -->
-        <input id="rate" type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="Rate (RM/kWh)">
-        <input id="cost" type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="Cost (RM)">
-      </div>
-    </div>
-
-    <div class="section">
-      <button class="btn" id="main-btn" onclick="submitForm()">Add Record</button>
-      <button class="btn secondary" id="cancel-btn" onclick="cancelEdit()">Cancel Edit</button>
-    </div>
-  </div>
-
-  <!-- MONTHLY SUMMARY -->
-  <div class="card">
-    <div class="section">
-      <div class="summary-title">Monthly Summary (60 kWh pack)</div>
-      <div id="month-summary"></div>
-    </div>
-  </div>
-
-  <!-- TABLE -->
-  <div class="card">
-    <div class="section" style="padding:0;">
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Start</th>
-              <th>End</th>
-              <th>Used kWh</th>
-              <th>KM</th>
-              <th>Location</th>
-              <th>Rate</th>
-              <th>Cost</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- LOCATION MANAGEMENT -->
-  <div class="card">
-    <div class="section">
-      <div style="font-weight:600;margin-bottom:8px;">Saved Locations</div>
-      <div id="loc-list"></div>
-      <button class="btn secondary" onclick="addLocationManually()">+ Add Location</button>
-    </div>
-  </div>
-
-  <div class="version" id="version"></div>
 </div>
-
-<!-- BOTTOM BAR -->
-<!-- 上面是 Saved Locations 那个 card -->
-
-<div class="bottom-bar">
-  <button id="importBtn" class="bottom-btn">Import CSV</button>
-  <button id="exportBtn" class="bottom-btn">Export CSV</button>
-</div>
-
-<div class="version-text">Version v4-ODO-20251207</div>
-
-<!-- 下面是你 lgsony.github.io 那个按钮 -->
-
-
-<input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
 
 <script>
-/* ==== 配置：电池容量（kWh） ==== */
-const BATTERY_KWH = 60; // Model Y RWD，假设 60kWh
-
-/* ==== STORAGE KEYS ==== */
-const KEYS={
-  records:'evRecords2025',
-  locations:'evLocations2025',
-  rates:'evRateMemory2025'
-};
-
-let records=JSON.parse(localStorage.getItem(KEYS.records)||'[]');
-let allLocations=JSON.parse(localStorage.getItem(KEYS.locations)||'["BH","PV","BAMBOO HILL","HOME","WORK"]');
-let rateMemory=JSON.parse(localStorage.getItem(KEYS.rates)||'{}');
-let editingIndex=null;
-
-/* 元素引用 */
-const elDate = document.getElementById('date');
-const elStart = document.getElementById('start');
-const elEnd = document.getElementById('end');
-const elOdo = document.getElementById('odo');
-const elLocation = document.getElementById('location');
-const elRate = document.getElementById('rate');
-const elCost = document.getElementById('cost');
-const elMainBtn = document.getElementById('main-btn');
-const elCancelBtn = document.getElementById('cancel-btn');
-
-/* 默认日期今天 */
-elDate.value=new Date().toISOString().slice(0,10);
-
-/* ==== Start / End / ODO：数字键盘 + 自动跳 ==== */
-elStart.addEventListener('input', () => {
-  let v = elStart.value.replace(/[^0-9]/g,'');
-  if(v.length>3) v = v.slice(0,3);
-  if(v === '00') v = '100';
-  elStart.value = v;
-  if(v.length >= 2){ // 输入两位数自动跳
-    elEnd.focus();
-  }
-});
-
-elEnd.addEventListener('input', () => {
-  let v = elEnd.value.replace(/[^0-9]/g,'');
-  if(v.length>3) v = v.slice(0,3);
-  if(v === '00') v = '100';
-  elEnd.value = v;
-  if(v.length >= 2){
-    elOdo.focus();
-  }
-});
-
-elOdo.addEventListener('input', () => {
-  let v = elOdo.value.replace(/[^0-9]/g,'');
-  elOdo.value = v;
-});
-
-/* Rate / Cost：decimal 键盘 + 只允许一个 "." */
-function sanitizeDecimalInput(el){
-  let v = el.value.replace(/[^0-9.]/g,'');
-  const parts = v.split('.');
-  if(parts.length > 2){
-    v = parts[0] + '.' + parts.slice(1).join('');
-  }
-  el.value = v;
-}
-elRate.addEventListener('input', () => sanitizeDecimalInput(elRate));
-elCost.addEventListener('input', () => sanitizeDecimalInput(elCost));
-
-/* Rate 快捷按钮 */
-function setRate(v){
-  if(v===0){
-    elRate.value="";
-    elRate.placeholder="Free / 0";
-  }else{
-    elRate.value=v;
-  }
-}
-
-/* ======== LOCATION DROPDOWN ======== */
-function renderLocations(){
-  elLocation.innerHTML=`
-    <option value="">Select Location</option>
-    <option value="__ADD__">+ Add New Location</option>
-    <option data-divider></option>
-  `;
-  allLocations.sort().forEach(loc=>{
-    const o=document.createElement('option');
-    o.value=loc;
-    o.textContent=loc;
-    elLocation.appendChild(o);
-  });
-}
-
-elLocation.onchange=function(){
-  if(this.value==="__ADD__"){ addLocationManually(); return; }
-  if(rateMemory[this.value]!=null) elRate.value=rateMemory[this.value];
-};
-
-/* Add Location */
-function addLocationManually(){
-  const name=prompt("Enter new location:");
-  if(!name)return;
-  const up=name.trim().toUpperCase();
-  if(!allLocations.includes(up)) allLocations.push(up);
-  saveAll();
-  renderLocations();
-  renderLocationList();
-}
-
-/* Edit/Delete Location */
-function editLocationName(oldName){
-  const name=prompt("Rename:",oldName);
-  if(!name)return;
-  const up=name.trim().toUpperCase();
-  if(up===oldName)return;
-
-  allLocations=allLocations.map(l=>l===oldName?up:l);
-  records.forEach(r=>{ if(r.location===oldName) r.location=up; });
-
-  if(rateMemory[oldName]!=null){
-    rateMemory[up]=rateMemory[oldName];
-    delete rateMemory[oldName];
-  }
-
-  saveAll();
-  renderLocations();
-  renderLocationList();
-  recomputeDriveStats();
-  renderTable();
-  renderMonthlySummary();
-}
-function deleteLocationName(l){
-  if(!confirm("Remove this location? Records stay."))return;
-  allLocations=allLocations.filter(x=>x!==l);
-  delete rateMemory[l];
-  saveAll();
-  renderLocations();
-  renderLocationList();
-}
-
-/* Location list UI */
-function renderLocationList(){
-  const box=document.getElementById('loc-list');
-  box.innerHTML="";
-  if(!allLocations.length){
-    box.innerHTML='<div class="empty-row">No saved locations</div>';
-    return;
-  }
-  allLocations.sort().forEach(loc=>{
-    box.innerHTML += `
-      <div class="loc-row">
-        <div class="loc-name">${loc}</div>
-        <div class="loc-actions">
-          <span onclick="editLocationName('${loc}')">✏️</span>
-          <span onclick="deleteLocationName('${loc}')">🗑</span>
-        </div>
-      </div>`;
-  });
-}
-
-/* 工具：日期显示 */
-function formatDateDisplay(str){
-  const d=new Date(str);
-  if(isNaN(d)) return str;
-  return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
-}
-
-/* 工具：重算行驶里程 & 用电 & Wh/km
-   - 用：上一条记录的 End% 和 ODO，和当前记录的 Start% 和 ODO
-   - 结果写在当前记录：driveKm / usedKwh / whPerKm
-*/
-function recomputeDriveStats(){
-  if(!records.length) return;
-  // 按日期 + 原顺序 排
-  const withIndex = records.map((r,i)=>({r,i}));
-  withIndex.sort((a,b)=>{
-    const da = a.r.date || '';
-    const db = b.r.date || '';
-    if(da===db) return a.i - b.i;
-    return da.localeCompare(db);
-  });
-
-  let prev = null;
-  withIndex.forEach(w=>{
-    const rec = w.r;
-    rec.driveKm = null;
-    rec.usedKwh = null;
-    rec.whPerKm = null;
-    if(prev){
-      const prevRec = prev.r;
-      const odoPrev = Number(prevRec.odo||0);
-      const odoCur  = Number(rec.odo||0);
-      const endPrev = Number(prevRec.end||0);
-      const startCur= Number(rec.start||0);
-
-      const km = odoCur - odoPrev;
-      const pctDrop = endPrev - startCur;
-      let used = null;
-      if(km>0 && pctDrop>0 && BATTERY_KWH>0){
-        used = BATTERY_KWH * pctDrop / 100;
-        const whPerKm = used * 1000 / km;
-        rec.driveKm = km;
-        rec.usedKwh = used;
-        rec.whPerKm = whPerKm;
-      }
-    }
-    prev = w;
-  });
-}
-
-/* 保存到 localStorage */
-function saveAll(){
-  localStorage.setItem(KEYS.records,JSON.stringify(records));
-  localStorage.setItem(KEYS.locations,JSON.stringify(allLocations));
-  localStorage.setItem(KEYS.rates,JSON.stringify(rateMemory));
-}
-
-/* Monthly summary：用 usedKwh + driveKm */
-function computeMonthlySummary(){
-  const map={};
-  records.forEach(r=>{
-    if(!r.date || !r.usedKwh || !r.driveKm) return;
-    const d=new Date(r.date);
-    if(isNaN(d))return;
-    const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    if(!map[key]) map[key]={year:d.getFullYear(),month:d.getMonth()+1,totalCost:0,totalKwh:0,totalKm:0};
-    map[key].totalCost += Number(r.cost||0);
-    map[key].totalKwh += Number(r.usedKwh||0);
-    map[key].totalKm   += Number(r.driveKm||0);
-  });
-  return Object.values(map).sort((a,b)=>{
-    if(a.year!==b.year) return b.year-a.year;
-    return b.month-a.month;
-  });
-}
-
-function renderMonthlySummary(){
-  const box=document.getElementById('month-summary');
-  box.innerHTML="";
-  if(!records.length){
-    box.innerHTML='<div class="empty-row">No data yet</div>';
-    return;
-  }
-  const list = computeMonthlySummary();
-  if(!list.length){
-    box.innerHTML='<div class="empty-row">No drive data yet</div>';
-    return;
-  }
-  list.forEach(m=>{
-    const avgWh = (m.totalKwh>0 && m.totalKm>0) ? (m.totalKwh*1000/m.totalKm) : 0;
-    box.innerHTML += `
-      <div class="summary-row">
-        <div class="summary-month">${String(m.month).padStart(2,'0')}/${m.year}</div>
-        <div class="summary-values">
-          <div>RM ${m.totalCost.toFixed(2)}</div>
-          <div>${m.totalKwh.toFixed(2)} kWh · ${avgWh?avgWh.toFixed(0):'-'} Wh/km · ${m.totalKm.toFixed(0)} km</div>
-        </div>
-      </div>`;
-  });
-}
-
-/* 表格（最新在最上） */
-function renderTable(){
-  const tbody=document.getElementById('tableBody');
-  tbody.innerHTML="";
-  if(!records.length){
-    tbody.innerHTML=`<tr><td colspan="9" class="empty-row">No records yet</td></tr>`;
-    return;
-  }
-
-  const sorted = records
-    .map((r,i)=>({r,i}))
-    .sort((a,b)=>(b.r.date||'').localeCompare(a.r.date||'') || (b.i-a.i));
-
-  sorted.forEach(({r,i})=>{
-    const used = r.usedKwh ? r.usedKwh.toFixed(2) : '';
-    const km   = r.driveKm ? r.driveKm.toFixed(0) : '';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${formatDateDisplay(r.date)}</td>
-      <td>${r.start ?? ''}</td>
-      <td>${r.end ?? ''}</td>
-      <td>${used}</td>
-      <td>${km}</td>
-      <td>${r.location || ''}</td>
-      <td>${r.rate ?? ''}</td>
-      <td>${r.cost ?? ''}</td>
-      <td>
-        <span class="action" onclick="startEdit(${i})">✏️</span>
-        <span class="action" onclick="deleteRecord(${i})">🗑</span>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-/* 编辑 */
-function startEdit(i){
-  const r=records[i];
-  editingIndex=i;
-  elDate.value = r.date || '';
-  elStart.value= r.start ?? '';
-  elEnd.value  = r.end   ?? '';
-  elOdo.value  = r.odo   ?? '';
-  elRate.value = r.rate  ?? '';
-  elCost.value = r.cost  ?? '';
-  renderLocations();
-  elLocation.value = r.location || '';
-  elMainBtn.textContent="Save Changes";
-  elCancelBtn.style.display="block";
-}
-
-function cancelEdit(){
-  editingIndex=null;
-  elMainBtn.textContent="Add Record";
-  elCancelBtn.style.display="none";
-  elDate.value=new Date().toISOString().slice(0,10);
-  elStart.value="";
-  elEnd.value="";
-  elOdo.value="";
-  elLocation.value="";
-  elRate.value="";
-  elCost.value="";
-}
-
-/* 删除记录 */
-function deleteRecord(i){
-  if(!confirm("Delete this record?"))return;
-  records.splice(i,1);
-  saveAll();
-  recomputeDriveStats();
-  renderTable();
-  renderMonthlySummary();
-}
-
-/* 新增 / 保存记录 */
-function submitForm(){
-  if(!elDate.value || !elLocation.value || !elRate.value || !elCost.value){
-    alert("Date, Location, Rate, Cost required");
-    return;
-  }
-  const rec={
-    date:elDate.value,
-    start:Number(elStart.value||0),
-    end:Number(elEnd.value||0),
-    odo:Number(elOdo.value||0),
-    location:elLocation.value.toUpperCase(),
-    rate:parseFloat(elRate.value||0),
-    cost:parseFloat(elCost.value||0),
-    driveKm:null,
-    usedKwh:null,
-    whPerKm:null
-  };
-
-  rateMemory[rec.location]=rec.rate;
-
-  if(editingIndex===null) records.push(rec);
-  else records[editingIndex]=rec;
-
-  saveAll();
-  recomputeDriveStats();
-  cancelEdit();
-  renderTable();
-  renderLocationList();
-  renderMonthlySummary();
-}
-
-/* Export CSV（带 ODO 和计算字段） */
-function exportAll(){
-  if(!records.length){
-    alert("No data to export.");
-    return;
-  }
-  let csv="date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm\n";
-  records.forEach(r=>{
-    csv+=`${r.date || ''},${r.start ?? ''},${r.end ?? ''},${r.odo ?? ''},"${(r.location||"").replace(/\"/g,'""')}",${r.rate ?? ''},${r.cost ?? ''},${r.driveKm ?? ''},${r.usedKwh ?? ''},${r.whPerKm ?? ''}\n`;
-  });
-  const blob=new Blob([csv],{type:"text/csv"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;
-  a.download="ev_charge_backup.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-/* 解析 CSV（兼容旧版，没有 ODO 也不会死） */
-function parseCSV(text){
-  const rows=text.split(/\r?\n/).filter(x=>x.trim());
-  if(rows.length<=1) return [];
-  const header=rows[0].toLowerCase().split(",");
-  const idx={
-    date:header.indexOf("date"),
-    start:header.indexOf("start"),
-    end:header.indexOf("end"),
-    odo:header.indexOf("odo"),
-    loc:header.indexOf("location"),
-    rate:header.indexOf("rate"),
-    cost:header.indexOf("cost"),
-    driveKm:header.indexOf("drivekm"),
-    usedKwh:header.indexOf("usedkwh"),
-    whPerKm:header.indexOf("whperkm")
-  };
-  const out=[];
-  for(let i=1;i<rows.length;i++){
-    const cols=rows[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map(x=>x.replace(/^"|"$/g,""));
-    if(!cols)continue;
-    const r={
-      date: idx.date>=0 ? cols[idx.date] : "",
-      start:idx.start>=0 ? Number(cols[idx.start]||0):0,
-      end:  idx.end>=0   ? Number(cols[idx.end]  ||0):0,
-      odo:  idx.odo>=0   ? Number(cols[idx.odo]  ||0):0,
-      location:idx.loc>=0 ? (cols[idx.loc]||"").toUpperCase():"",
-      rate: idx.rate>=0 ? parseFloat(cols[idx.rate]||0):0,
-      cost: idx.cost>=0 ? parseFloat(cols[idx.cost]||0):0,
-      driveKm: idx.driveKm>=0 ? Number(cols[idx.driveKm]||0):null,
-      usedKwh: idx.usedKwh>=0 ? Number(cols[idx.usedKwh]||0):null,
-      whPerKm: idx.whPerKm>=0 ? Number(cols[idx.whPerKm]||0):null
-    };
-    out.push(r);
-  }
-  return out;
-}
-
-/* Import CSV */
-function importAll(input){
-  const file=input.files[0];
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const list=parseCSV(e.target.result);
-    if(!list.length){
-      alert("Invalid CSV");
-      return;
-    }
-    const replace=confirm("Replace existing data?\nOK = Replace\nCancel = Append");
-    if(replace) records=list;
-    else records=[...records,...list];
-
-    const set=new Set(allLocations);
-    list.forEach(r=>r.location && set.add(r.location));
-    allLocations=[...set];
-
-    saveAll();
-    recomputeDriveStats();
-    renderLocations();
-    renderLocationList();
-    renderTable();
-    renderMonthlySummary();
-    alert("Import completed!");
-  };
-  reader.readAsText(file);
-}
-
-/* INIT */
 (function(){
-  renderLocations();
-  renderLocationList();
-  recomputeDriveStats();
-  renderTable();
-  renderMonthlySummary();
-  const d=new Date();
-  document.getElementById('version').textContent=
-    `Version v4-ODO-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+    const BATTERY_KWH = 60;
+    const STORAGE_KEY_RECORDS = "evChargeLogPro_v4_odo_records";
+    const STORAGE_KEY_LOCATIONS = "evChargeLogPro_locations";
+
+    let records = [];
+    let locations = [];
+
+    const toggleFormBtn = document.getElementById("toggleFormBtn");
+    const formCard      = document.getElementById("formCard");
+    const recordForm    = document.getElementById("recordForm");
+    const cancelFormBtn = document.getElementById("cancelFormBtn");
+
+    const dateInput     = document.getElementById("dateInput");
+    const startInput    = document.getElementById("startInput");
+    const endInput      = document.getElementById("endInput");
+    const odoInput      = document.getElementById("odoInput");
+    const locationInput = document.getElementById("locationInput");
+    const rateInput     = document.getElementById("rateInput");
+    const costInput     = document.getElementById("costInput");
+
+    const recordsBody   = document.getElementById("recordsBody");
+    const summaryBody   = document.getElementById("summaryBody");
+    const summaryMonthLabel = document.getElementById("summaryMonthLabel");
+
+    const locationsList = document.getElementById("locationsList");
+    const newLocationInput = document.getElementById("newLocationInput");
+    const addLocationBtn   = document.getElementById("addLocationBtn");
+    const locationsDatalist = document.getElementById("locationsDatalist");
+
+    const importBtn  = document.getElementById("importBtn");
+    const exportBtn  = document.getElementById("exportBtn");
+    const importFile = document.getElementById("importFile");
+
+    function init(){
+        loadFromStorage();
+        setDefaultDate();
+        renderAll();
+        wireEvents();
+    }
+
+    function loadFromStorage(){
+        try{
+            const r = localStorage.getItem(STORAGE_KEY_RECORDS);
+            if(r){ records = JSON.parse(r); }
+        }catch(e){ records = []; }
+
+        try{
+            const l = localStorage.getItem(STORAGE_KEY_LOCATIONS);
+            if(l){ locations = JSON.parse(l); }
+        }catch(e){ locations = []; }
+
+        if(!Array.isArray(records)){ records = []; }
+        if(!Array.isArray(locations)){ locations = []; }
+    }
+
+    function saveRecords(){
+        localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
+    }
+    function saveLocations(){
+        localStorage.setItem(STORAGE_KEY_LOCATIONS, JSON.stringify(locations));
+    }
+
+    function setDefaultDate(){
+        const today = new Date();
+        const y = today.getFullYear();
+        const m = String(today.getMonth()+1).padStart(2,"0");
+        const d = String(today.getDate()).padStart(2,"0");
+        dateInput.value = `${y}-${m}-${d}`;
+    }
+
+    function wireEvents(){
+        toggleFormBtn.addEventListener("click", () => {
+            const isOpen = formCard.style.display !== "none";
+            formCard.style.display = isOpen ? "none" : "block";
+            if(!isOpen){
+                resetForm();
+                startInput.focus();
+            }
+        });
+
+        cancelFormBtn.addEventListener("click", () => {
+            formCard.style.display = "none";
+        });
+
+        // auto move after 2 digits
+        startInput.addEventListener("input", () => {
+            if(startInput.value.length >= 2){
+                endInput.focus();
+            }
+        });
+        endInput.addEventListener("input", () => {
+            if(endInput.value.length >= 2){
+                odoInput.focus();
+            }
+        });
+
+        recordForm.addEventListener("submit", onSubmitForm);
+
+        addLocationBtn.addEventListener("click", onAddLocation);
+        newLocationInput.addEventListener("keydown", e=>{
+            if(e.key==="Enter"){
+                e.preventDefault();
+                onAddLocation();
+            }
+        });
+
+        importBtn.addEventListener("click", () => importFile.click());
+        importFile.addEventListener("change", onImportFile);
+        exportBtn.addEventListener("click", onExport);
+    }
+
+    function resetForm(){
+        setDefaultDate();
+        startInput.value="";
+        endInput.value="";
+        odoInput.value="";
+        locationInput.value="";
+        rateInput.value="";
+        costInput.value="";
+    }
+
+    function onSubmitForm(e){
+        e.preventDefault();
+        const date = dateInput.value || "";
+        const start = toNumber(startInput.value);
+        const end   = toNumber(endInput.value);
+        const odo   = toNumber(odoInput.value);
+        const loc   = (locationInput.value || "").trim();
+        const rate  = toNumber(rateInput.value);
+        const cost  = toNumber(costInput.value);
+
+        if(!date || isNaN(start) || isNaN(end) || isNaN(odo)){
+            alert("Date, Start%, End%, ODO are required.");
+            return;
+        }
+
+        const rec = {
+            id: Date.now() + "_" + Math.random().toString(36).slice(2),
+            date,
+            start,
+            end,
+            odo,
+            location: loc,
+            rate,
+            cost,
+            driveKm:null,
+            usedKwh:null,
+            whPerKm:null
+        };
+        records.push(rec);
+        recomputeDriveStats();
+        saveRecords();
+        renderRecords();
+        renderSummary();
+
+        if(loc && !locations.includes(loc)){
+            locations.push(loc);
+            saveLocations();
+            renderLocations();
+        }
+
+        formCard.style.display="none";
+    }
+
+    function toNumber(v){
+        if(v===undefined || v===null || v==="") return NaN;
+        return Number(v);
+    }
+
+    function recomputeDriveStats(){
+        if(records.length===0) return;
+
+        // sort by date ascending but keep relative order for same date
+        records.sort((a,b)=>{
+            if(a.date===b.date) return 0;
+            return a.date < b.date ? -1 : 1;
+        });
+
+        for(let i=0;i<records.length;i++){
+            const cur = records[i];
+            if(i===0){
+                cur.driveKm = null;
+                cur.usedKwh = null;
+                cur.whPerKm = null;
+                continue;
+            }
+            const prev = records[i-1];
+            const driveKm = cur.odo - prev.odo;
+            const usedKwh = BATTERY_KWH * (prev.end - cur.start) / 100;
+
+            if(driveKm>0 && usedKwh>0){
+                cur.driveKm = round(driveKm,1);
+                cur.usedKwh = round(usedKwh,2);
+                cur.whPerKm = round(usedKwh*1000/driveKm,1);
+            }else{
+                cur.driveKm = null;
+                cur.usedKwh = null;
+                cur.whPerKm = null;
+            }
+        }
+    }
+
+    function round(num,dec){
+        const p = Math.pow(10,dec);
+        return Math.round(num*p)/p;
+    }
+
+    function renderAll(){
+        renderLocations();
+        recomputeDriveStats();
+        renderRecords();
+        renderSummary();
+    }
+
+    function renderRecords(){
+        recordsBody.innerHTML="";
+        for(const rec of records){
+            const tr = document.createElement("tr");
+
+            const tdDate   = document.createElement("td");
+            tdDate.textContent = formatDisplayDate(rec.date);
+
+            const tdStart  = document.createElement("td");
+            tdStart.className="text-right";
+            tdStart.textContent = isNaN(rec.start) ? "" : rec.start;
+
+            const tdEnd    = document.createElement("td");
+            tdEnd.className="text-right";
+            tdEnd.textContent = isNaN(rec.end) ? "" : rec.end;
+
+            const tdUsed   = document.createElement("td");
+            tdUsed.className="text-right";
+            tdUsed.textContent = rec.usedKwh!=null ? rec.usedKwh.toFixed(2) : "-";
+
+            const tdKm     = document.createElement("td");
+            tdKm.className="text-right";
+            tdKm.textContent = rec.driveKm!=null ? rec.driveKm.toFixed(1) : "-";
+
+            const tdLoc    = document.createElement("td");
+            tdLoc.innerHTML = `<span class="tag-location">${rec.location||""}</span>`;
+
+            const tdRate   = document.createElement("td");
+            tdRate.className="text-right";
+            tdRate.textContent = rec.rate ? rec.rate.toFixed(2) : "-";
+
+            const tdCost   = document.createElement("td");
+            tdCost.className="text-right";
+            tdCost.textContent = rec.cost ? rec.cost.toFixed(2) : "-";
+
+            const tdEdit   = document.createElement("td");
+            tdEdit.style.textAlign="center";
+            const editBtn  = document.createElement("button");
+            editBtn.className="icon-btn";
+            editBtn.textContent="✏️";
+            editBtn.addEventListener("click",()=>editRecord(rec.id));
+            tdEdit.appendChild(editBtn);
+
+            const tdDel = document.createElement("td");
+            tdDel.style.textAlign="center";
+            const delBtn = document.createElement("button");
+            delBtn.className="icon-btn";
+            delBtn.textContent="🗑️";
+            delBtn.addEventListener("click",()=>deleteRecord(rec.id));
+            tdDel.appendChild(delBtn);
+
+            tr.appendChild(tdDate);
+            tr.appendChild(tdStart);
+            tr.appendChild(tdEnd);
+            tr.appendChild(tdUsed);
+            tr.appendChild(tdKm);
+            tr.appendChild(tdLoc);
+            tr.appendChild(tdRate);
+            tr.appendChild(tdCost);
+            tr.appendChild(tdEdit);
+            tr.appendChild(tdDel);
+
+            recordsBody.appendChild(tr);
+        }
+    }
+
+    function formatDisplayDate(iso){
+        if(!iso) return "";
+        const [y,m,d] = iso.split("-");
+        return Number(d)+"/"+Number(m)+"/"+y;
+    }
+
+    function editRecord(id){
+        const idx = records.findIndex(r=>r.id===id);
+        if(idx===-1) return;
+        const r = records[idx];
+
+        // open form with existing values
+        formCard.style.display="block";
+        dateInput.value = r.date;
+        startInput.value = r.start;
+        endInput.value = r.end;
+        odoInput.value = r.odo;
+        locationInput.value = r.location;
+        rateInput.value = r.rate;
+        costInput.value = r.cost;
+
+        // override submit temporarily
+        const handler = function(e){
+            e.preventDefault();
+
+            const date = dateInput.value || "";
+            const start = toNumber(startInput.value);
+            const end   = toNumber(endInput.value);
+            const odo   = toNumber(odoInput.value);
+            const loc   = (locationInput.value || "").trim();
+            const rate  = toNumber(rateInput.value);
+            const cost  = toNumber(costInput.value);
+
+            if(!date || isNaN(start) || isNaN(end) || isNaN(odo)){
+                alert("Date, Start%, End%, ODO are required.");
+                return;
+            }
+
+            r.date = date;
+            r.start = start;
+            r.end = end;
+            r.odo = odo;
+            r.location = loc;
+            r.rate = rate;
+            r.cost = cost;
+
+            recomputeDriveStats();
+            saveRecords();
+            renderRecords();
+            renderSummary();
+
+            if(loc && !locations.includes(loc)){
+                locations.push(loc);
+                saveLocations();
+                renderLocations();
+            }
+
+            formCard.style.display="none";
+            recordForm.removeEventListener("submit", handler);
+            recordForm.addEventListener("submit", onSubmitForm, {once:false});
+        };
+
+        recordForm.removeEventListener("submit", onSubmitForm);
+        recordForm.addEventListener("submit", handler);
+    }
+
+    function deleteRecord(id){
+        if(!confirm("Delete this record?")) return;
+        records = records.filter(r=>r.id!==id);
+        recomputeDriveStats();
+        saveRecords();
+        renderRecords();
+        renderSummary();
+    }
+
+    function renderSummary(){
+        summaryBody.innerHTML="";
+        if(records.length===0){
+            summaryMonthLabel.textContent = "No drive data yet";
+            return;
+        }
+        const today = new Date();
+        const curY = today.getFullYear();
+        const curM = today.getMonth()+1;
+
+        let totalKm = 0;
+        let totalKwh = 0;
+        let totalCost = 0;
+
+        for(const r of records){
+            if(!r.date) continue;
+            const [y,m] = r.date.split("-");
+            const yy = Number(y), mm = Number(m);
+            if(yy!==curY || mm!==curM) continue;
+            if(r.driveKm!=null && r.usedKwh!=null){
+                totalKm  += r.driveKm;
+                totalKwh += r.usedKwh;
+            }
+            if(r.cost){
+                totalCost += r.cost;
+            }
+        }
+
+        const monthName = today.toLocaleString("en-US",{month:"short"});
+        summaryMonthLabel.textContent = `${monthName} ${curY}`;
+
+        if(totalKm<=0 || totalKwh<=0){
+            const p = document.createElement("div");
+            p.className="summary-empty";
+            p.textContent="No drive data yet for this month.";
+            summaryBody.appendChild(p);
+            return;
+        }
+
+        const avgWhPerKm = totalKwh*1000/totalKm;
+
+        const grid = document.createElement("div");
+        grid.className="summary-grid";
+        grid.innerHTML = `
+            <div>
+                <div class="summary-label">Total Cost (RM)</div>
+                <div class="summary-value">${totalCost.toFixed(2)}</div>
+            </div>
+            <div>
+                <div class="summary-label">Total Used (kWh)</div>
+                <div class="summary-value">${totalKwh.toFixed(2)}</div>
+            </div>
+            <div>
+                <div class="summary-label">Total KM</div>
+                <div class="summary-value">${totalKm.toFixed(1)}</div>
+            </div>
+            <div>
+                <div class="summary-label">Avg Wh/km</div>
+                <div class="summary-value">${avgWhPerKm.toFixed(1)}</div>
+            </div>
+        `;
+        summaryBody.appendChild(grid);
+    }
+
+    /* Locations */
+    function renderLocations(){
+        locationsList.innerHTML="";
+        locationsDatalist.innerHTML="";
+
+        for(const loc of locations){
+            const row = document.createElement("div");
+            row.className="location-row";
+
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = loc;
+
+            const actions = document.createElement("div");
+            actions.className="location-actions";
+
+            const editBtn = document.createElement("button");
+            editBtn.className="icon-btn";
+            editBtn.textContent="✏️";
+            editBtn.addEventListener("click",()=>editLocation(loc));
+
+            const delBtn = document.createElement("button");
+            delBtn.className="icon-btn";
+            delBtn.textContent="🗑️";
+            delBtn.addEventListener("click",()=>deleteLocation(loc));
+
+            actions.appendChild(editBtn);
+            actions.appendChild(delBtn);
+
+            row.appendChild(nameSpan);
+            row.appendChild(actions);
+
+            locationsList.appendChild(row);
+
+            const opt = document.createElement("option");
+            opt.value = loc;
+            locationsDatalist.appendChild(opt);
+        }
+    }
+
+    function onAddLocation(){
+        const val = (newLocationInput.value || "").trim();
+        if(!val) return;
+        if(!locations.includes(val)){
+            locations.push(val);
+            saveLocations();
+            renderLocations();
+        }
+        newLocationInput.value="";
+    }
+
+    function editLocation(oldName){
+        const updated = prompt("Edit location:", oldName);
+        if(!updated) return;
+        const trimmed = updated.trim();
+        if(!trimmed) return;
+        const idx = locations.indexOf(oldName);
+        if(idx>-1){
+            locations[idx] = trimmed;
+            saveLocations();
+            renderLocations();
+        }
+    }
+
+    function deleteLocation(name){
+        if(!confirm("Delete this location?")) return;
+        locations = locations.filter(l=>l!==name);
+        saveLocations();
+        renderLocations();
+    }
+
+    /* CSV Import / Export */
+    function onExport(){
+        if(records.length===0){
+            alert("No data to export.");
+            return;
+        }
+        let csv = "date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm\n";
+        for(const r of records){
+            const line = [
+                r.date || "",
+                safeNumber(r.start),
+                safeNumber(r.end),
+                safeNumber(r.odo),
+                (r.location||"").replace(/,/g," "),
+                safeNumber(r.rate,2),
+                safeNumber(r.cost,2),
+                r.driveKm!=null ? r.driveKm.toFixed(1) : "",
+                r.usedKwh!=null ? r.usedKwh.toFixed(2) : "",
+                r.whPerKm!=null ? r.whPerKm.toFixed(1) : ""
+            ].join(",");
+            csv += line + "\n";
+        }
+        const blob = new Blob([csv],{type:"text/csv;charset=utf-8;"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth()+1).padStart(2,"0");
+        const d = String(now.getDate()).padStart(2,"0");
+        a.href=url;
+        a.download=`ev-charge-log-v4-odo-${y}${m}${d}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function safeNumber(val,decimals){
+        if(val===undefined || val===null || val==="") return "";
+        if(typeof val!=="number") val = Number(val);
+        if(isNaN(val)) return "";
+        if(decimals!=null) return val.toFixed(decimals);
+        return String(val);
+    }
+
+    function onImportFile(e){
+        const file = e.target.files[0];
+        if(!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt){
+            const text = evt.target.result;
+            if(!text){ alert("Empty file."); return; }
+
+            const replace = confirm("OK = Replace existing data\nCancel = Append to existing data");
+            let newRecords = replace ? [] : records.slice();
+
+            const lines = text.split(/\r?\n/).filter(l=>l.trim().length>0);
+            if(lines.length<=1){
+                alert("No data rows found.");
+                return;
+            }
+            const header = lines[0].toLowerCase();
+            const hasHeader = header.includes("date") && header.includes("start");
+            const startIndex = hasHeader ? 1 : 0;
+
+            for(let i=startIndex;i<lines.length;i++){
+                const row = lines[i].split(",");
+                if(row.length<7) continue;
+                const [date,start,end,odo,location,rate,cost] = row;
+                const rec = {
+                    id: "imp_"+i+"_"+Date.now(),
+                    date: date.trim(),
+                    start: toNumber(start.trim()),
+                    end: toNumber(end.trim()),
+                    odo: toNumber(odo.trim()),
+                    location: (location||"").trim(),
+                    rate: toNumber((rate||"").trim()),
+                    cost: toNumber((cost||"").trim()),
+                    driveKm:null,
+                    usedKwh:null,
+                    whPerKm:null
+                };
+                if(rec.date){
+                    newRecords.push(rec);
+                }
+            }
+
+            records = newRecords;
+            recomputeDriveStats();
+            saveRecords();
+            renderRecords();
+            renderSummary();
+            importFile.value="";
+            alert("Import complete.");
+        };
+        reader.readAsText(file);
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
 })();
 </script>
-
 </body>
 </html>
