@@ -2,25 +2,46 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>EV Charge Log Pro</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-  :root{--bg:#000;--card:#1c1c1e;--text:#fff;--text2:#aaa;--red:#ff453a;--green:#30d158;--blue:#0a84ff;--gray:#333;}
-  body{margin:0;font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);padding-bottom:120px;}
-  header{padding:20px;text-align:center;font-size:30px;font-weight:800;}
-  .c{max-width:600px;margin:0 auto;padding:0 15px;}
-  .card{background:var(--card);border-radius:18px;padding:20px;margin-bottom:20px;}
-  input,select{width:100%;padding:16px;margin:9px 0;background:#2c2c2e;border:none;border-radius:12px;color:white;font-size:17px;}
+  :root{--bg:#000;--card:#1c1c1e;--text:#fff;--text2:#aaa;--green:#30d158;--gray:#333;--border:#2c2c2e;}
+  body{margin:0;font-family:-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+       background:var(--bg);color:var(--text);padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
+  .c{max-width:600px;margin:0 auto;padding:0 16px; padding-bottom:120px; box-sizing:border-box;}
+  header{padding:24px 0 16px;text-align:center;font-size:34px;font-weight:800;letter-spacing:-0.5px;}
+  .card{background:var(--card);border-radius:20px;overflow:hidden;margin:20px 0;
+         box-shadow:0 4px 12px rgba(0,0,0,0.3);border:1px solid #2a2a2a;}
+  .card > div{padding:20px 20px 24px;}
+  .card > div:not(:last-child){border-bottom:1px solid var(--border);}
+  input,select{
+    width:100%;padding:17px 16px;margin:10px 0;background:#2c2c2e;border:none;
+    border-radius:13px;color:white;font-size:17px;box-sizing:border-box;
+    -webkit-appearance:none;outline:none;
+  }
   .row{display:flex;gap:12px;}
-  .btn{background:var(--green);color:white;border:none;padding:17px;border-radius:14px;font-size:19px;font-weight:bold;width:100%;margin-top:12px;}
-  .btn-red{background:var(--red);}
-  .quick-btns{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;}
-  .qb{padding:10px 16px;background:var(--gray);border-radius:50px;font-size:15px;}
-  table{width:100%;border-collapse:collapse;margin-top:10px;}
-  th,td{padding:13px 8px;border-bottom:1px solid #333;font-size:15px;}
-  th{color:var(--text2);}
-  .github{text-align:center;color:var(--text2);font-size:13px;margin:30px 0;}
+  .row input{flex:1;}
+  .btn{
+    background:linear-gradient(180deg,#34d35b,#30c653);color:white;border:none;
+    padding:18px;border-radius:16px;font-size:19px;font-weight:700;width:100%;margin-top:16px;
+    box-shadow:0 4px 12px rgba(48,209,88,0.4);
+  }
+  .quick-btns{
+    display:flex;flex-wrap:wrap;gap:11px;margin:14px 0 6px;
+  }
+  .qb{
+    padding:11px 18px;background:var(--gray);color:white;border-radius:30px;
+    font-size:16px;font-weight:600;border:1px solid #444;
+  }
+  .qb:active{transform:scale(0.95);}
+  .export-btn{background:#30d158;}
+  .import-btn{background:#333;margin-top:12px;}
+  table{width:100%;border-collapse:collapse;margin-top:8px;}
+  th,td{padding:14px 0;text-align:left;border-bottom:1px solid #2a2a2a;font-size:15px;}
+  th{color:var(--text2);font-weight:500;}
+  .github{text-align:center;color:#888;font-size:13px;margin:30px 0 10px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -28,64 +49,77 @@
 <div class="c">
   <header>EV Charge Log Pro</header>
 
+  <!-- 添加记录卡片 -->
   <div class="card">
-    <input type="date" id="date">
-    <div class="row">
-      <input type="number" inputmode="decimal" id="start" placeholder="Start %">
-      <input type="number" inputmode="decimal" id="end" placeholder="End %">
+    <div>
+      <input type="date" id="date" value="2025-12-06">
     </div>
-
-    <select id="location" onchange="handleLocationChange()">
-      <option value="">Select Location</option>
-      <option value="__ADD__">+ Add New Location</option>
-      <option disabled>────────────────</option>
-    </select>
-
-    <div class="quick-btns">
-      <button class="qb" onclick="setRate(0.84)">0.84</button>
-      <button class="qb" onclick="setRate(1.00)">1.00</button>
-      <button class="qb" onclick="setRate(1.30)">1.30</button>
-      <button class="qb" onclick="setRate(1.50)">1.50</button>
-      <button class="qb" onclick="setRate(1.80)">1.80</button>
-      <button class="qb" onclick="setRate(0)">Free</button>
+    <div>
+      <div class="row">
+        <input type="number" inputmode="decimal" id="start" placeholder="Start %">
+        <input type="number" inputmode="decimal" id="end" placeholder="End %">
+      </div>
     </div>
-
-    <div class="row">
-      <input type="number" step="0.001" inputmode="decimal" id="rate" placeholder="Rate (RM/kWh)">
-      <input type="number" step="0.01" inputmode="decimal" id="cost" placeholder="Cost (RM) 可不填">
+    <div>
+      <select id="location" onchange="handleLocationChange()">
+        <option value="">Select Location</option>
+        <option value="__ADD__">+ Add New Location</option>
+        <option disabled>────────────────</option>
+      </select>
     </div>
-
-    <button class="btn" onclick="addRecord()">Add Record</button>
+    <div>
+      <div class="quick-btns">
+        <button class="qb" onclick="setRate(0.84)">0.84</button>
+        <button class="qb" onclick="setRate(1.00)">1.00</button>
+        <button class="qb" onclick="setRate(1.30)">1.30</button>
+        <button class="qb" onclick="setRate(1.50)">1.50</button>
+        <button class="qb" onclick="setRate(1.80)">1.80</button>
+        <button class="qb" onclick="setRate(0)">Free</button>
+      </div>
+    </div>
+    <div>
+      <div class="row">
+        <input type="number" step="0.001" inputmode="decimal" id="rate" placeholder="Rate (RM/kWh)">
+        <input type="number" step="0.01" inputmode="decimal" id="cost" placeholder="Cost (RM) 可不填">
+      </div>
+    </div>
+    <div>
+      <button class="btn" onclick="addRecord()">Add Record</button>
+    </div>
   </div>
 
-  <!-- 统计卡片略（可加回来） -->
-
+  <!-- 记录表格 -->
   <div class="card">
-    <table id="logTable">
-      <thead><tr><th>Date</th><th>Start</th><th>End</th><th>kWh</th><th>Location</th><th>Rate</th><th>Cost</th></tr></thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+    <div style="padding-bottom:0;">
+      <table id="logTable">
+        <thead>
+          <tr><th>Date</th><th>Start</th><th>End</th><th>kWh</th><th>Location</th><th>Rate</th><th>Cost</th></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
   </div>
 
+  <!-- 导出导入 -->
   <div class="card">
-    <button class="btn" onclick="exportAll()">Export All Data (CSV)</button>
-    <button class="btn btn-red" onclick="document.getElementById('importFile').click()">
-      Import All Data (CSV)
-    </button>
-    <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
-    <div class="github">
-      完全支持导出导入：<br>
-      • 所有充电记录<br>
-      • 所有自定义地点<br>
-      • 每个地点的价格记忆<br>
-      换手机一键恢复！
+    <div style="padding:20px;">
+      <button class="btn export-btn" onclick="exportAll()">Export All Data (CSV)</button>
+      <button class="btn import-btn" onclick="document.getElementById('importFile').click()">Import All Data (CSV)</button>
+      <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
+      <div class="github">
+        完全适配 iPhone 刘海屏 / 动态岛<br>
+        圆角、间距、阴影全原生级别<br>
+        再也不会出位了！
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-const BATTERY_CAPACITY = 60;
+// ====== 配置区 ======
+const BATTERY_CAPACITY = 60;  // 改成你车的
 
+// ====== 存储键 ======
 const KEY_RECORDS = 'evRecords2025';
 const KEY_LOCATIONS = 'evLocations2025';
 const KEY_RATES = 'evRateMemory2025';
@@ -96,9 +130,7 @@ let rateMemory = JSON.parse(localStorage.getItem(KEY_RATES)||'{}');
 
 const defaultLocations = ["BH","PV","BAMBOO HILL","HOME","WORK"];
 
-function allLocations() {
-  return [...new Set([...defaultLocations, ...customLocations])].sort();
-}
+function allLocations() { return [...new Set([...defaultLocations, ...customLocations])].sort(); }
 
 function renderLocations() {
   const select = document.getElementById('location');
@@ -111,132 +143,51 @@ function renderLocations() {
 }
 
 function handleLocationChange() {
-  const val = document.getElementById('location').value;
-  if (val === "__ADD__") {
-    const name = prompt("输入新地点（自动大写）")?.trim().toUpperCase();
+  if (document.getElementById('location').value === "__ADD__") {
+    const name = prompt("输入新地点名称（自动大写）")?.trim().toUpperCase();
     if (name && !allLocations().includes(name)) {
       customLocations.push(name);
       localStorage.setItem(KEY_LOCATIONS, JSON.stringify(customLocations));
       renderLocations();
       document.getElementById('location').value = name;
-      autoFillRate();
     } else {
       document.getElementById('location').value = "";
     }
-  } else {
-    autoFillRate();
   }
+  autoFillRate();
 }
 
 function autoFillRate() {
   const loc = document.getElementById('location').value;
-  if (loc && rateMemory[loc]) {
-    document.getElementById('rate').value = rateMemory[loc];
-  }
+  if (loc && rateMemory[loc]) document.getElementById('rate').value = rateMemory[loc];
 }
 
 function setRate(v) { document.getElementById('rate').value = v; }
 
 function addRecord() {
   let loc = document.getElementById('location').value;
-  if (!loc) { alert("请选择或输入地点"); return; }
+  if (!loc) return alert("请选择地点");
 
   const start = parseInt(document.getElementById('start').value||0);
   const end = parseInt(document.getElementById('end').value||0);
-  if (isNaN(start) || isNaN(end)) { alert("请填写起止电量"); return; }
+  if (isNaN(start)||isNaN(end)) return alert("请填写起止电量");
 
   const rate = document.getElementById('rate').value ? parseFloat(document.getElementById('rate').value) : null;
   const manualCost = document.getElementById('cost').value ? parseFloat(document.getElementById('cost').value) : null;
-
-  const kwh = ((end - start) / 100 * BATTERY_CAPACITY).toFixed(2);
-  const cost = manualCost !== null ? manualCost : (rate ? (kwh * rate).toFixed(2) : null);
+  const kwh = ((end-start)/100*BATTERY_CAPACITY).toFixed(2);
+  const cost = manualCost !== null ? manualCost : (rate ? (kwh*rate).toFixed(2) : null);
 
   if (rate !== null) {
     rateMemory[loc] = rate;
     localStorage.setItem(KEY_RATES, JSON.stringify(rateMemory));
   }
 
-  records.push({
-    date: document.getElementById('date').value || new Date().toISOString().slice(0,10),
-    start, end, kwh: parseFloat(kwh), location: loc,
-    rate, cost: cost ? parseFloat(cost) : null,
-    id: Date.now()
-  });
-
+  records.push({date:document.getElementById('date').value,start,end,kwh:parseFloat(kwh),location:loc,rate,cost:cost?parseFloat(cost):null,id:Date.now()});
   localStorage.setItem(KEY_RECORDS, JSON.stringify(records));
+
   document.getElementById('start').value = document.getElementById('end').value = document.getElementById('cost').value = '';
   document.getElementById('end').focus();
   renderTable();
-}
-
-// 导出全部数据（记录 + 地点 + 价格记忆）
-function exportAll() {
-  let csv = '\uFEFF# EV Charge Log Backup - 包含地点和价格记忆\n';
-  csv += `# Locations: ${allLocations().join('|')}\n`;
-  csv += `# RateMemory: ${JSON.stringify(rateMemory)}\n\n`;
-  csv += 'Date,Start%,End%,kWh,Location,Rate,Cost\n';
-  records.forEach(r => {
-    csv += `${r.date},${r.start},${r.end},${r.kwh},${r.location},${r.rate||''},${r.cost||''}\n`;
-  });
-
-  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `EV_Log_Full_Backup_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-}
-
-// 导入全部数据
-function importAll(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const text = e.target.result;
-    const lines = text.split('\n');
-    
-    // 解析自定义地点和价格记忆
-    lines.forEach(line => {
-      if (line.startsWith('# Locations:')) {
-        const locs = line.split(':')[1].trim().split('|').filter(Boolean);
-        customLocations = locs.filter(l => !defaultLocations.includes(l));
-        localStorage.setItem(KEY_LOCATIONS, JSON.stringify(customLocations));
-      }
-      if (line.startsWith('# RateMemory:')) {
-        try {
-          rateMemory = JSON.parse(line.split(':')[1].trim());
-          localStorage.setItem(KEY_RATES, JSON.stringify(rateMemory));
-        } catch(e) {}
-      }
-    });
-
-    // 解析记录
-    const dataStart = lines.findIndex(l => l.includes('Date,Start%,End%'));
-    if (dataStart !== -1) {
-      records = [];
-      lines.slice(dataStart + 1).forEach(line => {
-        if (!line.trim() || line.startsWith('#')) return;
-        const [date,s,e,kwh,loc,rate,cost] = line.split(',');
-        if (date) {
-          records.push({
-            date: date.trim(),
-            start: parseInt(s), end: parseInt(e), kwh: parseFloat(kwh||0),
-            location: loc.trim(),
-            rate: rate ? parseFloat(rate) : null,
-            cost: cost ? parseFloat(cost) : null,
-            id: Date.now() + Math.random()
-          });
-        }
-      });
-      localStorage.setItem(KEY_RECORDS, JSON.stringify(records));
-    }
-
-    renderLocations();
-    renderTable();
-    alert('全部数据已恢复！包括自定义地点和价格记忆');
-  };
-  reader.readAsText(file);
 }
 
 function renderTable() {
@@ -249,10 +200,45 @@ function renderTable() {
   });
 }
 
+function exportAll() {
+  let csv = '\uFEFF# EV Charge Log Pro Full Backup\n';
+  csv += `# Locations: ${allLocations().join('|')}\n`;
+  csv += `# RateMemory: ${JSON.stringify(rateMemory)}\n\n`;
+  csv += 'Date,Start%,End%,kWh,Location,Rate,Cost\n';
+  records.forEach(r=>csv+=`${r.date},${r.start},${r.end},${r.kwh},${r.location},${r.rate||''},${r.cost||''}\n`);
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`EV_Log_Pro_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+}
+
+function importAll(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n');
+    lines.forEach(l=>{
+      if(l.startsWith('# Locations:')) customLocations = l.split(':')[1].trim().split('|').filter(x=>x && !defaultLocations.includes(x));
+      if(l.startsWith('# RateMemory:')) try{rateMemory=JSON.parse(l.split(':')[1].trim());}catch{}
+    });
+    const start = lines.findIndex(l=>l.includes('Date,Start%,End%'));
+    if(start!==-1){
+      records = [];
+      lines.slice(start+1).forEach(l=>{
+        if(!l.trim()||l.startsWith('#'))return;
+        const [d,s,e,k,loc,r,c] = l.split(',');
+        if(d) records.push({date:d.trim(),start:+s,end:+e,kwh:+k,location:loc.trim(),rate:r?+r:null,cost:c?+c:null,id:Date.now()+Math.random()});
+      });
+    }
+    localStorage.setItem(KEY_RECORDS,JSON.stringify(records));
+    localStorage.setItem(KEY_LOCATIONS,JSON.stringify(customLocations));
+    localStorage.setItem(KEY_RATES,JSON.stringify(rateMemory));
+    renderLocations(); renderTable(); alert('全部恢复完成！');
+  };
+  reader.readAsText(file);
+}
+
 // 初始化
 document.getElementById('date').value = new Date().toISOString().slice(0,10);
-renderLocations();
-renderTable();
+renderLocations(); renderTable();
 </script>
 </body>
 </html>
