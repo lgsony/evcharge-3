@@ -195,39 +195,31 @@ th{ background:#252525; color:#aaa; }
 .summary-values{ text-align:right; }
 
 /* Bottom bar */
-.bottom-bar{
-    position: fixed;
-    bottom: 0;
-    left: 0;
+.bottom-bar {
     width: 100%;
-    padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
-    background: rgba(0,0,0,0.90);
-    border-top: 1px solid #333;
+    padding: 20px 16px 40px;
+    background: transparent;
     display: flex;
     justify-content: center;
-    gap: 12px;
-    z-index: 999;
+    gap: 14px;
+    margin-top: 20px;
 }
 
-.bottom-btn{
+.bottom-btn {
     flex: 1;
-    max-width: 260px;
+    max-width: 200px;
     padding: 14px 0;
-    border-radius: 50px;
-    background: #1f1f1f;
+    border-radius: 14px;
+    background: #222;
     color: #fff;
     text-align: center;
     font-size: 15px;
-    font-weight: 500;
     border: 1px solid #333;
-    box-shadow: 0 0 8px rgba(0,0,0,0.4);
-    transition: background 0.15s, transform 0.15s;
+}
+.bottom-btn:active {
+    background: #333;
 }
 
-.bottom-btn:active{
-    background: #2a2a2a;
-    transform: scale(0.98);
-}
 
 
 
