@@ -14,8 +14,7 @@
   .c{max-width:600px;margin:0 auto;padding:0 16px;padding-bottom:120px;}
   header{padding:24px 0 16px;text-align:center;font-size:34px;font-weight:800;color:var(--tesla-red);position:relative;}
   .toggle{position:absolute;right:16px;top:20px;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:13px;}
-  .card{background:var(--card);border-radius:22px;overflow:hidden;margin:20px 0;
-         box-shadow:0 8px 32px rgba(227,25,55,0.15);border:1px solid var(--border);}
+  .card{background:var(--card);border-radius:22px;overflow:hidden;margin:20px 0;box-shadow:0 8px 32px rgba(227,25,55,0.15);border:1px solid var(--border);}
   .section{padding:22px 20px 26px;}
   .section:not(:last-child){border-bottom:1px solid var(--border);}
   input,select{
@@ -31,11 +30,10 @@
   .btn{background:linear-gradient(180deg,#ff2a47,#e31937);color:white;border:none;padding:20px;border-radius:18px;font-size:20px;font-weight:700;margin-top:18px;box-shadow:0 8px 30px rgba(227,25,55,0.5);}
   .quick-btns{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 8px;justify-content:center;}
   .qb{padding:12px 20px;background:var(--gray);color:white;border-radius:40px;font-size:17px;font-weight:600;border:1px solid #555;}
-  .footer{text-align:center;color:#666;font-size:12px;margin:40px 0 20px;}
-  /* 美化表格 */
   table{width:100%;border-collapse:collapse;}
   th,td{padding:14px 0;text-align:left;border-bottom:1px solid var(--border);font-size:15px;}
   th{color:#aaa;font-weight:500;}
+  .footer{text-align:center;color:#666;font-size:12px;margin:40px 0 20px;}
 </style>
 </head>
 <body>
@@ -88,15 +86,17 @@
     </div>
   </div>
 
+  <!-- 记录表格（添加后立即显示） -->
   <div class="card">
     <div class="section" style="padding-bottom:0;">
-      <table id="logTable">
+      <table>
         <thead><tr><th>Date</th><th>Start</th><th>End</th><th>kWh</th><th>Location</th><th>Rate</th><th>Cost</th></tr></thead>
         <tbody id="tableBody"></tbody>
       </table>
     </div>
   </div>
 
+  <!-- 导入导出 -->
   <div class="card">
     <div class="section">
       <button class="btn" style="background:#333;" onclick="document.getElementById('importFile').click()">Import CSV</button>
@@ -105,7 +105,7 @@
     </div>
   </div>
 
-  <div class="footer">lgsony.github.io · 极美 · 极丝滑 · 永久免费</div>
+  <div class="footer">lgsony.github.io · 添加后立即显示 · 永久保存</div>
 </div>
 
 <script>
@@ -191,6 +191,7 @@ function autoFillRate(){
 }
 function setRate(v){document.getElementById('rate').value=v;}
 
+// 添加记录 + 立即显示
 function addRecord(){
   const loc=document.getElementById('location').value;
   if(!loc)return alert("Select location");
@@ -206,12 +207,59 @@ function addRecord(){
   localStorage.setItem(KEYS.records,JSON.stringify(records));
   document.getElementById('start').value=document.getElementById('end').value=document.getElementById('rate').value=document.getElementById('cost').value='';
   document.getElementById('start').focus();
-  alert('记录已添加！');
+  renderTable(); // 立即刷新表格
+}
+
+// 表格渲染（添加后立即显示）
+function renderTable(){
+  const tbody=document.getElementById('tableBody');
+  tbody.innerHTML='';
+  records.slice().reverse().forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.date.split('-').reverse().join('/')}</td><td>${r.start}</td><td>${r.end}</td><td>${r.kwh}</td><td>${r.location}</td><td>${r.rate||'-'}</td><td>${r.cost!=null?'RM'+r.cost.toFixed(2):'-'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// 导出导入
+function exportAll(){
+  let csv='\uFEFF# EV Charge Log Pro\n# Locations: '+allLocations.join('|')+'\n# RateMemory: '+JSON.stringify(rateMemory)+'\n\nDate,Start%,End%,kWh,Location,Rate,Cost\n';
+  records.forEach(r=>csv+=`${r.date},${r.start},${r.end},${r.kwh},${r.location},${r.rate||''},${r.cost||''}\n`);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`EV_Log_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+function importAll(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const lines=e.target.result.split('\n');
+    lines.forEach(l=>{
+      if(l.startsWith('# Locations:')) allLocations=l.split(':')[1].trim().split('|').filter(Boolean);
+      if(l.startsWith('# RateMemory:')) try{rateMemory=JSON.parse(l.split(':')[1].trim());}catch{}
+    });
+    const startLine=lines.findIndex(l=>l.includes('Date,Start%,End%'));
+    if(startLine!==-1){
+      records=[];
+      lines.slice(startLine+1).forEach(l=>{
+        if(!l.trim()||l.startsWith('#'))return;
+        const[d,s,e,k,loc,ra,co]=l.split(',');
+        if(d)records.push({date:d.trim(),start:+s,end:+e,kwh:+k,location:loc.trim(),rate:ra?+ra:null,cost:co?+co:null,id:Date.now()+Math.random()});
+      });
+    }
+    localStorage.setItem(KEYS.records,JSON.stringify(records));
+    localStorage.setItem(KEYS.locations,JSON.stringify(allLocations));
+    localStorage.setItem(KEYS.rates,JSON.stringify(rateMemory));
+    renderLocations();renderTable();alert('All data restored!');
+  };
+  reader.readAsText(file);
 }
 
 // 初始化
 document.getElementById('date').value=new Date().toISOString().slice(0,10);
 renderLocations();
+renderTable();
 document.getElementById('start').focus();
 </script>
 </body>
