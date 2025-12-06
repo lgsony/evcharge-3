@@ -34,6 +34,7 @@
   th,td{padding:14px 0;text-align:left;border-bottom:1px solid var(--border);font-size:15px;}
   th{color:#aaa;font-weight:500;}
   .footer{text-align:center;color:#666;font-size:12px;margin:40px 0 20px;}
+  .version{color:#555;font-size:11px;text-align:center;margin-top:50px;}
 </style>
 </head>
 <body>
@@ -86,7 +87,6 @@
     </div>
   </div>
 
-  <!-- 记录表格（添加后立即显示） -->
   <div class="card">
     <div class="section" style="padding-bottom:0;">
       <table>
@@ -96,7 +96,6 @@
     </div>
   </div>
 
-  <!-- 导入导出 -->
   <div class="card">
     <div class="section">
       <button class="btn" style="background:#333;" onclick="document.getElementById('importFile').click()">Import CSV</button>
@@ -105,7 +104,7 @@
     </div>
   </div>
 
-  <div class="footer">lgsony.github.io · 添加后立即显示 · 永久保存</div>
+  <div class="version">Version 0612-1017</div>
 </div>
 
 <script>
@@ -139,7 +138,7 @@ document.getElementById('end').oninput = function() {
   if(v.length === 3 || parseInt(v) === 100) setTimeout(()=>document.getElementById('location').focus(),50);
 };
 
-// 地点管理
+// 地点管理（长按编辑/删除）
 function renderLocations(){
   const s=document.getElementById('location');
   s.innerHTML=`<option value="">Select Location</option><option value="__ADD__">+ Add New Location</option><option disabled>────────────────</option>`;
@@ -191,13 +190,13 @@ function autoFillRate(){
 }
 function setRate(v){document.getElementById('rate').value=v;}
 
-// 添加记录 + 立即显示
+// 添加记录（不再弹窗，安静保存）
 function addRecord(){
   const loc=document.getElementById('location').value;
-  if(!loc)return alert("Select location");
+  if(!loc)return;
   const start=parseInt(document.getElementById('start').value||0);
   const end=parseInt(document.getElementById('end').value||0);
-  if(isNaN(start)||isNaN(end)||start>=end)return alert("Check start & end %");
+  if(isNaN(start)||isNaN(end)||start>=end)return;
   const rate=document.getElementById('rate').value?parseFloat(document.getElementById('rate').value):null;
   const manualCost=document.getElementById('cost').value?parseFloat(document.getElementById('cost').value):null;
   const kwh=((end-start)/100*BATTERY_CAPACITY).toFixed(2);
@@ -207,10 +206,10 @@ function addRecord(){
   localStorage.setItem(KEYS.records,JSON.stringify(records));
   document.getElementById('start').value=document.getElementById('end').value=document.getElementById('rate').value=document.getElementById('cost').value='';
   document.getElementById('start').focus();
-  renderTable(); // 立即刷新表格
+  renderTable();
 }
 
-// 表格渲染（添加后立即显示）
+// 表格渲染
 function renderTable(){
   const tbody=document.getElementById('tableBody');
   tbody.innerHTML='';
@@ -251,7 +250,7 @@ function importAll(input){
     localStorage.setItem(KEYS.records,JSON.stringify(records));
     localStorage.setItem(KEYS.locations,JSON.stringify(allLocations));
     localStorage.setItem(KEYS.rates,JSON.stringify(rateMemory));
-    renderLocations();renderTable();alert('All data restored!');
+    renderLocations();renderTable();
   };
   reader.readAsText(file);
 }
