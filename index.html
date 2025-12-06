@@ -23,17 +23,19 @@
     border-radius:16px;color:white;font-size:18px;box-sizing:border-box;transition:all 0.2s;
   }
   input:focus,select:focus{outline:none;box-shadow:0 0 0 3px var(--focus);background:#333;}
-  #location{
-    font-size:19px;font-weight:600;padding:20px 18px;
+  #location{font-size:19px;font-weight:600;padding:20px 18px;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat:no-repeat;background-position:right 18px center;
-  }
+    background-repeat:no-repeat;background-position:right 18px center;}
   .row{display:flex;gap:14px;align-items:center;}
   .row > div{flex:1;}
   .btn{background:linear-gradient(180deg,#ff2a47,#e31937);color:white;border:none;padding:20px;border-radius:18px;font-size:20px;font-weight:700;margin-top:18px;box-shadow:0 8px 30px rgba(227,25,55,0.5);}
   .quick-btns{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 8px;justify-content:center;}
   .qb{padding:12px 20px;background:var(--gray);color:white;border-radius:40px;font-size:17px;font-weight:600;border:1px solid #555;}
   .footer{text-align:center;color:#666;font-size:12px;margin:40px 0 20px;}
+  /* 美化表格 */
+  table{width:100%;border-collapse:collapse;}
+  th,td{padding:14px 0;text-align:left;border-bottom:1px solid var(--border);font-size:15px;}
+  th{color:#aaa;font-weight:500;}
 </style>
 </head>
 <body>
@@ -86,6 +88,23 @@
     </div>
   </div>
 
+  <div class="card">
+    <div class="section" style="padding-bottom:0;">
+      <table id="logTable">
+        <thead><tr><th>Date</th><th>Start</th><th>End</th><th>kWh</th><th>Location</th><th>Rate</th><th>Cost</th></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section">
+      <button class="btn" style="background:#333;" onclick="document.getElementById('importFile').click()">Import CSV</button>
+      <button class="btn" onclick="exportAll()">Export All Data</button>
+      <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
+    </div>
+  </div>
+
   <div class="footer">lgsony.github.io · 极美 · 极丝滑 · 永久免费</div>
 </div>
 
@@ -120,7 +139,7 @@ document.getElementById('end').oninput = function() {
   if(v.length === 3 || parseInt(v) === 100) setTimeout(()=>document.getElementById('location').focus(),50);
 };
 
-// 地点管理（长按编辑/删除）
+// 地点管理
 function renderLocations(){
   const s=document.getElementById('location');
   s.innerHTML=`<option value="">Select Location</option><option value="__ADD__">+ Add New Location</option><option disabled>────────────────</option>`;
@@ -187,12 +206,13 @@ function addRecord(){
   localStorage.setItem(KEYS.records,JSON.stringify(records));
   document.getElementById('start').value=document.getElementById('end').value=document.getElementById('rate').value=document.getElementById('cost').value='';
   document.getElementById('start').focus();
+  alert('记录已添加！');
 }
 
 // 初始化
 document.getElementById('date').value=new Date().toISOString().slice(0,10);
 renderLocations();
-setTimeout(()=>document.getElementById('start').focus(),100);
+document.getElementById('start').focus();
 </script>
 </body>
 </html>
