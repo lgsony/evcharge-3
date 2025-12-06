@@ -6,6 +6,7 @@
 <title>EV Charge Log Pro</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <style>
   :root{
     --bg:#000;
@@ -16,20 +17,23 @@
     --border:#2c2c2e;
     --focus:#007AFF;
   }
+
   body{
     margin:0;
-    font-family:-apple-system,sans-serif;
+    font-family:-apple-system, BlinkMacSystemFont, sans-serif;
     background:var(--bg);
     color:var(--text);
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-    transition:all 0.3s;
+    transition:all .25s;
   }
+
   .c{
     max-width:600px;
     margin:0 auto;
-    padding:0 16px;
-    padding-bottom:120px;
+    padding:0 16px 120px;
   }
+
+  /* HEADER */
   header{
     padding:32px 0 20px;
     text-align:center;
@@ -38,54 +42,66 @@
     color:var(--tesla-red);
     position:relative;
   }
-  .logo{
-    position:absolute;
-    right:12px;
-    top:26px;
-    width:38px;
-    height:38px;
-  }
+
+  /* 左上语言切换按钮 */
   .toggle{
     position:absolute;
-    right:60px;
+    left:16px;
     top:32px;
-    background:rgba(255,255,255,0.1);
-    padding:6px 12px;
+    background:rgba(255,255,255,0.15);
+    padding:6px 14px;
     border-radius:20px;
     font-size:13px;
     cursor:pointer;
+    backdrop-filter: blur(6px);
   }
+
+  /* 右上 Tesla logo */
+  .logo{
+    position:absolute;
+    right:12px;
+    top:24px;
+    width:40px;
+    opacity:.85;
+  }
+
+  /* 通用卡片 */
   .card{
     background:var(--card);
     border-radius:22px;
     overflow:hidden;
-    margin:20px 0;
-    box-shadow:0 8px 32px rgba(227,25,55,0.15);
+    margin:22px 0;
     border:1px solid var(--border);
+    box-shadow:0 8px 32px rgba(227,25,55,0.12);
   }
+
   .section{
     padding:22px 20px 26px;
   }
+
   .section:not(:last-child){
     border-bottom:1px solid var(--border);
   }
-  input,select{
+
+  /* INPUT */
+  input, select{
     width:100%;
-    padding:18px 18px;
+    padding:18px;
     margin:10px 0;
-    background:#2c2c2e;
     border:none;
     border-radius:16px;
+    background:#2c2c2e;
     color:white;
     font-size:18px;
-    box-sizing:border-box;
-    transition:all 0.2s;
+    transition:.2s;
   }
-  input:focus,select:focus{
+  input:focus, select:focus{
+    background:#3a3a3c;
     outline:none;
     box-shadow:0 0 0 3px var(--focus);
-    background:#333;
   }
+
+  /* Location 下拉箭头 */
   #location{
     font-size:19px;
     font-weight:600;
@@ -94,14 +110,31 @@
     background-repeat:no-repeat;
     background-position:right 18px center;
   }
+
   .row{
     display:flex;
     gap:14px;
-    align-items:center;
   }
-  .row > div, .row > input{
-    flex:1;
+  .row > input { flex:1; }
+
+  /* 快捷 Rate 按钮 */
+  .quick-btns{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    justify-content:center;
   }
+  .qb{
+    padding:12px 22px;
+    background:var(--gray);
+    border-radius:40px;
+    color:white;
+    font-size:17px;
+    font-weight:600;
+    border:1px solid #555;
+  }
+
+  /* 主按钮：Tesla 红 */
   .btn{
     width:100%;
     background:linear-gradient(180deg,#ff2a47,#e31937);
@@ -112,33 +145,120 @@
     font-size:20px;
     font-weight:700;
     margin-top:18px;
-    box-shadow:0 8px 30px rgba(227,25,55,0.5);
     cursor:pointer;
+    box-shadow:0 8px 30px rgba(227,25,55,0.45);
   }
+
   .btn.secondary{
     background:#333;
-    box-shadow:none;
+    padding:16px;
     font-size:16px;
-    padding:14px;
-    margin-top:10px;
+    box-shadow:none;
+    display:none;
   }
-  .quick-btns{
-    display:flex;
-    flex-wrap:wrap;
-    gap:12px;
-    margin:16px 0 8px;
-    justify-content:center;
-  }
-  .qb{
-    padding:12px 20px;
-    background:var(--gray);
-    color:white;
-    border-radius:40px;
-    font-size:17px;
-    font-weight:600;
-    border:1px solid #555;
-    cursor:pointer;
-  }
+
+</style>
+</head>
+
+<body>
+<div class="c">
+
+  <header>
+    <span id="title-text">EV Charge Log Pro</span>
+    <div class="toggle" onclick="toggleLang()" id="lang-toggle">中</div>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Tesla_logo.png" class="logo">
+  </header>
+
+  <!-- FORM CARD -->
+  <div class="card">
+
+    <!-- 日期 -->
+    <div class="section">
+      <input type="date" id="date">
+    </div>
+
+    <!-- Start / End -->
+    <div class="section">
+      <div class="row">
+        <input type="text" inputmode="numeric" id="start" placeholder="Start %" maxlength="3">
+        <input type="text" inputmode="numeric" id="end" placeholder="End %" maxlength="3">
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="section">
+      <select id="location">
+        <option value="">Select Location</option>
+        <option value="__ADD__">+ Add New Location</option>
+        <option data-divider></option>
+      </select>
+    </div>
+
+    <!-- Rate 快捷按钮 -->
+    <div class="section">
+      <div class="quick-btns">
+        <button class="qb" onclick="setRate(0.84)">0.84</button>
+        <button class="qb" onclick="setRate(1.00)">1.00</button>
+        <button class="qb" onclick="setRate(1.30)">1.30</button>
+        <button class="qb" onclick="setRate(1.50)">1.50</button>
+        <button class="qb" onclick="setRate(1.80)">1.80</button>
+        <button class="qb" onclick="setRate(0)">Free</button>
+      </div>
+    </div>
+
+    <!-- Rate / Cost -->
+    <div class="section">
+      <div class="row">
+        <input type="number" step="0.001" id="rate" placeholder="Rate (RM/kWh)">
+        <input type="number" step="0.01" id="cost" placeholder="Cost (RM)">
+      </div>
+    </div>
+
+    <!-- 按钮 -->
+    <div class="section">
+      <button class="btn" id="main-btn" onclick="submitForm()">Add Record</button>
+      <button class="btn secondary" id="cancel-btn" onclick="cancelEdit()">Cancel Edit</button>
+    </div>
+
+  </div>
+  <!-- TABLE CARD -->
+  <div class="card">
+    <div class="section" style="padding:0;">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th id="th-date">Date</th>
+              <th id="th-start">Start</th>
+              <th id="th-end">End</th>
+              <th id="th-kwh">kWh</th>
+              <th id="th-loc">Location</th>
+              <th id="th-rate">Rate</th>
+              <th id="th-cost">Cost</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- BACKUP CARD -->
+  <div class="card">
+    <div class="section">
+      <button class="btn secondary" onclick="document.getElementById('importFile').click()" id="import-btn">Import CSV</button>
+      <button class="btn" onclick="exportAll()" id="export-btn">Export All Data</button>
+      <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
+    </div>
+  </div>
+
+  <div class="version" id="version"></div>
+
+</div> <!-- .c 结束 -->
+
+<!-- 补充 TABLE / 版本号 的样式 -->
+<style>
   .table-wrapper{
     overflow:auto;
     -webkit-overflow-scrolling:touch;
@@ -178,123 +298,22 @@
   .action:hover{
     opacity:1;
   }
-  .version{
-    color:#555;
-    font-size:11px;
-    text-align:center;
-    margin-top:50px;
-  }
-  #location option[data-divider]{
-    height:1px;
-    background:#444;
-    margin:8px 16px;
-    pointer-events:none;
-  }
   .empty-row{
     text-align:center;
     padding:16px;
     color:#777;
     font-size:14px;
   }
+  .version{
+    color:#555;
+    font-size:11px;
+    text-align:center;
+    margin-top:50px;
+  }
 </style>
-</head>
-<body>
-
-<div class="c">
-  <header>
-    <span id="title-text">EV Charge Log Pro</span>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Tesla_logo.png" alt="T" class="logo">
-    <!-- 只保留中英切换 -->
-    <div class="toggle" onclick="toggleLang()" id="lang-toggle">中</div>
-  </header>
-
-  <div class="card">
-    <!-- 日期 -->
-    <div class="section" style="padding-bottom:18px;">
-      <input type="date" id="date">
-    </div>
-
-    <!-- Start / End -->
-    <div class="section">
-      <div class="row">
-        <input type="text" inputmode="numeric" id="start" placeholder="Start %" maxlength="3">
-        <input type="text" inputmode="numeric" id="end" placeholder="End %" maxlength="3">
-      </div>
-    </div>
-
-    <!-- Location -->
-    <div class="section">
-      <select id="location">
-        <option value="">Select Location</option>
-        <option value="__ADD__">+ Add New Location</option>
-        <option data-divider></option>
-      </select>
-    </div>
-
-    <!-- Quick Rate -->
-    <div class="section">
-      <div class="quick-btns">
-        <button class="qb" onclick="setRate(0.84)">0.84</button>
-        <button class="qb" onclick="setRate(1.00)">1.00</button>
-        <button class="qb" onclick="setRate(1.30)">1.30</button>
-        <button class="qb" onclick="setRate(1.50)">1.50</button>
-        <button class="qb" onclick="setRate(1.80)">1.80</button>
-        <button class="qb" onclick="setRate(0)">Free</button>
-      </div>
-    </div>
-
-    <!-- Rate / Cost -->
-    <div class="section">
-      <div class="row">
-        <input type="number" step="0.001" id="rate" placeholder="Rate (RM/kWh)">
-        <input type="number" step="0.01" id="cost" placeholder="Cost (RM)">
-      </div>
-    </div>
-
-    <!-- Buttons -->
-    <div class="section">
-      <button class="btn" id="main-btn" onclick="submitForm()">Add Record</button>
-      <button class="btn secondary" id="cancel-btn" style="display:none;" onclick="cancelEdit()">Cancel Edit</button>
-    </div>
-  </div>
-
-  <!-- TABLE -->
-  <div class="card">
-    <div class="section" style="padding:0;">
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th id="th-date">Date</th>
-              <th id="th-start">Start</th>
-              <th id="th-end">End</th>
-              <th id="th-kwh">kWh</th>
-              <th id="th-loc">Location</th>
-              <th id="th-rate">Rate</th>
-              <th id="th-cost">Cost</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- BACKUP -->
-  <div class="card">
-    <div class="section">
-      <button class="btn secondary" onclick="document.getElementById('importFile').click()" id="import-btn">Import CSV</button>
-      <button class="btn" onclick="exportAll()" id="export-btn">Export All Data</button>
-      <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
-    </div>
-  </div>
-
-  <div class="version" id="version"></div>
-</div>
 
 <script>
-const BATTERY_CAPACITY = 60; // 备用，如果以后要用百分比算 kWh
+const BATTERY_CAPACITY = 60; // 预留，将来如果要用电池容量算 kWh
 const KEYS = {
   records:'evRecords2025',
   locations:'evLocations2025',
@@ -308,14 +327,15 @@ let rateMemory = JSON.parse(localStorage.getItem(KEYS.rates) || '{}');
 let isCN = localStorage.getItem(KEYS.lang) === 'cn';
 let editingIndex = null; // null = add 模式
 
-// 语言切换
+// ========= 语言切换 =========
 function toggleLang(){
   isCN = !isCN;
   localStorage.setItem(KEYS.lang, isCN ? 'cn' : 'en');
   applyLang();
+  renderLocations();
+  renderTable();
 }
 
-// 应用语言
 function applyLang(){
   const title = document.getElementById('title-text');
   const langToggle = document.getElementById('lang-toggle');
@@ -384,10 +404,12 @@ function applyLang(){
   }
 }
 
-// 日期默认今天（修正多余 toISOString 的 bug）
+// ========= 日期 & 输入联动 =========
+
+// 默认今天
 document.getElementById('date').value = new Date().toISOString().slice(0,10);
 
-// Start %：输入两位/三位自动跳（支持 00→100）
+// Start：两位后自动跳，下同
 document.getElementById('start').oninput = function(){
   let v = this.value.replace(/[^0-9]/g,'');
   if(v.length>3) v = v.slice(0,3);
@@ -398,7 +420,6 @@ document.getElementById('start').oninput = function(){
   }
 };
 
-// End %：输入三位自动跳
 document.getElementById('end').oninput = function(){
   let v = this.value.replace(/[^0-9]/g,'');
   if(v.length>3) v = v.slice(0,3);
@@ -421,10 +442,12 @@ function setRate(v){
   }
 }
 
-// 渲染地点下拉
+// ========= Location ==========
+
 function renderLocations(){
   const s = document.getElementById('location');
   s.innerHTML = '';
+
   const opt0 = document.createElement('option');
   opt0.value = '';
   opt0.textContent = isCN ? '选择地点' : 'Select Location';
@@ -447,17 +470,17 @@ function renderLocations(){
   });
 }
 
-// 地点选择逻辑：新增地点 & 自动记忆 rate
 document.getElementById('location').addEventListener('change', function(){
   const v = this.value;
   if(v === '__ADD__'){
-    const name = prompt(isCN ? '输入新地点名称（例如：BH）' : 'Enter new location (e.g. BH)');
-    if(!name) {
+    const msg = isCN ? '输入新地点名称（例如：BH）' : 'Enter new location (e.g. BH)';
+    const name = prompt(msg);
+    if(!name){
       this.value = '';
       return;
     }
     const up = name.trim().toUpperCase();
-    if(!up) {
+    if(!up){
       this.value = '';
       return;
     }
@@ -468,14 +491,14 @@ document.getElementById('location').addEventListener('change', function(){
     renderLocations();
     this.value = up;
   } else if(v){
-    // 如果有记忆的 rate，自动带出
     if(rateMemory[v] != null){
       document.getElementById('rate').value = rateMemory[v];
     }
   }
 });
 
-// 日期显示格式
+// ========= 工具函数 =========
+
 function formatDateDisplay(str){
   if(!str) return '';
   const d = new Date(str);
@@ -486,14 +509,14 @@ function formatDateDisplay(str){
   return `${day}/${m}/${y}`;
 }
 
-// 保存到 localStorage
 function saveAll(){
   localStorage.setItem(KEYS.records, JSON.stringify(records));
   localStorage.setItem(KEYS.locations, JSON.stringify(allLocations));
   localStorage.setItem(KEYS.rates, JSON.stringify(rateMemory));
 }
 
-// 渲染表格
+// ========= 表格渲染 =========
+
 function renderTable(){
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
@@ -515,7 +538,6 @@ function renderTable(){
 
   sorted.forEach(r=>{
     const tr = document.createElement('tr');
-
     const kwh = (r.rate && r.cost) ? (r.cost / r.rate) : 0;
 
     tr.innerHTML = `
@@ -530,6 +552,7 @@ function renderTable(){
     `;
 
     const actionTd = tr.lastElementChild;
+
     const editSpan = document.createElement('span');
     editSpan.className = 'action';
     editSpan.textContent = '✏️';
@@ -549,7 +572,8 @@ function renderTable(){
   });
 }
 
-// 进入编辑模式
+// ========= 编辑 / 删除 =========
+
 function startEdit(i){
   const r = records[i];
   editingIndex = i;
@@ -567,13 +591,11 @@ function startEdit(i){
   document.getElementById('cancel-btn').style.display = 'block';
 }
 
-// 取消编辑
 function cancelEdit(){
   editingIndex = null;
   document.getElementById('main-btn').textContent = isCN ? '新增记录' : 'Add Record';
   document.getElementById('cancel-btn').style.display = 'none';
 
-  // 保留日期为今天，清空其他
   document.getElementById('date').value = new Date().toISOString().slice(0,10);
   document.getElementById('start').value = '';
   document.getElementById('end').value = '';
@@ -582,7 +604,6 @@ function cancelEdit(){
   document.getElementById('cost').value = '';
 }
 
-// 删除记录
 function deleteRecord(i){
   if(!confirm(isCN ? '确定要删除这条记录？' : 'Delete this record?')) return;
   records.splice(i,1);
@@ -591,7 +612,8 @@ function deleteRecord(i){
   renderTable();
 }
 
-// 提交表单（新增/保存）
+// ========= 提交：新增 / 保存 =========
+
 function submitForm(){
   const date = document.getElementById('date').value;
   const start = Number(document.getElementById('start').value || 0);
@@ -607,7 +629,6 @@ function submitForm(){
 
   const rec = {date, start, end, location:loc, rate, cost};
 
-  // 记住每个地点的 rate
   if(loc){
     rateMemory[loc] = rate;
   }
@@ -624,7 +645,8 @@ function submitForm(){
   document.getElementById('start').focus();
 }
 
-// 导出 CSV
+// ========= 导出 CSV =========
+
 function exportAll(){
   if(!records.length){
     alert(isCN ? '暂无记录可导出' : 'No data to export.');
@@ -650,7 +672,8 @@ function exportAll(){
   URL.revokeObjectURL(url);
 }
 
-// 简易 CSV 解析
+// ========= 导入 CSV =========
+
 function parseCSV(text){
   const rows = text.split(/\r?\n/).filter(l=>l.trim());
   if(!rows.length) return [];
@@ -712,7 +735,6 @@ function parseCSV(text){
   return out;
 }
 
-// 导入 CSV
 function importAll(input){
   const file = input.files[0];
   if(!file) return;
@@ -742,7 +764,8 @@ function importAll(input){
   reader.readAsText(file);
 }
 
-// 版本号
+// ========= 版本号 =========
+
 function updateVersion(){
   const d=new Date();
   const m=String(d.getMonth()+1).padStart(2,'0');
@@ -752,7 +775,8 @@ function updateVersion(){
   document.getElementById('version').textContent=`Version ${m}${day}-${h}${min}`;
 }
 
-// 初始化
+// ========= 初始化 =========
+
 renderLocations();
 applyLang();
 renderTable();
