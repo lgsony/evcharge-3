@@ -44,16 +44,18 @@
   </header>
 
   <div class="card">
-    <!-- 日期 + Start% + End% -->
+    <!-- 经典三行布局 -->
+    <div class="section">
+      <input type="date" id="date" value="2025-12-06">
+    </div>
+
     <div class="section">
       <div class="row">
-        <div><input type="date" id="date" value="2025-12-06"></div>
-        <div><input type="number" id="start" placeholder="Start %"></div>
-        <div><input type="number" id="end" placeholder="End %"></div>
+        <input type="number" id="start" placeholder="Start %">
+        <input type="number" id="end" placeholder="End %">
       </div>
     </div>
 
-    <!-- 地点 -->
     <div class="section">
       <select id="location">
         <option value="">Select Location</option>
@@ -62,7 +64,6 @@
       </select>
     </div>
 
-    <!-- 一键价格 -->
     <div class="section">
       <div class="quick-btns">
         <button class="qb" onclick="setRate(0.84)">0.84</button>
@@ -74,11 +75,10 @@
       </div>
     </div>
 
-    <!-- Rate + Cost（可不填）完美对齐 -->
     <div class="section">
       <div class="row">
-        <div><input type="number" step="0.001" inputmode="decimal" id="rate" placeholder="Rate (RM/kWh)"></div>
-        <div><input type="number" step="0.01" inputmode="decimal" id="cost" placeholder="Cost (RM) 可不填"></div>
+        <input type="number" step="0.001" inputmode="decimal" id="rate" placeholder="Rate (RM/kWh)">
+        <input type="number" step="0.01" inputmode="decimal" id="cost" placeholder="Cost (RM) 可不填">
       </div>
     </div>
 
@@ -87,7 +87,7 @@
     </div>
   </div>
 
-  <div class="footer">lgsony.github.io · 极简 · 丝滑 · 永久免费</div>
+  <div class="footer">lgsony.github.io · 经典布局已恢复 · 丝滑到底</div>
 </div>
 
 <script>
@@ -104,11 +104,10 @@ let rateMemory = JSON.parse(localStorage.getItem(KEY_RATES)||'{}');
 let isCN = localStorage.getItem(KEY_LANG) === 'cn';
 let isUltraDark = localStorage.getItem(KEY_DARK) === 'true';
 
-// 中英文 + 极黑切换
+// 切换
 function toggleLang(){isCN=!isCN;localStorage.setItem(KEY_LANG,isCN?'cn':'en');location.reload();}
 function toggleDark(){isUltraDark=!isUltraDark;localStorage.setItem(KEY_DARK,isUltraDark);document.body.classList.toggle('dark-mode',isUltraDark);}
 if(isUltraDark)document.body.classList.add('dark-mode');
-if(isCN){document.querySelector('header>div').innerHTML='EN';/* 中文翻译略，可自行加 */}
 
 // 智能跳转（双位数丝滑）
 let lastInputTime=0;
@@ -124,7 +123,7 @@ document.getElementById('end').oninput=()=>smartJump(document.getElementById('en
 // 地点管理（长按改名/删）
 function renderLocations(){
   const s=document.getElementById('location');
-  s.innerHTML=`<option value="">${isCN?'选择地点':'Select Location'}</option><option value="__ADD__">+ ${isCN?'新增':'Add New'}</option><option disabled>────────────────</option>`;
+  s.innerHTML=`<option value="">Select Location</option><option value="__ADD__">+ Add New Location</option><option disabled>────────────────</option>`;
   allLocations.sort().forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l;s.appendChild(o);});
 }
 let longPressTimer;
@@ -132,10 +131,10 @@ document.getElementById('location').addEventListener('pointerdown',e=>{
   if(!e.target.value||e.target.value.startsWith('__'))return;
   const loc=e.target.value;
   longPressTimer=setTimeout(()=>{
-    const nn=prompt(isCN?`编辑地点（留空删除）\n当前：${loc}`:`Edit (blank=delete)\nCurrent: ${loc}`,loc);
+    const nn=prompt(`编辑地点名（留空删除）\n当前：${loc}`,loc);
     if(nn===null)return;
     if(nn.trim()===""){
-      if(confirm(isCN?`删除 ${loc}？`:`Delete ${loc}?`)){
+      if(confirm(`删除 ${loc}？`)){
         allLocations=allLocations.filter(x=>x!==loc);
         delete rateMemory[loc];
         localStorage.setItem(KEY_LOCATIONS,JSON.stringify(allLocations));
@@ -161,7 +160,7 @@ document.getElementById('location').addEventListener('pointerdown',e=>{
 
 document.getElementById('location').onchange=function(){
   if(this.value==="__ADD__"){
-    const n=prompt(isCN?"新地点名称":"New location")?.trim().toUpperCase();
+    const n=prompt("新地点名称")?.trim().toUpperCase();
     if(n&&!allLocations.includes(n)){allLocations.push(n);localStorage.setItem(KEY_LOCATIONS,JSON.stringify(allLocations));renderLocations();this.value=n;autoFillRate();}
     else this.value="";
   }else autoFillRate();
@@ -173,13 +172,13 @@ function autoFillRate(){
 }
 function setRate(v){document.getElementById('rate').value=v;}
 
-// 添加记录（Cost 可手动填，优先使用手动值）
+// 添加记录（Cost 可手动填，优先手动）
 function addRecord(){
   const loc=document.getElementById('location').value;
-  if(!loc)return alert(isCN?"请选择地点":"Select location");
+  if(!loc)return alert("请选择地点");
   const start=parseInt(document.getElementById('start').value||0);
   const end=parseInt(document.getElementById('end').value||0);
-  if(isNaN(start)||isNaN(end))return alert(isCN?"请填写起止电量":"Enter start & end %");
+  if(isNaN(start)||isNaN(end))return alert("请填写起止电量");
   const rate=document.getElementById('rate').value?parseFloat(document.getElementById('rate').value):null;
   const manualCost=document.getElementById('cost').value?parseFloat(document.getElementById('cost').value):null;
   const kwh=((end-start)/100*BATTERY_CAPACITY).toFixed(2);
