@@ -7,25 +7,32 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-  :root{--bg:#000;--card:#1c1c1e;--text:#fff;--tesla-red:#E31937;--gray:#333;--border:#2c2c2e;}
+  :root{--bg:#000;--card:#1c1c1e;--text:#fff;--tesla-red:#E31937;--gray:#333;--border:#2c2c2e;--focus:#007AFF;}
   .dark-mode{--bg:#000000;--card:#0d0d0d;--border:#1a1a1a;--gray:#222;}
   body{margin:0;font-family:-apple-system,sans-serif;background:var(--bg);color:var(--text);
        padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);transition:all 0.3s;}
   .c{max-width:600px;margin:0 auto;padding:0 16px;padding-bottom:120px;}
   header{padding:24px 0 16px;text-align:center;font-size:34px;font-weight:800;color:var(--tesla-red);position:relative;}
   .toggle{position:absolute;right:16px;top:20px;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:13px;}
-  .card{background:var(--card);border-radius:20px;overflow:hidden;margin:20px 0;box-shadow:0 4px 16px rgba(227,25,55,0.15);border:1px solid var(--border);}
-  .section{padding:20px 20px 24px;}
+  .card{background:var(--card);border-radius:22px;overflow:hidden;margin:20px 0;
+         box-shadow:0 8px 32px rgba(227,25,55,0.15);border:1px solid var(--border);}
+  .section{padding:22px 20px 26px;}
   .section:not(:last-child){border-bottom:1px solid var(--border);}
   input,select{
-    width:100%;padding:17px 16px;margin:8px 0;background:#2c2c2e;border:none;
-    border-radius:13px;color:white;font-size:17px;box-sizing:border-box;
+    width:100%;padding:18px 18px;margin:10px 0;background:#2c2c2e;border:none;
+    border-radius:16px;color:white;font-size:18px;box-sizing:border-box;transition:all 0.2s;
   }
-  .row{display:flex;gap:12px;align-items:center;}
+  input:focus,select:focus{outline:none;box-shadow:0 0 0 3px var(--focus);background:#333;}
+  #location{
+    font-size:19px;font-weight:600;padding:20px 18px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 18px center;
+  }
+  .row{display:flex;gap:14px;align-items:center;}
   .row > div{flex:1;}
-  .btn{background:linear-gradient(180deg,#ff2a47,#e31937);color:white;border:none;padding:18px;border-radius:16px;font-size:19px;font-weight:700;margin-top:16px;box-shadow:0 6px 20px rgba(227,25,55,0.4);}
-  .quick-btns{display:flex;flex-wrap:wrap;gap:11px;margin:14px 0 6px;justify-content:center;}
-  .qb{padding:11px 18px;background:var(--gray);color:white;border-radius:30px;font-size:16px;font-weight:600;}
+  .btn{background:linear-gradient(180deg,#ff2a47,#e31937);color:white;border:none;padding:20px;border-radius:18px;font-size:20px;font-weight:700;margin-top:18px;box-shadow:0 8px 30px rgba(227,25,55,0.5);}
+  .quick-btns{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 8px;justify-content:center;}
+  .qb{padding:12px 20px;background:var(--gray);color:white;border-radius:40px;font-size:17px;font-weight:600;border:1px solid #555;}
   .footer{text-align:center;color:#666;font-size:12px;margin:40px 0 20px;}
 </style>
 </head>
@@ -78,6 +85,8 @@
       <button class="btn" onclick="addRecord()">Add Record</button>
     </div>
   </div>
+
+  <div class="footer">lgsony.github.io · 极美 · 极丝滑 · 永久免费</div>
 </div>
 
 <script>
@@ -90,30 +99,25 @@ let rateMemory = JSON.parse(localStorage.getItem(KEYS.rates)||'{}');
 let isCN = localStorage.getItem(KEYS.lang)==='cn';
 let isUltraDark = localStorage.getItem(KEYS.dark)==='true';
 if(isUltraDark)document.body.classList.add('dark-mode');
-if(isCN)document.querySelector('.toggle').textContent='EN';
 
+// 切换
 function toggleLang(){isCN=!isCN;localStorage.setItem(KEYS.lang,isCN?'cn':'en');location.reload();}
 function toggleDark(){isUltraDark=!isUltraDark;localStorage.setItem(KEYS.dark,isUltraDark);document.body.classList.toggle('dark-mode',isUltraDark);}
 
-// Start %：两位数立刻跳（不可能 100% 开始充）
+// Start %：两位数立刻跳
 document.getElementById('start').oninput = function() {
-  let val = this.value.replace(/[^0-9]/g,'');
-  if(val.length > 2) val = val.slice(0,2);
-  this.value = val;
-  if(val.length === 2) {
-    setTimeout(() => document.getElementById('end').focus(), 50);
-  }
+  let v = this.value.replace(/[^0-9]/g,'');
+  if(v.length > 2) v = v.slice(0,2);
+  this.value = v;
+  if(v.length === 2) setTimeout(()=>document.getElementById('end').focus(),50);
 };
 
-// End %：三位数才跳（支持 099、100）
+// End %：支持099、100，三位数才跳
 document.getElementById('end').oninput = function() {
-  let val = this.value.replace(/[^0-9]/g,'');
-  if(val.length > 3) val = val.slice(0,3);
-  this.value = val;
-  const num = parseInt(val||'0');
-  if(val.length === 3 || num === 100) {
-    setTimeout(() => document.getElementById('location').focus(), 50);
-  }
+  let v = this.value.replace(/[^0-9]/g,'');
+  if(v.length > 3) v = v.slice(0,3);
+  this.value = v;
+  if(v.length === 3 || parseInt(v) === 100) setTimeout(()=>document.getElementById('location').focus(),50);
 };
 
 // 地点管理（长按编辑/删除）
@@ -188,7 +192,7 @@ function addRecord(){
 // 初始化
 document.getElementById('date').value=new Date().toISOString().slice(0,10);
 renderLocations();
-document.getElementById('start').focus();
+setTimeout(()=>document.getElementById('start').focus(),100);
 </script>
 </body>
 </html>
