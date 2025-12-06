@@ -195,30 +195,38 @@ th{ background:#252525; color:#aaa; }
 .summary-values{ text-align:right; }
 
 /* Bottom bar */
-.bottom-bar {
+.bottom-bar{
+    position: static;                 /* 不再固定在最底 */
     width: 100%;
-    padding: 20px 16px 40px;
-    background: transparent;
+    margin: 16px 16px 0;              /* 左右 16，跟上面卡片对齐 */
     display: flex;
-    justify-content: center;
-    gap: 14px;
-    margin-top: 20px;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0;                       /* 不要额外背景和边框 */
+    background: transparent;
+    border: none;
 }
 
-.bottom-btn {
+.bottom-btn{
     flex: 1;
-    max-width: 200px;
     padding: 14px 0;
-    border-radius: 14px;
-    background: #222;
+    border-radius: 50px;
+    background: #1f1f1f;
     color: #fff;
     text-align: center;
     font-size: 15px;
+    font-weight: 500;
     border: 1px solid #333;
+    box-shadow: 0 0 8px rgba(0,0,0,0.35);
+    white-space: nowrap;
+    transition: background 0.12s, transform 0.12s;
 }
-.bottom-btn:active {
-    background: #333;
+
+.bottom-btn:active{
+    background: #2a2a2a;
+    transform: scale(0.98);
 }
+
 
 
 
@@ -334,10 +342,17 @@ th{ background:#252525; color:#aaa; }
 </div>
 
 <!-- BOTTOM BAR -->
+<!-- 上面是 Saved Locations 那个 card -->
+
 <div class="bottom-bar">
-    <div class="bottom-btn" onclick="importCSV()">Import CSV</div>
-    <div class="bottom-btn" onclick="exportCSV()">Export CSV</div>
+  <button id="importBtn" class="bottom-btn">Import CSV</button>
+  <button id="exportBtn" class="bottom-btn">Export CSV</button>
 </div>
+
+<div class="version-text">Version v4-ODO-20251207</div>
+
+<!-- 下面是你 lgsony.github.io 那个按钮 -->
+
 
 <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
 
