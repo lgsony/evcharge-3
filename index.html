@@ -6,15 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
-      --bg: #000000;
-      --card: #151515;
-      --card-soft: #1c1c1c;
-      --border: #333333;
+      --bg-top: #120104;
+      --bg-bottom: #000000;
+      --card: #191919;
+      --card-soft: #222222;
+      --border: #303030;
       --border-soft: #2a2a2a;
       --text: #ffffff;
-      --text-soft: #b3b3b3;
-      --accent: #ffffff;
-      --accent-soft: #f5f5f5;
+      --text-soft: #b8b8b8;
+      --accent: #ff3b3b;
+      --accent-soft: #ff4f4f;
       --danger: #ff4b5c;
       --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.7);
       --radius-lg: 18px;
@@ -29,191 +30,233 @@
     body {
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui,
-        -segoe-ui, Roboto, sans-serif;
-      background: radial-gradient(circle at top, #101010 0, #000 55%, #000 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        system-ui, -segoe-ui, Roboto, sans-serif;
+      background: radial-gradient(circle at top, var(--bg-top) 0, #050002 22%, var(--bg-bottom) 60%);
       color: var(--text);
       min-height: 100vh;
     }
 
     .app {
-      max-width: 960px;
+      max-width: 480px;
       margin: 0 auto;
-      padding: 16px 16px 80px;
+      padding: 12px 14px 88px;
     }
 
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 12px;
-      padding: 4px 4px 8px;
+      text-align: center;
+      margin-bottom: 10px;
     }
 
-    header .title {
+    header h1 {
+      margin: 6px 0 4px;
       font-size: 22px;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-    }
-
-    header .subtitle {
-      font-size: 11px;
-      color: var(--text-soft);
-      text-transform: uppercase;
+      font-weight: 700;
       letter-spacing: 0.08em;
+      color: var(--accent-soft);
+      text-transform: uppercase;
     }
 
-    header .badge {
-      padding: 4px 10px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--border-soft);
+    header .sub {
       font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
       color: var(--text-soft);
     }
 
     .card {
-      background: linear-gradient(135deg, #151515, #101010);
-      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at top left, #222, #151515);
+      border-radius: 22px;
       border: 1px solid var(--border);
       box-shadow: var(--shadow-soft);
-      padding: 14px 14px 10px;
-      margin-bottom: 12px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
     }
 
-    .card-header {
+    .card-header-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
+      align-items: baseline;
+      margin-bottom: 6px;
     }
 
     .card-title {
       font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--text-soft);
+      font-weight: 600;
+      color: var(--accent-soft);
     }
 
-    .pill {
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--border-soft);
-      padding: 3px 8px;
+    .card-subtitle {
       font-size: 11px;
       color: var(--text-soft);
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 6px;
-    }
-
-    @media (max-width: 768px) {
-      .form-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
     }
 
     .field {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      margin-bottom: 8px;
     }
 
     .field label {
+      display: block;
       font-size: 11px;
+      margin-bottom: 4px;
       color: var(--text-soft);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
 
-    .field label span.right {
+    .field .right-label {
+      float: right;
       font-size: 10px;
       opacity: 0.6;
     }
 
-    .field input,
-    .field select {
+    .input-shell {
+      position: relative;
+    }
+
+    input,
+    select {
       width: 100%;
-      padding: 8px 9px;
-      border-radius: 12px;
+      padding: 10px 11px;
+      border-radius: 14px;
       border: 1px solid var(--border-soft);
-      background: #050505;
+      background: #141414;
       color: var(--text);
-      font-size: 13px;
+      font-size: 14px;
       outline: none;
-      transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      transition: border 0.15s ease, background 0.15s ease,
+        box-shadow 0.15s ease;
     }
 
-    .field input:focus,
-    .field select:focus {
+    input:focus,
+    select:focus {
       border-color: var(--accent-soft);
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
-      background: #0a0a0a;
+      background: #181818;
+      box-shadow: 0 0 0 1px rgba(255, 59, 59, 0.3);
     }
 
-    .field input::placeholder {
+    input::placeholder {
       color: #555;
     }
 
-    .field-row {
+    .inline-two {
       display: flex;
-      gap: 6px;
-      margin-top: 8px;
-      flex-wrap: wrap;
+      gap: 8px;
     }
 
+    .inline-two .field {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .date-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .date-row input[type="date"] {
+      flex: 1;
+      font-size: 13px;
+    }
+
+    .date-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: var(--text-soft);
+    }
+
+    /* Rate quick buttons */
+    .rate-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      padding: 5px 10px;
+      font-size: 12px;
+      color: var(--text-soft);
+      background: #181818;
+      cursor: pointer;
+      min-width: 52px;
+      text-align: center;
+      transition: background 0.15s ease, border 0.15s ease,
+        color 0.15s ease, transform 0.06s ease;
+    }
+
+    .chip:active {
+      transform: scale(0.96);
+    }
+
+    .chip.selected {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent-soft);
+    }
+
+    .help-text {
+      font-size: 10px;
+      color: #ff9ea7;
+      margin-top: 3px;
+    }
+
+    /* Buttons */
     .btn {
       border-radius: var(--radius-pill);
       border: 1px solid var(--border-soft);
-      background: #050505;
+      background: #181818;
       color: var(--text-soft);
-      font-size: 12px;
-      padding: 6px 12px;
+      font-size: 13px;
+      padding: 8px 14px;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       cursor: pointer;
       outline: none;
-      transition: background 0.12s ease, transform 0.06s ease, border 0.12s ease;
+      transition: background 0.15s ease, transform 0.06s ease,
+        border 0.15s ease, color 0.15s ease;
       white-space: nowrap;
     }
 
     .btn span.icon {
-      font-size: 14px;
+      font-size: 16px;
     }
 
     .btn-primary {
-      background: var(--accent);
-      color: #000;
-      border-color: #f5f5f5;
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-soft), #e22626);
+      border-color: rgba(255, 59, 59, 0.9);
+      color: #fff;
+      font-weight: 600;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      font-size: 15px;
+      margin-top: 6px;
     }
 
     .btn-primary:active {
       transform: scale(0.98);
-      background: #f0f0f0;
+      background: linear-gradient(135deg, #ff5d5d, #d92020);
     }
 
     .btn-soft {
-      background: #101010;
-    }
-
-    .btn-soft:active {
-      transform: scale(0.98);
-      background: #181818;
-    }
-
-    .btn-danger {
-      border-color: rgba(255, 75, 92, 0.4);
-      color: #ff9aa4;
+      background: #141414;
+      font-size: 12px;
     }
 
     .btn-sm {
-      padding: 4px 9px;
+      padding: 5px 10px;
       font-size: 11px;
-      border-radius: 999px;
     }
 
     .btn:disabled {
@@ -222,50 +265,39 @@
       transform: none;
     }
 
-    .pill-info {
-      font-size: 11px;
-      color: var(--text-soft);
-      opacity: 0.9;
-      margin-top: 4px;
-    }
-
-    .pill-info strong {
-      color: var(--accent-soft);
-      font-weight: 500;
-    }
-
     /* Records table */
-    .records-card {
-      padding-top: 10px;
-    }
-
     .table-wrapper {
-      max-height: 340px;
+      max-height: 260px;
       overflow: auto;
-      margin: 0 -4px;
-      padding: 0 4px;
+      border-radius: 12px;
+      border: 1px solid #1c1c1c;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 11px;
-      min-width: 700px;
+      min-width: 650px;
     }
 
     thead {
+      background: #141414;
       position: sticky;
       top: 0;
       z-index: 1;
-      background: #101010;
     }
 
     th,
     td {
-      padding: 6px 4px;
+      padding: 6px 6px;
       text-align: right;
-      border-bottom: 1px solid #151515;
+      border-bottom: 1px solid #1a1a1a;
       white-space: nowrap;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
     }
 
     th {
@@ -276,22 +308,12 @@
       letter-spacing: 0.06em;
     }
 
-    th:first-child,
-    td:first-child {
-      text-align: left;
-    }
-
-    tbody tr {
-      background: transparent;
-      transition: background 0.12s ease;
-    }
-
     tbody tr:nth-child(2n) {
-      background: rgba(255, 255, 255, 0.01);
+      background: rgba(255, 255, 255, 0.02);
     }
 
     tbody tr:hover {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.04);
     }
 
     td .badge-loc {
@@ -318,55 +340,59 @@
       padding: 2px 7px;
       border-radius: 999px;
       border: 1px solid var(--border-soft);
-      background: #050505;
+      background: #101010;
       color: var(--text-soft);
       cursor: pointer;
       transition: background 0.12s ease, transform 0.06s ease;
     }
 
-    td .action-row button:hover {
-      background: #111;
-    }
-
     td .action-row button:active {
-      transform: scale(0.97);
+      transform: scale(0.96);
+      background: #191919;
     }
 
     td .action-row .delete {
-      border-color: rgba(255, 75, 92, 0.35);
+      border-color: rgba(255, 75, 92, 0.45);
       color: #ff9aa4;
     }
 
     .empty-state {
       text-align: center;
-      padding: 22px 6px 16px;
+      padding: 10px 4px;
       font-size: 12px;
       color: var(--text-soft);
     }
 
     /* Monthly summary */
+    .summary-body {
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-top: 4px;
+    }
+
     .summary-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 8px;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-top: 4px;
     }
 
     .summary-card {
-      background: radial-gradient(circle at top left, #1f1f1f, #101010);
-      border-radius: 16px;
+      border-radius: 14px;
       border: 1px solid var(--border-soft);
-      padding: 8px 10px;
+      padding: 6px 8px;
+      background: #141414;
     }
 
     .summary-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .summary-month {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 500;
     }
 
@@ -377,19 +403,76 @@
 
     .summary-kpi strong {
       color: var(--accent-soft);
-      font-weight: 500;
     }
 
     .summary-row {
       display: flex;
       justify-content: space-between;
       font-size: 11px;
-      margin-top: 4px;
+      margin-top: 2px;
       color: var(--text-soft);
     }
 
     .summary-row span.value {
-      color: var(--accent-soft);
+      color: #f5f5f5;
+    }
+
+    /* Saved locations list */
+    .loc-list-empty {
+      font-size: 12px;
+      color: var(--text-soft);
+      padding: 4px 0 2px;
+    }
+
+    .loc-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid #222;
+    }
+
+    .loc-row:last-child {
+      border-bottom: none;
+    }
+
+    .loc-name {
+      font-size: 13px;
+    }
+
+    .loc-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: #141414;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--text-soft);
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.95);
+      background: #1d1d1d;
+    }
+
+    .icon-btn.danger {
+      border-color: rgba(255, 75, 92, 0.5);
+      color: #ff9aa4;
+    }
+
+    .chip-count {
+      font-size: 10px;
+      color: var(--text-soft);
     }
 
     /* Bottom bar */
@@ -400,7 +483,7 @@
       right: 0;
       background: rgba(0, 0, 0, 0.94);
       border-top: 1px solid var(--border);
-      padding: 8px 12px 10px;
+      padding: 8px 14px 10px;
       display: flex;
       justify-content: center;
       z-index: 10;
@@ -408,7 +491,7 @@
     }
 
     .bottom-inner {
-      max-width: 960px;
+      max-width: 480px;
       width: 100%;
       display: flex;
       align-items: center;
@@ -423,8 +506,9 @@
     }
 
     .bottom-hint {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--text-soft);
+      text-align: right;
     }
 
     input[type="file"] {
@@ -434,10 +518,10 @@
     /* Toast */
     .toast {
       position: fixed;
-      top: 14px;
+      top: 12px;
       left: 50%;
       transform: translateX(-50%);
-      background: #111;
+      background: #171717;
       color: var(--text-soft);
       border-radius: 999px;
       padding: 6px 14px;
@@ -512,13 +596,10 @@
       margin-top: 4px;
     }
 
-    /* Small label chip */
-    .tiny-chip {
-      font-size: 9px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid #222;
-      color: #777;
+    @media (min-width: 520px) {
+      header h1 {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
@@ -529,9 +610,7 @@
   <div class="modal-backdrop" id="importModal">
     <div class="modal">
       <div class="modal-title">Import CSV</div>
-      <div class="modal-body">
-        选择导入方式：
-      </div>
+      <div class="modal-body">选择导入方式：</div>
       <div class="radio-row">
         <label>
           <input type="radio" name="importMode" value="append" checked />
@@ -552,30 +631,25 @@
 
   <div class="app">
     <header>
-      <div>
-        <div class="subtitle">EV CHARGE LOG PRO</div>
-        <div class="title">小帅 · Tesla 充电记录</div>
-      </div>
-      <div class="badge">
-        Battery 60 kWh · v5
-      </div>
+      <div class="sub">TESLA · 60 kWh PACK</div>
+      <h1>EV Charge Log Pro</h1>
     </header>
 
-    <!-- Form Card -->
+    <!-- Main form card -->
     <section class="card">
-      <div class="card-header">
-        <div class="card-title">New Session</div>
-        <div class="pill">基于上一条记录自动计算</div>
-      </div>
-      <div class="form-grid">
-        <div class="field">
-          <label for="dateInput">Date</label>
+      <div class="field">
+        <label>Date</label>
+        <div class="date-row">
           <input id="dateInput" type="date" />
+          <div class="date-icon">📅</div>
         </div>
+      </div>
+
+      <div class="inline-two" style="margin-bottom:8px;">
         <div class="field">
-          <label for="startPercent">
+          <label>
             Start %
-            <span class="right">2位自动跳</span>
+            <span class="right-label">2位自动跳</span>
           </label>
           <input
             id="startPercent"
@@ -583,13 +657,13 @@
             inputmode="numeric"
             pattern="[0-9]*"
             maxlength="2"
-            placeholder="20"
+            placeholder="Start %"
           />
         </div>
         <div class="field">
-          <label for="endPercent">
+          <label>
             End %
-            <span class="right">2位自动跳</span>
+            <span class="right-label">2位自动跳</span>
           </label>
           <input
             id="endPercent"
@@ -597,86 +671,103 @@
             inputmode="numeric"
             pattern="[0-9]*"
             maxlength="2"
-            placeholder="80"
+            placeholder="End %"
           />
         </div>
-        <div class="field">
-          <label for="odoInput">ODO km</label>
-          <input
-            id="odoInput"
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            placeholder="例如 12850"
-          />
+      </div>
+
+      <div class="field">
+        <label>ODO (km)</label>
+        <input
+          id="odoInput"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          placeholder="例如 12850"
+        />
+      </div>
+
+      <div class="field">
+        <label>
+          Select Location
+          <span class="right-label chip-count" id="locationCount">0 saved</span>
+        </label>
+        <select id="locationSelect">
+          <option value="">请选择地点</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Add / Edit Location</label>
+        <input
+          id="locationCustom"
+          type="text"
+          placeholder="例如 HOME, PAVILION-KL, BAMBOO HILL..."
+        />
+        <div style="display:flex; gap:6px; margin-top:6px;">
+          <button class="btn btn-soft btn-sm" id="saveLocationBtn">
+            <span class="icon">＋</span> 保存地点
+          </button>
         </div>
-        <div class="field">
-          <label for="locationSelect">
-            Location
-            <span class="right tiny-chip" id="locationCount">0 saved</span>
-          </label>
-          <select id="locationSelect">
-            <option value="">选择或输入下方自定义</option>
-          </select>
+      </div>
+
+      <div class="field">
+        <label>Rate (RM/kWh)</label>
+        <div class="rate-chips">
+          <div class="chip" data-rate="0.84">0.84</div>
+          <div class="chip" data-rate="1.00">1.00</div>
+          <div class="chip" data-rate="1.30">1.30</div>
+          <div class="chip" data-rate="1.50">1.50</div>
+          <div class="chip" data-rate="1.80">1.80</div>
+          <div class="chip" data-rate="0">Free</div>
         </div>
+      </div>
+
+      <div class="inline-two">
         <div class="field">
-          <label for="locationCustom">Add / Edit Location</label>
-          <input
-            id="locationCustom"
-            type="text"
-            placeholder="例如 Sunway SC, Home, Gentari..."
-          />
-        </div>
-        <div class="field">
-          <label for="rateInput">
-            Rate RM/kWh
-            <span class="right">小数键盘</span>
-          </label>
+          <label>Rate (RM/kWh)</label>
           <input
             id="rateInput"
             type="text"
             inputmode="decimal"
-            placeholder="1.50"
+            placeholder="例如 1.50"
           />
         </div>
         <div class="field">
-          <label for="costInput">
-            Cost RM
-            <span class="right">小数键盘</span>
-          </label>
+          <label>Cost (RM)</label>
           <input
             id="costInput"
             type="text"
             inputmode="decimal"
-            placeholder="18.90"
+            placeholder="例如 18.90"
           />
         </div>
       </div>
 
-      <div class="field-row">
-        <button class="btn btn-soft btn-sm" id="saveLocationBtn">
-          <span class="icon">＋</span> 保存地点
-        </button>
-        <button class="btn btn-soft btn-sm" id="deleteLocationBtn">
-          <span class="icon">✕</span> 删除当前地点
-        </button>
-        <div style="flex:1"></div>
-        <button class="btn btn-primary" id="addRecordBtn">
-          <span class="icon">●</span> 保存充电记录
-        </button>
-      </div>
-      <div class="pill-info" id="prevInfo">
+      <button class="btn btn-primary" id="addRecordBtn">
+        Add Record
+      </button>
+
+      <div class="summary-body" id="prevInfo" style="margin-top:6px;">
         暂无历史记录。第一条记录将不会计算 KM / kWh / Wh/km。
       </div>
     </section>
 
-    <!-- Records -->
-    <section class="card records-card">
-      <div class="card-header">
+    <!-- Monthly summary -->
+    <section class="card">
+      <div class="card-header-row">
+        <div class="card-title">Monthly Summary (60 kWh pack)</div>
+      </div>
+      <div id="summaryContainer">
+        <div class="empty-state">No drive data yet</div>
+      </div>
+    </section>
+
+    <!-- Records table -->
+    <section class="card">
+      <div class="card-header-row">
         <div class="card-title">Charge Log</div>
-        <div class="pill">
-          Date / Start / End / Used kWh / KM / Location / Rate / Cost
-        </div>
+        <div class="card-subtitle">Date / Start / End / kWh / KM / Rate / Cost</div>
       </div>
       <div class="table-wrapper" id="tableWrapper">
         <table>
@@ -694,28 +785,21 @@
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="recordsBody">
-            <!-- rows -->
-          </tbody>
+          <tbody id="recordsBody"></tbody>
         </table>
       </div>
       <div class="empty-state" id="emptyState">
-        还没有记录。上面填写一次充电数据，然后点「保存充电记录」。
+        还没有记录。上面填写一次充电数据，然后点「Add Record」。
       </div>
     </section>
 
-    <!-- Monthly Summary -->
+    <!-- Saved locations -->
     <section class="card">
-      <div class="card-header">
-        <div class="card-title">Monthly Summary</div>
-        <div class="pill">
-          总 RM · 总 kWh · 总 KM · 平均 Wh/km
-        </div>
+      <div class="card-header-row">
+        <div class="card-title">Saved Locations</div>
       </div>
-      <div id="summaryContainer">
-        <div class="empty-state" style="padding-top:8px;">
-          未产生任何月份统计。
-        </div>
+      <div id="locationsList">
+        <div class="loc-list-empty">暂时没有保存的地点。</div>
       </div>
     </section>
   </div>
@@ -725,24 +809,22 @@
     <div class="bottom-inner">
       <div class="bottom-group">
         <button class="btn btn-soft" id="exportBtn">
-          <span class="icon">⇣</span> Export CSV
+          <span class="icon">⇣</span> Export
         </button>
         <button class="btn btn-soft" id="importBtn">
-          <span class="icon">⇡</span> Import CSV
+          <span class="icon">⇡</span> Import
         </button>
       </div>
       <div class="bottom-hint">
-        CSV 字段：<strong>date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm</strong>
+        CSV 字段：date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm
       </div>
     </div>
   </div>
 
   <script>
-    // --- Storage Keys ---
     const STORAGE_KEY_RECORDS = "evChargeLogPro_v5_records";
     const STORAGE_KEY_LOCATIONS = "evChargeLogPro_v5_locations";
 
-    // --- DOM Elements ---
     const dateInput = document.getElementById("dateInput");
     const startPercentInput = document.getElementById("startPercent");
     const endPercentInput = document.getElementById("endPercent");
@@ -754,12 +836,12 @@
     const costInput = document.getElementById("costInput");
     const addRecordBtn = document.getElementById("addRecordBtn");
     const saveLocationBtn = document.getElementById("saveLocationBtn");
-    const deleteLocationBtn = document.getElementById("deleteLocationBtn");
     const prevInfo = document.getElementById("prevInfo");
 
     const recordsBody = document.getElementById("recordsBody");
     const emptyState = document.getElementById("emptyState");
     const summaryContainer = document.getElementById("summaryContainer");
+    const locationsList = document.getElementById("locationsList");
 
     const exportBtn = document.getElementById("exportBtn");
     const importBtn = document.getElementById("importBtn");
@@ -771,12 +853,13 @@
     const importConfirmBtn = document.getElementById("importConfirmBtn");
     const fileInput = document.getElementById("fileInput");
 
-    // --- State ---
+    const rateChips = document.querySelectorAll(".chip[data-rate]");
+
     let records = [];
     let locations = [];
-    let editingId = null; // if not null, we're editing this record
+    let editingId = null;
+    let editingLocationIndex = null;
 
-    // --- Utils ---
     function showToast(msg, duration = 2000) {
       toastEl.textContent = msg;
       toastEl.classList.add("show");
@@ -819,8 +902,7 @@
     }
 
     function updateLocationSelect() {
-      locationSelect.innerHTML =
-        '<option value="">选择或输入下方自定义</option>';
+      locationSelect.innerHTML = '<option value="">请选择地点</option>';
       locations.forEach((loc) => {
         const opt = document.createElement("option");
         opt.value = loc;
@@ -828,6 +910,58 @@
         locationSelect.appendChild(opt);
       });
       locationCount.textContent = `${locations.length} saved`;
+      renderLocationsList();
+    }
+
+    function renderLocationsList() {
+      locationsList.innerHTML = "";
+      if (!locations.length) {
+        const div = document.createElement("div");
+        div.className = "loc-list-empty";
+        div.textContent = "暂时没有保存的地点。";
+        locationsList.appendChild(div);
+        return;
+      }
+      locations.forEach((loc, index) => {
+        const row = document.createElement("div");
+        row.className = "loc-row";
+
+        const name = document.createElement("div");
+        name.className = "loc-name";
+        name.textContent = loc;
+        row.appendChild(name);
+
+        const actions = document.createElement("div");
+        actions.className = "loc-actions";
+
+        const editBtn = document.createElement("button");
+        editBtn.className = "icon-btn";
+        editBtn.innerHTML = "✏️";
+        editBtn.addEventListener("click", () => {
+          editingLocationIndex = index;
+          locationCustom.value = loc;
+          locationSelect.value = loc;
+          showToast("已载入地点，可编辑后点“保存地点”");
+        });
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "icon-btn danger";
+        delBtn.innerHTML = "🗑";
+        delBtn.addEventListener("click", () => {
+          if (!confirm(`确定删除地点「${loc}」？`)) return;
+          locations.splice(index, 1);
+          if (editingLocationIndex === index) editingLocationIndex = null;
+          updateLocationSelect();
+          saveState();
+          showToast("地点已删除");
+        });
+
+        actions.appendChild(editBtn);
+        actions.appendChild(delBtn);
+        row.appendChild(actions);
+
+        locationsList.appendChild(row);
+      });
     }
 
     function getSelectedLocation() {
@@ -848,7 +982,6 @@
     }
 
     function getSortedRecords() {
-      // sort by date then createdAt
       return [...records].sort((a, b) => {
         if (a.date === b.date) {
           return (a.createdAt || 0) - (b.createdAt || 0);
@@ -892,22 +1025,17 @@
           curr.whPerKm = whPerKm;
         }
       }
-      // replace original records array with sorted
       records = sorted;
     }
 
     function renderPrevInfo() {
       if (!records.length) {
         prevInfo.textContent =
-          "暂无历史记录。第一条记录将不会计算 KM / kWh / Wh/km。";
+          "暂暂无历史记录。第一条记录将不会计算 KM / kWh / Wh/km。";
         return;
       }
       const last = getSortedRecords()[records.length - 1];
-      prevInfo.innerHTML = `
-        上一条记录：<strong>${last.date}</strong>
-        · End <strong>${last.end}%</strong>
-        · ODO <strong>${last.odo} km</strong>
-      `;
+      prevInfo.innerHTML = `上一条记录：<strong>${last.date}</strong> · End <strong>${last.end}%</strong> · ODO <strong>${last.odo} km</strong>`;
     }
 
     function renderRecords() {
@@ -997,14 +1125,14 @@
       const sorted = getSortedRecords();
       if (!sorted.length) {
         summaryContainer.innerHTML =
-          '<div class="empty-state" style="padding-top:8px;">未产生任何月份统计。</div>';
+          '<div class="empty-state">No drive data yet</div>';
         return;
       }
 
       const byMonth = {};
       sorted.forEach((rec) => {
         if (!rec.date) return;
-        const month = rec.date.slice(0, 7); // YYYY-MM
+        const month = rec.date.slice(0, 7);
         if (!byMonth[month]) {
           byMonth[month] = {
             totalRM: 0,
@@ -1096,7 +1224,6 @@
 
     function clearForm() {
       editingId = null;
-      // Keep date as last used, just clear numeric fields
       startPercentInput.value = "";
       endPercentInput.value = "";
       odoInput.value = "";
@@ -1104,7 +1231,8 @@
       locationSelect.value = "";
       rateInput.value = "";
       costInput.value = "";
-      addRecordBtn.textContent = "● 保存充电记录";
+      addRecordBtn.textContent = "Add Record";
+      rateChips.forEach((c) => c.classList.remove("selected"));
     }
 
     function loadRecordToForm(id) {
@@ -1125,7 +1253,16 @@
         locationSelect.value = "";
       }
 
-      addRecordBtn.textContent = "✔ 更新记录";
+      rateChips.forEach((chip) => {
+        const r = chip.getAttribute("data-rate");
+        if (rec.rate != null && Number(r) === Number(rec.rate)) {
+          chip.classList.add("selected");
+        } else {
+          chip.classList.remove("selected");
+        }
+      });
+
+      addRecordBtn.textContent = "Update Record";
       showToast("已载入记录，可编辑后保存");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -1136,7 +1273,6 @@
       showToast("已删除记录");
     }
 
-    // --- Add / Update Record ---
     function handleSaveRecord() {
       const date = dateInput.value || defaultToday();
       const start = startPercentInput.value.trim();
@@ -1217,14 +1353,12 @@
         refreshAll();
         clearForm();
         showToast("已新增记录");
-        // Scroll table to bottom
         setTimeout(() => {
           tableWrapper.scrollTop = tableWrapper.scrollHeight;
         }, 100);
       }
     }
 
-    // --- Export CSV ---
     function exportCSV() {
       if (!records.length) {
         showToast("没有记录可导出");
@@ -1240,7 +1374,7 @@
           rec.start ?? "",
           rec.end ?? "",
           rec.odo ?? "",
-          rec.location ? `"${String(rec.location).replace(/"/g, '""')}"` : "",
+          rec.location ? '"' + String(rec.location).replace(/"/g, '""') + '"' : "",
           rec.rate ?? "",
           rec.cost ?? "",
           rec.driveKm ?? "",
@@ -1263,7 +1397,6 @@
       showToast("CSV 已导出");
     }
 
-    // --- Import CSV ---
     function openImportModal() {
       importModal.classList.add("show");
     }
@@ -1312,16 +1445,13 @@
         );
 
       let startIdx = 0;
-      if (matchesHeader) {
-        startIdx = 1;
-      }
+      if (matchesHeader) startIdx = 1;
 
       const imported = [];
       for (let i = startIdx; i < lines.length; i++) {
         const line = lines[i];
         if (!line.trim()) continue;
 
-        // Basic CSV split (handles quoted location)
         const cells = [];
         let current = "";
         let inQuotes = false;
@@ -1340,7 +1470,13 @@
         const [date, start, end, odo, location, rate, cost] = cells;
 
         const newRec = {
-          id: "imp_" + Date.now() + "_" + i + "_" + Math.random().toString(16).slice(2),
+          id:
+            "imp_" +
+            Date.now() +
+            "_" +
+            i +
+            "_" +
+            Math.random().toString(16).slice(2),
           createdAt: Date.now() + i,
           date: date || defaultToday(),
           start: start ? Number(start) : null,
@@ -1368,7 +1504,6 @@
         records = records.concat(imported);
       }
 
-      // Add any new locations
       imported.forEach((rec) => {
         ensureLocationExists(rec.location);
       });
@@ -1381,14 +1516,12 @@
       );
     }
 
-    // --- Event Listeners ---
     document.addEventListener("DOMContentLoaded", () => {
       dateInput.value = defaultToday();
       loadState();
       updateLocationSelect();
       refreshAll();
 
-      // Auto jump for 2-digit percent fields
       function handleAutoJump(e, nextEl) {
         const v = e.target.value.replace(/\D/g, "");
         e.target.value = v;
@@ -1397,6 +1530,7 @@
           nextEl.select?.();
         }
       }
+
       startPercentInput.addEventListener("input", (e) =>
         handleAutoJump(e, endPercentInput)
       );
@@ -1404,50 +1538,45 @@
         handleAutoJump(e, odoInput)
       );
 
-      // Save record
       addRecordBtn.addEventListener("click", handleSaveRecord);
 
-      // Location manage
       saveLocationBtn.addEventListener("click", () => {
         const loc = locationCustom.value.trim();
         if (!loc) {
           showToast("请输入地点名称再保存");
           return;
         }
-        ensureLocationExists(loc);
-        locationSelect.value = loc;
-        showToast("地点已保存");
+        if (editingLocationIndex !== null) {
+          locations[editingLocationIndex] = loc;
+          locations.sort((a, b) => a.localeCompare(b));
+          editingLocationIndex = null;
+          showToast("地点已更新");
+          saveState();
+          updateLocationSelect();
+          locationSelect.value = loc;
+        } else {
+          ensureLocationExists(loc);
+          locationSelect.value = loc;
+          showToast("地点已保存");
+        }
       });
 
-      deleteLocationBtn.addEventListener("click", () => {
-        const loc = locationSelect.value || locationCustom.value.trim();
-        if (!loc) {
-          showToast("请选择或输入要删除的地点");
-          return;
-        }
-        if (!locations.includes(loc)) {
-          showToast("该地点不在保存列表中");
-          return;
-        }
-        if (!confirm(`确定删除地点「${loc}」？`)) return;
-        locations = locations.filter((l) => l !== loc);
-        updateLocationSelect();
-        saveState();
-        if (locationSelect.value === loc) locationSelect.value = "";
-        showToast("地点已删除");
+      rateChips.forEach((chip) => {
+        chip.addEventListener("click", () => {
+          const value = chip.getAttribute("data-rate");
+          rateChips.forEach((c) => c.classList.remove("selected"));
+          chip.classList.add("selected");
+          rateInput.value = value === "0" ? "0" : value;
+          if (value === "0" && !costInput.value) {
+            costInput.value = "0";
+          }
+        });
       });
 
-      // Export
       exportBtn.addEventListener("click", exportCSV);
-
-      // Import
       importBtn.addEventListener("click", openImportModal);
       importCancelBtn.addEventListener("click", closeImportModal);
-
-      importConfirmBtn.addEventListener("click", () => {
-        fileInput.click();
-      });
-
+      importConfirmBtn.addEventListener("click", () => fileInput.click());
       fileInput.addEventListener("change", () => {
         const mode =
           document.querySelector('input[name="importMode"]:checked')?.value ||
