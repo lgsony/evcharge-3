@@ -30,8 +30,8 @@
   .btn{background:linear-gradient(180deg,#ff2a47,#e31937);color:white;border:none;padding:20px;border-radius:18px;font-size:20px;font-weight:700;margin-top:18px;box-shadow:0 8px 30px rgba(227,25,55,0.5);}
   .quick-btns{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 8px;justify-content:center;}
   .qb{padding:12px 20px;background:var(--gray);color:white;border-radius:40px;font-size:17px;font-weight:600;border:1px solid #555;}
-  table{width:100%;border-collapse:collapse;}
-  th,td{padding:14px 0;text-align:left;border-bottom:1px solid var(--border);font-size:15px;}
+  table{width:100%;border-collapse:collapse;margin-top:8px;}
+  th,td{padding:14px 8px;text-align:center;border-bottom:1px solid var(--border);font-size:15px;white-space:nowrap;}
   th{color:#aaa;font-weight:500;}
   .footer{text-align:center;color:#666;font-size:12px;margin:40px 0 20px;}
   .version{color:#555;font-size:11px;text-align:center;margin-top:50px;}
@@ -87,10 +87,15 @@
     </div>
   </div>
 
+  <!-- 完美对齐的记录表格 -->
   <div class="card">
     <div class="section" style="padding-bottom:0;">
       <table>
-        <thead><tr><th>Date</th><th>Start</th><th>End</th><th>kWh</th><th>Location</th><th>Rate</th><th>Cost</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Date</th><th>Start</th><th>End</th><th>kWh</th><th>Location</th><th>Rate</th><th>Cost</th>
+          </tr>
+        </thead>
         <tbody id="tableBody"></tbody>
       </table>
     </div>
@@ -118,7 +123,6 @@ let isCN = localStorage.getItem(KEYS.lang)==='cn';
 let isUltraDark = localStorage.getItem(KEYS.dark)==='true';
 if(isUltraDark)document.body.classList.add('dark-mode');
 
-// 切换
 function toggleLang(){isCN=!isCN;localStorage.setItem(KEYS.lang,isCN?'cn':'en');location.reload();}
 function toggleDark(){isUltraDark=!isUltraDark;localStorage.setItem(KEYS.dark,isUltraDark);document.body.classList.toggle('dark-mode',isUltraDark);}
 
@@ -190,7 +194,6 @@ function autoFillRate(){
 }
 function setRate(v){document.getElementById('rate').value=v;}
 
-// 添加记录（不再弹窗，安静保存）
 function addRecord(){
   const loc=document.getElementById('location').value;
   if(!loc)return;
@@ -209,18 +212,24 @@ function addRecord(){
   renderTable();
 }
 
-// 表格渲染
 function renderTable(){
   const tbody=document.getElementById('tableBody');
   tbody.innerHTML='';
   records.slice().reverse().forEach(r=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${r.date.split('-').reverse().join('/')}</td><td>${r.start}</td><td>${r.end}</td><td>${r.kwh}</td><td>${r.location}</td><td>${r.rate||'-'}</td><td>${r.cost!=null?'RM'+r.cost.toFixed(2):'-'}</td>`;
+    tr.innerHTML=`
+      <td>${r.date.split('-').reverse().join('/')}</td>
+      <td>${r.start}</td>
+      <td>${r.end}</td>
+      <td>${r.kwh}</td>
+      <td>${r.location}</td>
+      <td>${r.rate||'-'}</td>
+      <td>${r.cost!=null?'RM'+r.cost.toFixed(2):'-'}</td>
+    `;
     tbody.appendChild(tr);
   });
 }
 
-// 导出导入
 function exportAll(){
   let csv='\uFEFF# EV Charge Log Pro\n# Locations: '+allLocations.join('|')+'\n# RateMemory: '+JSON.stringify(rateMemory)+'\n\nDate,Start%,End%,kWh,Location,Rate,Cost\n';
   records.forEach(r=>csv+=`${r.date},${r.start},${r.end},${r.kwh},${r.location},${r.rate||''},${r.cost||''}\n`);
