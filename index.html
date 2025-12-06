@@ -7,36 +7,28 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-  :root{
-    --bg:#000;--card:#1c1c1e;--text:#fff;--text2:#aaa;
-    --tesla-red:#E31937;--gray:#333;--border:#2c2c2e;
-  }
+  :root{--bg:#000;--card:#1c1c1e;--text:#fff;--tesla-red:#E31937;--gray:#333;--border:#2c2c2e;}
   body{margin:0;font-family:-apple-system,sans-serif;background:var(--bg);color:var(--text);
        padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
   .c{max-width:600px;margin:0 auto;padding:0 16px;padding-bottom:120px;}
   header{padding:24px 0 16px;text-align:center;font-size:34px;font-weight:800;color:var(--tesla-red);}
   .card{background:var(--card);border-radius:20px;overflow:hidden;margin:20px 0;
          box-shadow:0 4px 16px rgba(227,25,55,0.15);border:1px solid #2a2a2a;}
-  .card > div{padding:20px 20px 24px;}
-  .card > div:not(:last-child){border-bottom:1px solid var(--border);}
+  .section{padding:20px 20px 24px;}
+  .section:not(:last-child){border-bottom:1px solid var(--border);}
   input,select{
-    width:100%;padding:17px 16px;margin:10px 0;background:#2c2c2e;border:none;
+    width:100%;padding:17px 16px;margin:8px 0;background:#2c2c2e;border:none;
     border-radius:13px;color:white;font-size:17px;box-sizing:border-box;
   }
   .row{display:flex;gap:12px;align-items:center;}
-  .row input{flex:1;}
+  .row > div{flex:1;}
   .btn{
     background:linear-gradient(180deg,#ff2a47,#e31937);color:white;border:none;
-    padding:18px;border-radius:16px;font-size:19px;font-weight:700;width:100%;margin-top:16px;
+    padding:18px;border-radius:16px;font-size:19px;font-weight:700;margin-top:16px;
     box-shadow:0 6px 20px rgba(227,25,55,0.4);
   }
   .quick-btns{display:flex;flex-wrap:wrap;gap:11px;margin:14px 0 6px;justify-content:center;}
   .qb{padding:11px 18px;background:var(--gray);color:white;border-radius:30px;font-size:16px;font-weight:600;}
-  .qb:active{transform:scale(0.95);}
-  table{width:100%;border-collapse:collapse;margin-top:8px;}
-  th,td{padding:14px 0;text-align:left;border-bottom:1px solid #2a2a2a;font-size:15px;}
-  th{color:var(--text2);}
-  .github{text-align:center;color:#888;font-size:13px;margin:30px 0 10px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -45,146 +37,63 @@
   <header>EV Charge Log Pro</header>
 
   <div class="card">
-    <div><input type="date" id="date" value="2025-12-06"></div>
-    
-    <div>
+    <div class="section">
       <div class="row">
-        <input type="number" inputmode="decimal" id="start" placeholder="Start %" min="0" max="100"
-               oninput="autoJump(this, 'end')">
-        <input type="number" inputmode="decimal" id="end" placeholder="End %" min="0" max="100"
-               oninput="autoJump(this, 'location')">
+        <div><input type="date" id="date" value="2025-12-06"></div>
+        <div><input type="number" id="start" placeholder="Start %" min="0" max="100"></div>
+        <div><input type="number" id="end" placeholder="End %" min="0" max="100"></div>
       </div>
     </div>
-    
-    <div>
-      <select id="location" onchange="handleLocationSelect()">
+
+    <div class="section">
+      <select id="location">
         <option value="">Select Location</option>
         <option value="__ADD__">+ Add New Location</option>
         <option disabled>────────────────</option>
       </select>
     </div>
-    
-    <div class="quick-btns">
-      <button class="qb" onclick="setRate(0.84)">0.84</button>
-      <button class="qb" onclick="setRate(1.00)">1.00</button>
-      <button class="qb" onclick="setRate(1.30)">1.30</button>
-      <button class="qb" onclick="setRate(1.50)">1.50</button>
-      <button class="qb" onclick="setRate(1.80)">1.80</button>
-      <button class="qb" onclick="setRate(0)">Free</button>
-    </div>
-    
-    <!-- 完美对齐的 Rate + Cost 行 -->
-    <div>
-      <div class="row">
-        <input type="number" step="0.001" inputmode="decimal" id="rate" placeholder="Rate (RM/kWh)" style="flex:1;">
-        <input type="number" step="0.01" inputmode="decimal" id="cost" placeholder="Cost (RM) 可不填" style="flex:1;">
+
+    <div class="section">
+      <div class="quick-btns">
+        <button class="qb" onclick="setRate(0.84)">0.84</button>
+        <button class="qb" onclick="setRate(1.00)">1.00</button>
+        <button class="qb" onclick="setRate(1.30)">1.30</button>
+        <button class="qb" onclick="setRate(1.50)">1.50</button>
+        <button class="qb" onclick="setRate(1.80)">1.80</button>
+        <button class="qb" onclick="setRate(0)">Free</button>
       </div>
     </div>
-    
-    <div><button class="btn" onclick="addRecord()">Add Record</button></div>
-  </div>
 
-  <!-- 其他部分省略（表格、导出等保持不变） -->
+    <div class="section">
+      <div class="row">
+        <input type="number" step="0.001" inputmode="decimal" id="rate" placeholder="Rate (RM/kWh)">
+        <input type="number" step="0.01" inputmode="decimal" id="cost" placeholder="Cost (RM) 可不填">
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="btn" onclick="addRecord()">Add Record</button>
+    </div>
+  </div>
 </div>
 
 <script>
-// 终极自动跳转函数（支持 1-9 直接跳，也支持 10-100 正常输入）
-function autoJump(input, nextId) {
-  let val = input.value;
-  if (val === '') return;
-  
-  // 限制最大3位
-  if (val.length > 3) {
-    input.value = val.slice(0, 3);
-    val = input.value;
-  }
-  
-  // 如果输入的是 1-100 之间的有效数字，就自动跳到下一个
-  const num = parseInt(val);
-  if (!isNaN(num) && num >= 0 && num <= 100) {
-    setTimeout(() => {
-      const next = document.getElementById(nextId);
-      if (next) next.focus();
-    }, 10);
-  }
-}
-
 const BATTERY_CAPACITY = 60;
 const KEY_RECORDS = 'evRecords2025';
 const KEY_LOCATIONS = 'evLocations2025';
 const KEY_RATES = 'evRateMemory2025';
 
 let records = JSON.parse(localStorage.getItem(KEY_RECORDS)||'[]');
-let customLocations = JSON.parse(localStorage.getItem(KEY_LOCATIONS)||'[]');
+let allLocations = JSON.parse(localStorage.getItem(KEY_LOCATIONS)||'["BH","PV","BAMBOO HILL","HOME","WORK"]');
 let rateMemory = JSON.parse(localStorage.getItem(KEY_RATES)||'{}');
-const defaultLocations = ["BH","PV","BAMBOO HILL","HOME","WORK"];
 
-function allLocations(){return [...new Set([...defaultLocations,...customLocations])].sort();}
-function renderLocations(){
-  const s=document.getElementById('location');
-  s.innerHTML=`<option value="">Select Location</option><option value="__ADD__">+ Add New Location</option><option disabled>────────────────</option>`;
-  allLocations().forEach(l=>{
-    const o=document.createElement('option');
-    o.value=l; o.textContent=l + (!defaultLocations.includes(l) ? "  ← 长按删除" : "");
-    s.appendChild(o);
-  });
-}
-function handleLocationSelect(){
-  const val = document.getElementById('location').value;
-  if(val==="__ADD__"){
-    const n=prompt("输入新地点（自动大写）")?.trim().toUpperCase();
-    if(n&&!allLocations().includes(n)){
-      customLocations.push(n);
-      localStorage.setItem(KEY_LOCATIONS,JSON.stringify(customLocations));
-      renderLocations();
-      document.getElementById('location').value=n;
-    }else document.getElementById('location').value="";
-  }
-  autoFillRate();
-}
-let longPressTimer;
-document.getElementById('location').addEventListener('pointerdown', e=>{
-  if(!e.target.textContent.includes('长按删除')) return;
-  longPressTimer=setTimeout(()=>{
-    if(confirm(`删除 "${e.target.value}"？`)){
-      customLocations=customLocations.filter(x=>x!==e.target.value);
-      delete rateMemory[e.target.value];
-      localStorage.setItem(KEY_LOCATIONS,JSON.stringify(customLocations));
-      localStorage.setItem(KEY_RATES,JSON.stringify(rateMemory));
-      renderLocations();
-    }
-  },800);
-});
-document.getElementById('location').addEventListener('pointerup',()=>clearTimeout(longPressTimer));
-document.getElementById('location').addEventListener('pointercancel',()=>clearTimeout(longPressTimer));
+// 智能跳转（你上一条要的完美版）
+let lastInputTime = 0;
+function smartJump(input, nextId) {
+  const now = Date.now();
+  const diff = now - lastInputTime;
+  lastInputTime = now;
+  const val = input.value.trim();
 
-function autoFillRate(){
-  const loc=document.getElementById('location').value;
-  if(loc&&rateMemory[loc]) document.getElementById('rate').value=rateMemory[loc];
-}
-function setRate(v){document.getElementById('rate').value=v;}
-
-function addRecord(){
-  const loc=document.getElementById('location').value;
-  if(!loc) return alert("请选择地点");
-  const start=parseInt(document.getElementById('start').value||0);
-  const end=parseInt(document.getElementById('end').value||0);
-  if(isNaN(start)||isNaN(end)) return alert("请填写起止电量");
-  const rate=document.getElementById('rate').value?parseFloat(document.getElementById('rate').value):null;
-  const manualCost=document.getElementById('cost').value?parseFloat(document.getElementById('cost').value):null;
-  const kwh=((end-start)/100*BATTERY_CAPACITY).toFixed(2);
-  const cost=manualCost!==null?manualCost:(rate?(kwh*rate).toFixed(2):null);
-  if(rate!==null){rateMemory[loc]=rate;localStorage.setItem(KEY_RATES,JSON.stringify(rateMemory));}
-  records.push({date:document.getElementById('date').value,start,end,kwh:parseFloat(kwh),location:loc,rate,cost:cost?parseFloat(cost):null,id:Date.now()});
-  localStorage.setItem(KEY_RECORDS,JSON.stringify(records));
-  document.getElementById('start').value=document.getElementById('end').value=document.getElementById('cost').value='';
-  document.getElementById('start').focus();
-  alert(`已记录：${loc} ${kwh} kWh`);
-}
-
-document.getElementById('date').value=new Date().toISOString().slice(0,10);
-renderLocations();
-document.getElementById('start').focus();
-</script>
-</body>
-</html>
+  if (val.length === 1 && diff > 500) {
+    setTimeout(() => document.getElementById(nextId)?.focus(),
