@@ -12,9 +12,9 @@
   body{margin:0;font-family:-apple-system,sans-serif;background:var(--bg);color:var(--text);
        padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);transition:all 0.3s;}
   .c{max-width:600px;margin:0 auto;padding:0 16px;padding-bottom:120px;}
-  header{padding:24px 0 16px;text-align:center;font-size:34px;font-weight:800;color:var(--tesla-red);position:relative;}
-  .logo{position:absolute;right:12px;top:18px;width:36px;height:36px;}
-  .toggle{position:absolute;right:56px;top:20px;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:13px;}
+  header{padding:28px 0 16px;text-align:center;font-size:34px;font-weight:800;color:var(--tesla-red);position:relative;}
+  .logo{position:absolute;right:12px;top:22px;width:36px;height:36px;}
+  .toggle{position:absolute;right:58px;top:28px;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:13px;}
   .card{background:var(--card);border-radius:22px;overflow:hidden;margin:20px 0;box-shadow:0 8px 32px rgba(227,25,55,0.15);border:1px solid var(--border);}
   .section{padding:22px 20px 26px;}
   .section:not(:last-child){border-bottom:1px solid var(--border);}
@@ -23,11 +23,9 @@
     border-radius:16px;color:white;font-size:18px;box-sizing:border-box;transition:all 0.2s;
   }
   input:focus,select:focus{outline:none;box-shadow:0 0 0 3px var(--focus);background:#333;}
-  #location{
-    font-size:19px;font-weight:600;padding:20px 18px;
+  #location{font-size:19px;font-weight:600;padding:20px 18px;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat:no-repeat;background-position:right 18px center;
-  }
+    background-repeat:no-repeat;background-position:right 18px center;}
   .row{display:flex;gap:14px;align-items:center;}
   .row > div{flex:1;}
   .btn{background:linear-gradient(180deg,#ff2a47,#e31937);color:white;border:none;padding:20px;border-radius:18px;font-size:20px;font-weight:700;margin-top:18px;box-shadow:0 8px 30px rgba(227,25,55,0.5);}
@@ -44,6 +42,7 @@
   .action:hover{opacity:1;}
   .version{color:#555;font-size:11px;text-align:center;margin-top:50px;}
   #location option[data-divider]{height:1px;background:#444;margin:8px 16px;pointer-events:none;}
+</style>
 </style>
 </head>
 <body>
@@ -117,11 +116,9 @@ if(isUltraDark)document.body.classList.add('dark-mode');
 function toggleLang(){isCN=!isCN;localStorage.setItem(KEYS.lang,isCN?'cn':'en');location.reload();}
 function toggleDark(){isUltraDark=!isUltraDark;localStorage.setItem(KEYS.dark,isUltraDark);document.body.classList.toggle('dark-mode',isUltraDark);}
 
-// 输入跳转
 document.getElementById('start').oninput=function(){let v=this.value.replace(/[^0-9]/g,'');if(v.length>2)v=v.slice(0,2);this.value=v;if(v.length===2)setTimeout(()=>document.getElementById('end').focus(),50);}
 document.getElementById('end').oninput=function(){let v=this.value.replace(/[^0-9]/g,'');if(v.length>3)v=v.slice(0,3);this.value=v;if(v.length===3||parseInt(v)===100)setTimeout(()=>document.getElementById('location').focus(),50);}
 
-// 地点管理（完美无横线）
 function renderLocations(){
   const s=document.getElementById('location');
   s.innerHTML=`<option value="">Select Location</option><option value="__ADD__">+ Add New Location</option><option data-divider></option>`;
@@ -151,7 +148,7 @@ document.getElementById('location').addEventListener('pointerdown',e=>{
       if(newName&&!allLocations.includes(newName)){
         const i=allLocations.indexOf(loc);
         allLocations[i]=newName;
-        if(rateMemory[loc]){rateMemory[newName]=rateMemory[loc];delete rateMemory[loc];}
+        if(rateMemory[loc])&&(rateMemory[newName]=rateMemory[loc],delete rateMemory[loc]);
         localStorage.setItem(KEYS.locations,JSON.stringify(allLocations));
         localStorage.setItem(KEYS.rates,JSON.stringify(rateMemory));
         renderLocations();
