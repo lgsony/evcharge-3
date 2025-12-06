@@ -7,58 +7,214 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-  :root{--bg:#000;--card:#1c1c1e;--text:#fff;--tesla-red:#E31937;--gray:#333;--border:#2c2c2e;--focus:#007AFF;}
-  .dark-mode{--bg:#000000;--card:#0d0d0d;--border:#1a1a1a;--gray:#222;}
-  body{margin:0;font-family:-apple-system,sans-serif;background:var(--bg);color:var(--text);
-       padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);transition:all 0.3s;}
-  .c{max-width:600px;margin:0 auto;padding:0 16px;padding-bottom:120px;}
-  header{padding:32px 0 20px;text-align:center;font-size:34px;font-weight:800;color:var(--tesla-red);position:relative;}
-  .logo{position:absolute;right:12px;top:26px;width:38px;height:38px;}
-  .toggle{position:absolute;right:60px;top:32px;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:13px;}
-  .card{background:var(--card);border-radius:22px;overflow:hidden;margin:20px 0;box-shadow:0 8px 32px rgba(227,25,55,0.15);border:1px solid var(--border);}
-  .section{padding:22px 20px 26px;}
-  .section:not(:last-child){border-bottom:1px solid var(--border);}
-  input,select{
-    width:100%;padding:18px 18px;margin:10px 0;background:#2c2c2e;border:none;
-    border-radius:16px;color:white;font-size:18px;box-sizing:border-box;transition:all 0.2s;
+  :root{
+    --bg:#000;
+    --card:#1c1c1e;
+    --text:#fff;
+    --tesla-red:#E31937;
+    --gray:#333;
+    --border:#2c2c2e;
+    --focus:#007AFF;
   }
-  input:focus,select:focus{outline:none;box-shadow:0 0 0 3px var(--focus);background:#333;}
-  #location{font-size:19px;font-weight:600;padding:20px 18px;
+  body{
+    margin:0;
+    font-family:-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    transition:all 0.3s;
+  }
+  .c{
+    max-width:600px;
+    margin:0 auto;
+    padding:0 16px;
+    padding-bottom:120px;
+  }
+  header{
+    padding:32px 0 20px;
+    text-align:center;
+    font-size:34px;
+    font-weight:800;
+    color:var(--tesla-red);
+    position:relative;
+  }
+  .logo{
+    position:absolute;
+    right:12px;
+    top:26px;
+    width:38px;
+    height:38px;
+  }
+  .toggle{
+    position:absolute;
+    right:60px;
+    top:32px;
+    background:rgba(255,255,255,0.1);
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .card{
+    background:var(--card);
+    border-radius:22px;
+    overflow:hidden;
+    margin:20px 0;
+    box-shadow:0 8px 32px rgba(227,25,55,0.15);
+    border:1px solid var(--border);
+  }
+  .section{
+    padding:22px 20px 26px;
+  }
+  .section:not(:last-child){
+    border-bottom:1px solid var(--border);
+  }
+  input,select{
+    width:100%;
+    padding:18px 18px;
+    margin:10px 0;
+    background:#2c2c2e;
+    border:none;
+    border-radius:16px;
+    color:white;
+    font-size:18px;
+    box-sizing:border-box;
+    transition:all 0.2s;
+  }
+  input:focus,select:focus{
+    outline:none;
+    box-shadow:0 0 0 3px var(--focus);
+    background:#333;
+  }
+  #location{
+    font-size:19px;
+    font-weight:600;
+    padding:20px 18px;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat:no-repeat;background-position:right 18px center;}
-  .row{display:flex;gap:14px;align-items:center;}
-  .row > div{flex:1;}
-  .btn{background:linear-gradient(180deg,#ff2a47,#e31937);color:white;border:none;padding:20px;border-radius:18px;font-size:20px;font-weight:700;margin-top:18px;box-shadow:0 8px 30px rgba(227,25,55,0.5);}
-  .quick-btns{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 8px;justify-content:center;}
-  .qb{padding:12px 20px;background:var(--gray);color:white;border-radius:40px;font-size:17px;font-weight:600;border:1px solid #555;}
-  .table-wrapper{overflow:auto;-webkit-overflow-scrolling:touch;border-radius:16px;margin:8px 0;}
-  table{width:100%;min-width:680px;border-collapse:separate;border-spacing:0;}
-  th,td{padding:16px 10px;text-align:center;border-bottom:1px solid var(--border);border-right:1px solid var(--border);font-size:15px;}
-  th:last-child,td:last-child{border-right:none;}
-  th{background:#252525;color:#aaa;font-weight:600;}
-  tr:last-child td{border-bottom:none;}
-  .action{font-size:20px;cursor:pointer;opacity:0.7;}
-  .action:hover{opacity:1;}
-  .version{color:#555;font-size:11px;text-align:center;margin-top:50px;}
-  #location option[data-divider]{height:1px;background:#444;margin:8px 16px;pointer-events:none;}
+    background-repeat:no-repeat;
+    background-position:right 18px center;
+  }
+  .row{
+    display:flex;
+    gap:14px;
+    align-items:center;
+  }
+  .row > div, .row > input{
+    flex:1;
+  }
+  .btn{
+    width:100%;
+    background:linear-gradient(180deg,#ff2a47,#e31937);
+    color:white;
+    border:none;
+    padding:20px;
+    border-radius:18px;
+    font-size:20px;
+    font-weight:700;
+    margin-top:18px;
+    box-shadow:0 8px 30px rgba(227,25,55,0.5);
+    cursor:pointer;
+  }
+  .btn.secondary{
+    background:#333;
+    box-shadow:none;
+    font-size:16px;
+    padding:14px;
+    margin-top:10px;
+  }
+  .quick-btns{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin:16px 0 8px;
+    justify-content:center;
+  }
+  .qb{
+    padding:12px 20px;
+    background:var(--gray);
+    color:white;
+    border-radius:40px;
+    font-size:17px;
+    font-weight:600;
+    border:1px solid #555;
+    cursor:pointer;
+  }
+  .table-wrapper{
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
+    border-radius:16px;
+    margin:8px 0;
+  }
+  table{
+    width:100%;
+    min-width:720px;
+    border-collapse:separate;
+    border-spacing:0;
+  }
+  th,td{
+    padding:16px 10px;
+    text-align:center;
+    border-bottom:1px solid var(--border);
+    border-right:1px solid var(--border);
+    font-size:15px;
+  }
+  th:last-child,td:last-child{
+    border-right:none;
+  }
+  th{
+    background:#252525;
+    color:#aaa;
+    font-weight:600;
+  }
+  tr:last-child td{
+    border-bottom:none;
+  }
+  .action{
+    font-size:18px;
+    cursor:pointer;
+    opacity:0.7;
+    margin:0 4px;
+  }
+  .action:hover{
+    opacity:1;
+  }
+  .version{
+    color:#555;
+    font-size:11px;
+    text-align:center;
+    margin-top:50px;
+  }
+  #location option[data-divider]{
+    height:1px;
+    background:#444;
+    margin:8px 16px;
+    pointer-events:none;
+  }
+  .empty-row{
+    text-align:center;
+    padding:16px;
+    color:#777;
+    font-size:14px;
+  }
 </style>
 </head>
 <body>
 
 <div class="c">
   <header>
-    EV Charge Log Pro
+    <span id="title-text">EV Charge Log Pro</span>
     <img src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Tesla_logo.png" alt="T" class="logo">
-    <!-- 只保留中英切换，删掉“黑”按钮 -->
-    <div class="toggle" onclick="toggleLang()">中</div>
+    <!-- 只保留中英切换 -->
+    <div class="toggle" onclick="toggleLang()" id="lang-toggle">中</div>
   </header>
 
   <div class="card">
-    <!-- 日期自动设为今天 + 完美居中对齐 -->
+    <!-- 日期 -->
     <div class="section" style="padding-bottom:18px;">
       <input type="date" id="date">
     </div>
 
+    <!-- Start / End -->
     <div class="section">
       <div class="row">
         <input type="text" inputmode="numeric" id="start" placeholder="Start %" maxlength="3">
@@ -66,6 +222,7 @@
       </div>
     </div>
 
+    <!-- Location -->
     <div class="section">
       <select id="location">
         <option value="">Select Location</option>
@@ -74,6 +231,7 @@
       </select>
     </div>
 
+    <!-- Quick Rate -->
     <div class="section">
       <div class="quick-btns">
         <button class="qb" onclick="setRate(0.84)">0.84</button>
@@ -85,6 +243,7 @@
       </div>
     </div>
 
+    <!-- Rate / Cost -->
     <div class="section">
       <div class="row">
         <input type="number" step="0.001" id="rate" placeholder="Rate (RM/kWh)">
@@ -92,26 +251,41 @@
       </div>
     </div>
 
+    <!-- Buttons -->
     <div class="section">
-      <button class="btn" onclick="addRecord()">Add Record</button>
+      <button class="btn" id="main-btn" onclick="submitForm()">Add Record</button>
+      <button class="btn secondary" id="cancel-btn" style="display:none;" onclick="cancelEdit()">Cancel Edit</button>
     </div>
   </div>
 
+  <!-- TABLE -->
   <div class="card">
     <div class="section" style="padding:0;">
       <div class="table-wrapper">
         <table>
-          <thead><tr><th>Date</th><th>Start</th><th>End</th><th>kWh</th><th>Location</th><th>Rate</th><th>Cost</th></tr></thead>
+          <thead>
+            <tr>
+              <th id="th-date">Date</th>
+              <th id="th-start">Start</th>
+              <th id="th-end">End</th>
+              <th id="th-kwh">kWh</th>
+              <th id="th-loc">Location</th>
+              <th id="th-rate">Rate</th>
+              <th id="th-cost">Cost</th>
+              <th></th>
+            </tr>
+          </thead>
           <tbody id="tableBody"></tbody>
         </table>
       </div>
     </div>
   </div>
 
+  <!-- BACKUP -->
   <div class="card">
     <div class="section">
-      <button class="btn" style="background:#333;" onclick="document.getElementById('importFile').click()">Import CSV</button>
-      <button class="btn" onclick="exportAll()">Export All Data</button>
+      <button class="btn secondary" onclick="document.getElementById('importFile').click()" id="import-btn">Import CSV</button>
+      <button class="btn" onclick="exportAll()" id="export-btn">Export All Data</button>
       <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
     </div>
   </div>
@@ -120,52 +294,455 @@
 </div>
 
 <script>
-const BATTERY_CAPACITY = 60;
-const KEYS = {records:'evRecords2025',locations:'evLocations2025',rates:'evRateMemory2025',lang:'evLang2025'};
+const BATTERY_CAPACITY = 60; // 备用，如果以后要用百分比算 kWh
+const KEYS = {
+  records:'evRecords2025',
+  locations:'evLocations2025',
+  rates:'evRateMemory2025',
+  lang:'evLang2025'
+};
 
-let records = JSON.parse(localStorage.getItem(KEYS.records)||'[]');
-let allLocations = JSON.parse(localStorage.getItem(KEYS.locations)||'["BH","PV","BAMBOO HILL","HOME","WORK"]');
-let rateMemory = JSON.parse(localStorage.getItem(KEYS.rates)||'{}');
-let isCN = localStorage.getItem(KEYS.lang)==='cn';
+let records = JSON.parse(localStorage.getItem(KEYS.records) || '[]');
+let allLocations = JSON.parse(localStorage.getItem(KEYS.locations) || '["BH","PV","BAMBOO HILL","HOME","WORK"]');
+let rateMemory = JSON.parse(localStorage.getItem(KEYS.rates) || '{}');
+let isCN = localStorage.getItem(KEYS.lang) === 'cn';
+let editingIndex = null; // null = add 模式
 
-function toggleLang(){isCN=!isCN;localStorage.setItem(KEYS.lang,isCN?'cn':'en');location.reload();}
+// 语言切换
+function toggleLang(){
+  isCN = !isCN;
+  localStorage.setItem(KEYS.lang, isCN ? 'cn' : 'en');
+  applyLang();
+}
 
-// 日期默认今天
-document.getElementById('date').value = new Date().toISOString().toISOString().slice(0,10);
+// 应用语言
+function applyLang(){
+  const title = document.getElementById('title-text');
+  const langToggle = document.getElementById('lang-toggle');
+  const start = document.getElementById('start');
+  const end   = document.getElementById('end');
+  const rate  = document.getElementById('rate');
+  const cost  = document.getElementById('cost');
+  const mainBtn = document.getElementById('main-btn');
+  const cancelBtn = document.getElementById('cancel-btn');
+  const importBtn = document.getElementById('import-btn');
+  const exportBtn = document.getElementById('export-btn');
 
-// Start %：输入两位数自动跳（支持“00”→100）
+  const thDate  = document.getElementById('th-date');
+  const thStart = document.getElementById('th-start');
+  const thEnd   = document.getElementById('th-end');
+  const thKwh   = document.getElementById('th-kwh');
+  const thLoc   = document.getElementById('th-loc');
+  const thRate  = document.getElementById('th-rate');
+  const thCost  = document.getElementById('th-cost');
+  const locSelect = document.getElementById('location');
+
+  if(isCN){
+    title.textContent = '充电记录 Pro';
+    langToggle.textContent = 'EN';
+    start.placeholder = '起始 %';
+    end.placeholder   = '结束 %';
+    rate.placeholder  = '单价 (RM/kWh)';
+    cost.placeholder  = '费用 (RM)';
+    mainBtn.textContent = editingIndex === null ? '新增记录' : '保存修改';
+    cancelBtn.textContent = '取消编辑';
+    importBtn.textContent = '导入 CSV';
+    exportBtn.textContent = '导出全部数据';
+
+    thDate.textContent  = '日期';
+    thStart.textContent = '起始';
+    thEnd.textContent   = '结束';
+    thKwh.textContent   = 'kWh';
+    thLoc.textContent   = '地点';
+    thRate.textContent  = '单价';
+    thCost.textContent  = '费用';
+
+    if(locSelect.options[0]) locSelect.options[0].textContent = '选择地点';
+    if(locSelect.options[1]) locSelect.options[1].textContent = '+ 新增地点';
+  } else {
+    title.textContent = 'EV Charge Log Pro';
+    langToggle.textContent = '中';
+    start.placeholder = 'Start %';
+    end.placeholder   = 'End %';
+    rate.placeholder  = 'Rate (RM/kWh)';
+    cost.placeholder  = 'Cost (RM)';
+    mainBtn.textContent = editingIndex === null ? 'Add Record' : 'Save Changes';
+    cancelBtn.textContent = 'Cancel Edit';
+    importBtn.textContent = 'Import CSV';
+    exportBtn.textContent = 'Export All Data';
+
+    thDate.textContent  = 'Date';
+    thStart.textContent = 'Start';
+    thEnd.textContent   = 'End';
+    thKwh.textContent   = 'kWh';
+    thLoc.textContent   = 'Location';
+    thRate.textContent  = 'Rate';
+    thCost.textContent  = 'Cost';
+
+    if(locSelect.options[0]) locSelect.options[0].textContent = 'Select Location';
+    if(locSelect.options[1]) locSelect.options[1].textContent = '+ Add New Location';
+  }
+}
+
+// 日期默认今天（修正多余 toISOString 的 bug）
+document.getElementById('date').value = new Date().toISOString().slice(0,10);
+
+// Start %：输入两位/三位自动跳（支持 00→100）
 document.getElementById('start').oninput = function(){
   let v = this.value.replace(/[^0-9]/g,'');
   if(v.length>3) v = v.slice(0,3);
-  if(v==='00') v='100';
+  if(v === '00') v = '100';
   this.value = v;
-  if(v.length >= 2) setTimeout(()=>document.getElementById('end').focus(),50);
+  if(v.length >= 2){
+    setTimeout(()=>document.getElementById('end').focus(),50);
+  }
 };
 
-// End %：输入三位数自动跳
+// End %：输入三位自动跳
 document.getElementById('end').oninput = function(){
   let v = this.value.replace(/[^0-9]/g,'');
   if(v.length>3) v = v.slice(0,3);
-  if(v==='00') v='100';
+  if(v === '00') v = '100';
   this.value = v;
-  if(v.length === 3) setTimeout(()=>document.getElementById('location').focus(),50);
+  if(v.length >= 2){
+    setTimeout(()=>document.getElementById('location').focus(),50);
+  }
 };
 
-// 其余功能（地点、表格、导入导出、版本号等）保持完美
+// Rate 快捷按钮
+function setRate(v){
+  const rate = document.getElementById('rate');
+  if(v === 0){
+    rate.value = '';
+    rate.placeholder = isCN ? '免费 / Free' : 'Free / 0';
+  } else {
+    rate.value = v;
+    document.getElementById('cost').focus();
+  }
+}
 
+// 渲染地点下拉
 function renderLocations(){
-  const s=document.getElementById('location');
-  s.innerHTML=`<option value="">Select Location</option><option value="__ADD__">+ Add New Location</option><option data-divider></option>`;
+  const s = document.getElementById('location');
+  s.innerHTML = '';
+  const opt0 = document.createElement('option');
+  opt0.value = '';
+  opt0.textContent = isCN ? '选择地点' : 'Select Location';
+  s.appendChild(opt0);
+
+  const optAdd = document.createElement('option');
+  optAdd.value = '__ADD__';
+  optAdd.textContent = isCN ? '+ 新增地点' : '+ Add New Location';
+  s.appendChild(optAdd);
+
+  const divider = document.createElement('option');
+  divider.setAttribute('data-divider','');
+  s.appendChild(divider);
+
   allLocations.sort().forEach(l=>{
-    const o=document.createElement('option');
-    o.value=l;o.textContent=l;
+    const o = document.createElement('option');
+    o.value = l;
+    o.textContent = l;
     s.appendChild(o);
   });
 }
 
-// ...（地点长按编辑删除、addRecord、renderTable、edit/delete、import/export 等函数保持不变，代码太长已省略，实际完整保留）
+// 地点选择逻辑：新增地点 & 自动记忆 rate
+document.getElementById('location').addEventListener('change', function(){
+  const v = this.value;
+  if(v === '__ADD__'){
+    const name = prompt(isCN ? '输入新地点名称（例如：BH）' : 'Enter new location (e.g. BH)');
+    if(!name) {
+      this.value = '';
+      return;
+    }
+    const up = name.trim().toUpperCase();
+    if(!up) {
+      this.value = '';
+      return;
+    }
+    if(!allLocations.includes(up)){
+      allLocations.push(up);
+      localStorage.setItem(KEYS.locations, JSON.stringify(allLocations));
+    }
+    renderLocations();
+    this.value = up;
+  } else if(v){
+    // 如果有记忆的 rate，自动带出
+    if(rateMemory[v] != null){
+      document.getElementById('rate').value = rateMemory[v];
+    }
+  }
+});
 
-// 版本号自动更新
+// 日期显示格式
+function formatDateDisplay(str){
+  if(!str) return '';
+  const d = new Date(str);
+  if(isNaN(d)) return str;
+  const day = d.getDate();
+  const m   = d.getMonth()+1;
+  const y   = d.getFullYear();
+  return `${day}/${m}/${y}`;
+}
+
+// 保存到 localStorage
+function saveAll(){
+  localStorage.setItem(KEYS.records, JSON.stringify(records));
+  localStorage.setItem(KEYS.locations, JSON.stringify(allLocations));
+  localStorage.setItem(KEYS.rates, JSON.stringify(rateMemory));
+}
+
+// 渲染表格
+function renderTable(){
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  if(!records.length){
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 8;
+    td.className = 'empty-row';
+    td.textContent = isCN ? '目前还没有记录' : 'No records yet';
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  const sorted = records
+    .map((r,i)=>({...r, _i:i}))
+    .sort((a,b)=> (a.date || '').localeCompare(b.date || ''));
+
+  sorted.forEach(r=>{
+    const tr = document.createElement('tr');
+
+    const kwh = (r.rate && r.cost) ? (r.cost / r.rate) : 0;
+
+    tr.innerHTML = `
+      <td>${formatDateDisplay(r.date)}</td>
+      <td>${r.start ?? ''}</td>
+      <td>${r.end ?? ''}</td>
+      <td>${kwh ? kwh.toFixed(2) : ''}</td>
+      <td>${r.location || ''}</td>
+      <td>${r.rate ? r.rate.toFixed(3).replace(/0+$/,'').replace(/\.$/,'') : ''}</td>
+      <td>${r.cost ? r.cost.toFixed(2) : ''}</td>
+      <td></td>
+    `;
+
+    const actionTd = tr.lastElementChild;
+    const editSpan = document.createElement('span');
+    editSpan.className = 'action';
+    editSpan.textContent = '✏️';
+    editSpan.title = isCN ? '编辑' : 'Edit';
+    editSpan.onclick = ()=> startEdit(r._i);
+
+    const delSpan = document.createElement('span');
+    delSpan.className = 'action';
+    delSpan.textContent = '🗑';
+    delSpan.title = isCN ? '删除' : 'Delete';
+    delSpan.onclick = ()=> deleteRecord(r._i);
+
+    actionTd.appendChild(editSpan);
+    actionTd.appendChild(delSpan);
+
+    tbody.appendChild(tr);
+  });
+}
+
+// 进入编辑模式
+function startEdit(i){
+  const r = records[i];
+  editingIndex = i;
+
+  document.getElementById('date').value = r.date || '';
+  document.getElementById('start').value = r.start ?? '';
+  document.getElementById('end').value   = r.end ?? '';
+  document.getElementById('rate').value  = r.rate ?? '';
+  document.getElementById('cost').value  = r.cost ?? '';
+
+  renderLocations();
+  document.getElementById('location').value = r.location || '';
+
+  document.getElementById('main-btn').textContent = isCN ? '保存修改' : 'Save Changes';
+  document.getElementById('cancel-btn').style.display = 'block';
+}
+
+// 取消编辑
+function cancelEdit(){
+  editingIndex = null;
+  document.getElementById('main-btn').textContent = isCN ? '新增记录' : 'Add Record';
+  document.getElementById('cancel-btn').style.display = 'none';
+
+  // 保留日期为今天，清空其他
+  document.getElementById('date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('start').value = '';
+  document.getElementById('end').value = '';
+  document.getElementById('location').value = '';
+  document.getElementById('rate').value = '';
+  document.getElementById('cost').value = '';
+}
+
+// 删除记录
+function deleteRecord(i){
+  if(!confirm(isCN ? '确定要删除这条记录？' : 'Delete this record?')) return;
+  records.splice(i,1);
+  saveAll();
+  cancelEdit();
+  renderTable();
+}
+
+// 提交表单（新增/保存）
+function submitForm(){
+  const date = document.getElementById('date').value;
+  const start = Number(document.getElementById('start').value || 0);
+  const end   = Number(document.getElementById('end').value || 0);
+  const loc   = (document.getElementById('location').value || '').trim().toUpperCase();
+  const rate  = Number(document.getElementById('rate').value || 0);
+  const cost  = Number(document.getElementById('cost').value || 0);
+
+  if(!date || !loc || !rate || !cost){
+    alert(isCN ? '日期 / 地点 / 单价 / 费用 不能为空' : 'Date / Location / Rate / Cost are required');
+    return;
+  }
+
+  const rec = {date, start, end, location:loc, rate, cost};
+
+  // 记住每个地点的 rate
+  if(loc){
+    rateMemory[loc] = rate;
+  }
+
+  if(editingIndex === null){
+    records.push(rec);
+  } else {
+    records[editingIndex] = rec;
+  }
+
+  saveAll();
+  cancelEdit();
+  renderTable();
+  document.getElementById('start').focus();
+}
+
+// 导出 CSV
+function exportAll(){
+  if(!records.length){
+    alert(isCN ? '暂无记录可导出' : 'No data to export.');
+    return;
+  }
+  const lines = ['date,start,end,location,rate,cost'];
+  records.forEach(r=>{
+    const loc = (r.location || '').replace(/"/g,'""');
+    const line = `${r.date || ''},${r.start ?? ''},${r.end ?? ''},"${loc}",${r.rate ?? ''},${r.cost ?? ''}`;
+    lines.push(line);
+  });
+  const csv = lines.join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const now = new Date();
+  const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  a.href = url;
+  a.download = `ev_charge_log_${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// 简易 CSV 解析
+function parseCSV(text){
+  const rows = text.split(/\r?\n/).filter(l=>l.trim());
+  if(!rows.length) return [];
+
+  const splitRow = (row)=>{
+    const result = [];
+    let cur = '';
+    let inQ = false;
+    for(let i=0;i<row.length;i++){
+      const c = row[i];
+      if(c === '"'){ inQ = !inQ; continue; }
+      if(c === ',' && !inQ){
+        result.push(cur);
+        cur = '';
+      } else {
+        cur += c;
+      }
+    }
+    result.push(cur);
+    return result.map(s=>s.trim());
+  };
+
+  const header = splitRow(rows[0]);
+  const hasHeader = header.some(h=>/date/i.test(h));
+  const startIndex = hasHeader ? 1 : 0;
+
+  let map;
+  if(hasHeader){
+    const hmap = {};
+    header.forEach((h,i)=>{ hmap[h.toLowerCase()] = i; });
+    map = {
+      date: hmap['date'],
+      start: hmap['start'],
+      end: hmap['end'],
+      location: hmap['location'],
+      rate: hmap['rate'],
+      cost: hmap['cost']
+    };
+  } else {
+    map = {date:0,start:1,end:2,location:3,rate:4,cost:5};
+  }
+
+  const out=[];
+  for(let i=startIndex;i<rows.length;i++){
+    const cols = splitRow(rows[i]);
+    if(!cols.length) continue;
+    const get = idx => (idx!=null && cols[idx]!=null ? cols[idx] : '').trim();
+    const date = get(map.date);
+    const rate = Number(get(map.rate) || 0);
+    const cost = Number(get(map.cost) || 0);
+    const start = Number(get(map.start) || 0);
+    const end   = Number(get(map.end) || 0);
+    const loc   = get(map.location).replace(/""/g,'"').toUpperCase();
+
+    if(!date && !loc && !rate && !cost) continue;
+
+    out.push({date, start, end, location:loc, rate, cost});
+  }
+  return out;
+}
+
+// 导入 CSV
+function importAll(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    const text = e.target.result || '';
+    const parsed = parseCSV(text);
+    if(!parsed.length){
+      alert(isCN ? 'CSV 中没有可用数据' : 'No valid data in CSV.');
+      return;
+    }
+    const replace = confirm(
+      (isCN ? '解析到 ' : 'Parsed ') +
+      parsed.length +
+      (isCN ? ' 条记录。\n\n确定覆盖当前数据？\n「确定」=覆盖\n「取消」=追加' :
+              ' records.\n\nOK = REPLACE\nCancel = APPEND')
+    );
+    if(replace){
+      records = parsed;
+    } else {
+      records = records.concat(parsed);
+    }
+    saveAll();
+    cancelEdit();
+    renderTable();
+  };
+  reader.readAsText(file);
+}
+
+// 版本号
 function updateVersion(){
   const d=new Date();
   const m=String(d.getMonth()+1).padStart(2,'0');
@@ -174,11 +751,12 @@ function updateVersion(){
   const min=String(d.getMinutes()).padStart(2,'0');
   document.getElementById('version').textContent=`Version ${m}${day}-${h}${min}`;
 }
-updateVersion();
 
 // 初始化
 renderLocations();
+applyLang();
 renderTable();
+updateVersion();
 document.getElementById('start').focus();
 </script>
 </body>
