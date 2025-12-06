@@ -43,7 +43,7 @@
     position:relative;
   }
 
-  /* 左上语言切换按钮 */
+  /* 左上语言切换 */
   .toggle{
     position:absolute;
     left:16px;
@@ -65,7 +65,7 @@
     opacity:.85;
   }
 
-  /* 通用卡片 */
+  /* 卡片 */
   .card{
     background:var(--card);
     border-radius:22px;
@@ -78,12 +78,11 @@
   .section{
     padding:22px 20px 26px;
   }
-
   .section:not(:last-child){
     border-bottom:1px solid var(--border);
   }
 
-  /* INPUT */
+  /* Input / Select */
   input, select{
     width:100%;
     padding:18px;
@@ -110,6 +109,12 @@
     background-repeat:no-repeat;
     background-position:right 18px center;
   }
+  #location option[data-divider]{
+    height:1px;
+    background:#444;
+    margin:8px 16px;
+    pointer-events:none;
+  }
 
   .row{
     display:flex;
@@ -117,7 +122,7 @@
   }
   .row > input { flex:1; }
 
-  /* 快捷 Rate 按钮 */
+  /* Rate 快捷按钮 */
   .quick-btns{
     display:flex;
     flex-wrap:wrap;
@@ -132,9 +137,10 @@
     font-size:17px;
     font-weight:600;
     border:1px solid #555;
+    cursor:pointer;
   }
 
-  /* 主按钮：Tesla 红 */
+  /* 主按钮 */
   .btn{
     width:100%;
     background:linear-gradient(180deg,#ff2a47,#e31937);
@@ -148,7 +154,6 @@
     cursor:pointer;
     box-shadow:0 8px 30px rgba(227,25,55,0.45);
   }
-
   .btn.secondary{
     background:#333;
     padding:16px;
@@ -157,108 +162,7 @@
     display:none;
   }
 
-</style>
-</head>
-
-<body>
-<div class="c">
-
-  <header>
-    <span id="title-text">EV Charge Log Pro</span>
-    <div class="toggle" onclick="toggleLang()" id="lang-toggle">中</div>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Tesla_logo.png" class="logo">
-  </header>
-
-  <!-- FORM CARD -->
-  <div class="card">
-
-    <!-- 日期 -->
-    <div class="section">
-      <input type="date" id="date">
-    </div>
-
-    <!-- Start / End -->
-    <div class="section">
-      <div class="row">
-        <input type="text" inputmode="numeric" id="start" placeholder="Start %" maxlength="3">
-        <input type="text" inputmode="numeric" id="end" placeholder="End %" maxlength="3">
-      </div>
-    </div>
-
-    <!-- Location -->
-    <div class="section">
-      <select id="location">
-        <option value="">Select Location</option>
-        <option value="__ADD__">+ Add New Location</option>
-        <option data-divider></option>
-      </select>
-    </div>
-
-    <!-- Rate 快捷按钮 -->
-    <div class="section">
-      <div class="quick-btns">
-        <button class="qb" onclick="setRate(0.84)">0.84</button>
-        <button class="qb" onclick="setRate(1.00)">1.00</button>
-        <button class="qb" onclick="setRate(1.30)">1.30</button>
-        <button class="qb" onclick="setRate(1.50)">1.50</button>
-        <button class="qb" onclick="setRate(1.80)">1.80</button>
-        <button class="qb" onclick="setRate(0)">Free</button>
-      </div>
-    </div>
-
-    <!-- Rate / Cost -->
-    <div class="section">
-      <div class="row">
-        <input type="number" step="0.001" id="rate" placeholder="Rate (RM/kWh)">
-        <input type="number" step="0.01" id="cost" placeholder="Cost (RM)">
-      </div>
-    </div>
-
-    <!-- 按钮 -->
-    <div class="section">
-      <button class="btn" id="main-btn" onclick="submitForm()">Add Record</button>
-      <button class="btn secondary" id="cancel-btn" onclick="cancelEdit()">Cancel Edit</button>
-    </div>
-
-  </div>
-  <!-- TABLE CARD -->
-  <div class="card">
-    <div class="section" style="padding:0;">
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th id="th-date">Date</th>
-              <th id="th-start">Start</th>
-              <th id="th-end">End</th>
-              <th id="th-kwh">kWh</th>
-              <th id="th-loc">Location</th>
-              <th id="th-rate">Rate</th>
-              <th id="th-cost">Cost</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- BACKUP CARD -->
-  <div class="card">
-    <div class="section">
-      <button class="btn secondary" onclick="document.getElementById('importFile').click()" id="import-btn">Import CSV</button>
-      <button class="btn" onclick="exportAll()" id="export-btn">Export All Data</button>
-      <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
-    </div>
-  </div>
-
-  <div class="version" id="version"></div>
-
-</div> <!-- .c 结束 -->
-
-<!-- 补充 TABLE / 版本号 的样式 -->
-<style>
+  /* 表格 */
   .table-wrapper{
     overflow:auto;
     -webkit-overflow-scrolling:touch;
@@ -289,21 +193,45 @@
   tr:last-child td{
     border-bottom:none;
   }
-  .action{
-    font-size:18px;
-    cursor:pointer;
-    opacity:0.7;
-    margin:0 4px;
-  }
-  .action:hover{
-    opacity:1;
-  }
   .empty-row{
     text-align:center;
     padding:16px;
     color:#777;
     font-size:14px;
   }
+
+  .action{
+    font-size:18px;
+    cursor:pointer;
+    opacity:0.7;
+    margin:0 4px;
+  }
+  .action:hover{ opacity:1; }
+
+  /* Location 管理列表 */
+  .loc-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 0;
+    border-bottom:1px solid var(--border);
+    font-size:15px;
+  }
+  .loc-row:last-child{
+    border-bottom:none;
+  }
+  .loc-name{
+    font-weight:600;
+    letter-spacing:0.3px;
+  }
+  .loc-actions span{
+    margin-left:10px;
+    cursor:pointer;
+    opacity:.75;
+    font-size:16px;
+  }
+  .loc-actions span:hover{ opacity:1; }
+
   .version{
     color:#555;
     font-size:11px;
@@ -311,9 +239,114 @@
     margin-top:50px;
   }
 </style>
+</head>
+
+<body>
+<div class="c">
+
+  <header>
+    <span id="title-text">EV Charge Log Pro</span>
+    <div class="toggle" onclick="toggleLang()" id="lang-toggle">中</div>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Tesla_logo.png" class="logo">
+  </header>
+
+  <!-- 输入卡片 -->
+  <div class="card">
+    <!-- 日期 -->
+    <div class="section">
+      <input type="date" id="date">
+    </div>
+
+    <!-- Start / End -->
+    <div class="section">
+      <div class="row">
+        <input type="text" inputmode="numeric" id="start" placeholder="Start %" maxlength="3">
+        <input type="text" inputmode="numeric" id="end" placeholder="End %" maxlength="3">
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="section">
+      <select id="location">
+        <option value="">Select Location</option>
+        <option value="__ADD__">+ Add New Location</option>
+        <option data-divider></option>
+      </select>
+    </div>
+
+    <!-- Rate 快速选择 -->
+    <div class="section">
+      <div class="quick-btns">
+        <button class="qb" onclick="setRate(0.84)">0.84</button>
+        <button class="qb" onclick="setRate(1.00)">1.00</button>
+        <button class="qb" onclick="setRate(1.30)">1.30</button>
+        <button class="qb" onclick="setRate(1.50)">1.50</button>
+        <button class="qb" onclick="setRate(1.80)">1.80</button>
+        <button class="qb" onclick="setRate(0)">Free</button>
+      </div>
+    </div>
+
+    <!-- Rate / Cost -->
+    <div class="section">
+      <div class="row">
+        <input type="number" step="0.001" id="rate" placeholder="Rate (RM/kWh)">
+        <input type="number" step="0.01" id="cost" placeholder="Cost (RM)">
+      </div>
+    </div>
+
+    <!-- 主按钮 -->
+    <div class="section">
+      <button class="btn" id="main-btn" onclick="submitForm()">Add Record</button>
+      <button class="btn secondary" id="cancel-btn" onclick="cancelEdit()">Cancel Edit</button>
+    </div>
+  </div>
+
+  <!-- 记录表 -->
+  <div class="card">
+    <div class="section" style="padding:0;">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th id="th-date">Date</th>
+              <th id="th-start">Start</th>
+              <th id="th-end">End</th>
+              <th id="th-kwh">kWh</th>
+              <th id="th-loc">Location</th>
+              <th id="th-rate">Rate</th>
+              <th id="th-cost">Cost</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backup 区域 -->
+  <div class="card">
+    <div class="section">
+      <button class="btn secondary" onclick="document.getElementById('importFile').click()" id="import-btn">Import CSV</button>
+      <button class="btn" onclick="exportAll()" id="export-btn">Export All Data</button>
+      <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
+    </div>
+  </div>
+
+  <!-- Location 管理 -->
+  <div class="card">
+    <div class="section">
+      <div style="font-weight:600;margin-bottom:8px;" id="loc-manage-title">Saved Locations</div>
+      <div id="loc-list"></div>
+      <button class="btn secondary" style="margin-top:14px;" onclick="addLocationManually()" id="loc-add-btn">+ Add Location</button>
+    </div>
+  </div>
+
+  <div class="version" id="version"></div>
+
+</div>
 
 <script>
-const BATTERY_CAPACITY = 60; // 预留，将来如果要用电池容量算 kWh
 const KEYS = {
   records:'evRecords2025',
   locations:'evLocations2025',
@@ -325,14 +358,15 @@ let records = JSON.parse(localStorage.getItem(KEYS.records) || '[]');
 let allLocations = JSON.parse(localStorage.getItem(KEYS.locations) || '["BH","PV","BAMBOO HILL","HOME","WORK"]');
 let rateMemory = JSON.parse(localStorage.getItem(KEYS.rates) || '{}');
 let isCN = localStorage.getItem(KEYS.lang) === 'cn';
-let editingIndex = null; // null = add 模式
+let editingIndex = null;
 
-// ========= 语言切换 =========
+// =========== 语言 ===========
 function toggleLang(){
   isCN = !isCN;
   localStorage.setItem(KEYS.lang, isCN ? 'cn' : 'en');
   applyLang();
   renderLocations();
+  renderLocationList();
   renderTable();
 }
 
@@ -347,7 +381,6 @@ function applyLang(){
   const cancelBtn = document.getElementById('cancel-btn');
   const importBtn = document.getElementById('import-btn');
   const exportBtn = document.getElementById('export-btn');
-
   const thDate  = document.getElementById('th-date');
   const thStart = document.getElementById('th-start');
   const thEnd   = document.getElementById('th-end');
@@ -356,6 +389,8 @@ function applyLang(){
   const thRate  = document.getElementById('th-rate');
   const thCost  = document.getElementById('th-cost');
   const locSelect = document.getElementById('location');
+  const locTitle = document.getElementById('loc-manage-title');
+  const locAddBtn = document.getElementById('loc-add-btn');
 
   if(isCN){
     title.textContent = '充电记录 Pro';
@@ -368,7 +403,6 @@ function applyLang(){
     cancelBtn.textContent = '取消编辑';
     importBtn.textContent = '导入 CSV';
     exportBtn.textContent = '导出全部数据';
-
     thDate.textContent  = '日期';
     thStart.textContent = '起始';
     thEnd.textContent   = '结束';
@@ -376,10 +410,11 @@ function applyLang(){
     thLoc.textContent   = '地点';
     thRate.textContent  = '单价';
     thCost.textContent  = '费用';
-
     if(locSelect.options[0]) locSelect.options[0].textContent = '选择地点';
     if(locSelect.options[1]) locSelect.options[1].textContent = '+ 新增地点';
-  } else {
+    locTitle.textContent = '保存的地点';
+    locAddBtn.textContent = '+ 新增地点';
+  }else{
     title.textContent = 'EV Charge Log Pro';
     langToggle.textContent = '中';
     start.placeholder = 'Start %';
@@ -390,7 +425,6 @@ function applyLang(){
     cancelBtn.textContent = 'Cancel Edit';
     importBtn.textContent = 'Import CSV';
     exportBtn.textContent = 'Export All Data';
-
     thDate.textContent  = 'Date';
     thStart.textContent = 'Start';
     thEnd.textContent   = 'End';
@@ -398,26 +432,22 @@ function applyLang(){
     thLoc.textContent   = 'Location';
     thRate.textContent  = 'Rate';
     thCost.textContent  = 'Cost';
-
     if(locSelect.options[0]) locSelect.options[0].textContent = 'Select Location';
     if(locSelect.options[1]) locSelect.options[1].textContent = '+ Add New Location';
+    locTitle.textContent = 'Saved Locations';
+    locAddBtn.textContent = '+ Add Location';
   }
 }
 
-// ========= 日期 & 输入联动 =========
-
-// 默认今天
+// =========== 日期 / 输入 ===========
 document.getElementById('date').value = new Date().toISOString().slice(0,10);
 
-// Start：两位后自动跳，下同
 document.getElementById('start').oninput = function(){
   let v = this.value.replace(/[^0-9]/g,'');
   if(v.length>3) v = v.slice(0,3);
   if(v === '00') v = '100';
   this.value = v;
-  if(v.length >= 2){
-    setTimeout(()=>document.getElementById('end').focus(),50);
-  }
+  if(v.length >= 2) setTimeout(()=>document.getElementById('end').focus(),50);
 };
 
 document.getElementById('end').oninput = function(){
@@ -425,25 +455,21 @@ document.getElementById('end').oninput = function(){
   if(v.length>3) v = v.slice(0,3);
   if(v === '00') v = '100';
   this.value = v;
-  if(v.length >= 2){
-    setTimeout(()=>document.getElementById('location').focus(),50);
-  }
+  if(v.length >= 2) setTimeout(()=>document.getElementById('location').focus(),50);
 };
 
-// Rate 快捷按钮
 function setRate(v){
   const rate = document.getElementById('rate');
   if(v === 0){
     rate.value = '';
     rate.placeholder = isCN ? '免费 / Free' : 'Free / 0';
-  } else {
+  }else{
     rate.value = v;
     document.getElementById('cost').focus();
   }
 }
 
-// ========= Location ==========
-
+// =========== Location 下拉 ===========
 function renderLocations(){
   const s = document.getElementById('location');
   s.innerHTML = '';
@@ -473,32 +499,110 @@ function renderLocations(){
 document.getElementById('location').addEventListener('change', function(){
   const v = this.value;
   if(v === '__ADD__'){
-    const msg = isCN ? '输入新地点名称（例如：BH）' : 'Enter new location (e.g. BH)';
-    const name = prompt(msg);
-    if(!name){
-      this.value = '';
-      return;
-    }
-    const up = name.trim().toUpperCase();
-    if(!up){
-      this.value = '';
-      return;
-    }
-    if(!allLocations.includes(up)){
-      allLocations.push(up);
-      localStorage.setItem(KEYS.locations, JSON.stringify(allLocations));
-    }
-    renderLocations();
-    this.value = up;
-  } else if(v){
+    addLocationManually();
+  }else if(v){
     if(rateMemory[v] != null){
       document.getElementById('rate').value = rateMemory[v];
     }
   }
 });
 
-// ========= 工具函数 =========
+// =========== Location 管理 ===========
 
+function addLocationManually(){
+  const msg = isCN ? '输入新地点名称（例如：BH）' : 'Enter new location (e.g. BH)';
+  const name = prompt(msg);
+  if(!name) return;
+  const up = name.trim().toUpperCase();
+  if(!up) return;
+  if(!allLocations.includes(up)){
+    allLocations.push(up);
+    saveAll();
+  }
+  renderLocations();
+  renderLocationList();
+}
+
+function editLocationName(oldName){
+  const msg = isCN ? '修改地点名称' : 'Edit location name';
+  const name = prompt(msg, oldName);
+  if(!name) return;
+  const up = name.trim().toUpperCase();
+  if(!up || up === oldName) return;
+
+  const idx = allLocations.indexOf(oldName);
+  if(idx >= 0) allLocations[idx] = up;
+
+  records.forEach(r=>{
+    if((r.location || '').toUpperCase() === oldName){
+      r.location = up;
+    }
+  });
+
+  if(rateMemory[oldName] != null){
+    rateMemory[up] = rateMemory[oldName];
+    delete rateMemory[oldName];
+  }
+
+  saveAll();
+  renderLocations();
+  renderLocationList();
+  renderTable();
+}
+
+function deleteLocationName(name){
+  const msg = isCN ? '只会删除下拉选项，不会删除旧记录。\n确定要移除此地点？' :
+                     'This removes the location from dropdown only.\nExisting records stay.\nDelete?';
+  if(!confirm(msg)) return;
+
+  allLocations = allLocations.filter(l => l !== name);
+  if(rateMemory[name] != null) delete rateMemory[name];
+
+  saveAll();
+  renderLocations();
+  renderLocationList();
+}
+
+function renderLocationList(){
+  const box = document.getElementById('loc-list');
+  box.innerHTML = '';
+  if(!allLocations.length){
+    const div = document.createElement('div');
+    div.className = 'empty-row';
+    div.textContent = isCN ? '暂无自定义地点' : 'No saved locations yet';
+    box.appendChild(div);
+    return;
+  }
+
+  const list = [...allLocations].sort();
+  list.forEach(loc=>{
+    const row = document.createElement('div');
+    row.className = 'loc-row';
+    const name = document.createElement('div');
+    name.className = 'loc-name';
+    name.textContent = loc;
+    const actions = document.createElement('div');
+    actions.className = 'loc-actions';
+
+    const edit = document.createElement('span');
+    edit.textContent = '✏️';
+    edit.title = isCN ? '改名' : 'Rename';
+    edit.onclick = ()=>editLocationName(loc);
+
+    const del = document.createElement('span');
+    del.textContent = '🗑';
+    del.title = isCN ? '删除选项' : 'Remove option';
+    del.onclick = ()=>deleteLocationName(loc);
+
+    actions.appendChild(edit);
+    actions.appendChild(del);
+    row.appendChild(name);
+    row.appendChild(actions);
+    box.appendChild(row);
+  });
+}
+
+// =========== 工具 ===========
 function formatDateDisplay(str){
   if(!str) return '';
   const d = new Date(str);
@@ -515,8 +619,7 @@ function saveAll(){
   localStorage.setItem(KEYS.rates, JSON.stringify(rateMemory));
 }
 
-// ========= 表格渲染 =========
-
+// =========== 表格 ===========
 function renderTable(){
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
@@ -551,29 +654,26 @@ function renderTable(){
       <td></td>
     `;
 
-    const actionTd = tr.lastElementChild;
+    const tdAct = tr.lastElementChild;
+    const edit = document.createElement('span');
+    edit.className = 'action';
+    edit.textContent = '✏️';
+    edit.title = isCN ? '编辑' : 'Edit';
+    edit.onclick = ()=>startEdit(r._i);
 
-    const editSpan = document.createElement('span');
-    editSpan.className = 'action';
-    editSpan.textContent = '✏️';
-    editSpan.title = isCN ? '编辑' : 'Edit';
-    editSpan.onclick = ()=> startEdit(r._i);
+    const del = document.createElement('span');
+    del.className = 'action';
+    del.textContent = '🗑';
+    del.title = isCN ? '删除' : 'Delete';
+    del.onclick = ()=>deleteRecord(r._i);
 
-    const delSpan = document.createElement('span');
-    delSpan.className = 'action';
-    delSpan.textContent = '🗑';
-    delSpan.title = isCN ? '删除' : 'Delete';
-    delSpan.onclick = ()=> deleteRecord(r._i);
-
-    actionTd.appendChild(editSpan);
-    actionTd.appendChild(delSpan);
-
+    tdAct.appendChild(edit);
+    tdAct.appendChild(del);
     tbody.appendChild(tr);
   });
 }
 
-// ========= 编辑 / 删除 =========
-
+// =========== 编辑 / 删除记录 ===========
 function startEdit(i){
   const r = records[i];
   editingIndex = i;
@@ -612,8 +712,7 @@ function deleteRecord(i){
   renderTable();
 }
 
-// ========= 提交：新增 / 保存 =========
-
+// =========== 提交记录 ===========
 function submitForm(){
   const date = document.getElementById('date').value;
   const start = Number(document.getElementById('start').value || 0);
@@ -635,18 +734,18 @@ function submitForm(){
 
   if(editingIndex === null){
     records.push(rec);
-  } else {
+  }else{
     records[editingIndex] = rec;
   }
 
   saveAll();
   cancelEdit();
   renderTable();
+  renderLocationList();
   document.getElementById('start').focus();
 }
 
-// ========= 导出 CSV =========
-
+// =========== Export CSV ===========
 function exportAll(){
   if(!records.length){
     alert(isCN ? '暂无记录可导出' : 'No data to export.');
@@ -672,8 +771,7 @@ function exportAll(){
   URL.revokeObjectURL(url);
 }
 
-// ========= 导入 CSV =========
-
+// =========== Import CSV ===========
 function parseCSV(text){
   const rows = text.split(/\r?\n/).filter(l=>l.trim());
   if(!rows.length) return [];
@@ -688,7 +786,7 @@ function parseCSV(text){
       if(c === ',' && !inQ){
         result.push(cur);
         cur = '';
-      } else {
+      }else{
         cur += c;
       }
     }
@@ -712,7 +810,7 @@ function parseCSV(text){
       rate: hmap['rate'],
       cost: hmap['cost']
     };
-  } else {
+  }else{
     map = {date:0,start:1,end:2,location:3,rate:4,cost:5};
   }
 
@@ -729,7 +827,6 @@ function parseCSV(text){
     const loc   = get(map.location).replace(/""/g,'"').toUpperCase();
 
     if(!date && !loc && !rate && !cost) continue;
-
     out.push({date, start, end, location:loc, rate, cost});
   }
   return out;
@@ -754,18 +851,27 @@ function importAll(input){
     );
     if(replace){
       records = parsed;
-    } else {
+    }else{
       records = records.concat(parsed);
     }
+
+    // 导入后自动根据 records 生成地点列表
+    const locSet = new Set(allLocations);
+    records.forEach(r=>{
+      if(r.location) locSet.add(r.location.toUpperCase());
+    });
+    allLocations = Array.from(locSet);
+
     saveAll();
     cancelEdit();
     renderTable();
+    renderLocations();
+    renderLocationList();
   };
   reader.readAsText(file);
 }
 
-// ========= 版本号 =========
-
+// =========== 版本号 ===========
 function updateVersion(){
   const d=new Date();
   const m=String(d.getMonth()+1).padStart(2,'0');
@@ -775,11 +881,11 @@ function updateVersion(){
   document.getElementById('version').textContent=`Version ${m}${day}-${h}${min}`;
 }
 
-// ========= 初始化 =========
-
+// =========== 初始化 ===========
 renderLocations();
 applyLang();
 renderTable();
+renderLocationList();
 updateVersion();
 document.getElementById('start').focus();
 </script>
