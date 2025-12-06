@@ -24,7 +24,6 @@
     background:var(--bg);
     color:var(--text);
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-    transition:all .25s;
   }
 
   .c{
@@ -33,21 +32,17 @@
     padding:0 16px 120px;
   }
 
-  /* HEADER */
   header{
     padding:32px 0 20px;
     text-align:center;
     font-size:34px;
     font-weight:800;
     color:var(--tesla-red);
-    position:relative;
   }
 
-  /* CARD */
   .card{
     background:var(--card);
     border-radius:22px;
-    overflow:hidden;
     margin:22px 0;
     border:1px solid var(--border);
     box-shadow:0 8px 32px rgba(227,25,55,0.12);
@@ -60,23 +55,43 @@
     border-bottom:1px solid var(--border);
   }
 
-  /* INPUTS */
   input, select{
     width:100%;
     padding:18px;
-    height:58px;              /* 统一高度 */
+    height:58px;
     border:none;
     border-radius:16px;
     background:#2c2c2e;
     color:white;
     font-size:18px;
     box-sizing:border-box;
-    transition:.2s;
   }
   input:focus, select:focus{
     background:#3a3a3c;
     outline:none;
     box-shadow:0 0 0 3px var(--focus);
+  }
+
+  /* iOS date 修复 */
+  input[type="date"]{
+    -webkit-appearance:none;
+    appearance:none;
+    background-color:#2c2c2e;
+    color:white;
+    height:58px !important;
+    line-height:58px !important;
+    padding:0 18px !important;
+    border-radius:16px;
+    font-size:18px;
+    text-align:left;
+  }
+  input[type="date"]::-webkit-date-and-time-value{
+    color:white;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator{
+    filter:invert(1);
+    opacity:.6;
+    margin-right:6px;
   }
 
   #location{
@@ -85,6 +100,7 @@
     background-repeat:no-repeat;
     background-position:right 18px center;
   }
+
   #location option[data-divider]{
     height:1px;
     background:#444;
@@ -95,7 +111,6 @@
   .row{ display:flex; gap:14px; }
   .row > input { flex:1; }
 
-  /* QUICK RATE BUTTONS */
   .quick-btns{
     display:flex;
     flex-wrap:wrap;
@@ -112,7 +127,6 @@
     cursor:pointer;
   }
 
-  /* BUTTONS */
   .btn{
     width:100%;
     background:linear-gradient(180deg,#ff2a47,#e31937);
@@ -130,11 +144,9 @@
     background:#333;
     padding:16px;
     font-size:16px;
-    box-shadow:none;
     display:none;
   }
 
-  /* TABLE */
   .table-wrapper{
     overflow:auto;
     border-radius:16px;
@@ -143,7 +155,6 @@
     width:100%;
     min-width:720px;
     border-collapse:separate;
-    border-spacing:0;
   }
   th,td{
     padding:16px 10px;
@@ -153,15 +164,9 @@
     font-size:15px;
   }
   th:last-child,td:last-child{ border-right:none; }
-  th{ background:#252525; color:#aaa; font-weight:600; }
-  tr:last-child td{ border-bottom:none; }
-  .empty-row{
-    text-align:center;
-    padding:16px;
-    color:#777;
-  }
+  th{ background:#252525; color:#aaa; }
+  .empty-row{ padding:16px; color:#777; text-align:center; }
 
-  /* ACTION ICONS */
   .action{
     font-size:18px;
     cursor:pointer;
@@ -170,14 +175,12 @@
   }
   .action:hover{ opacity:1; }
 
-  /* LOCATION LIST */
   .loc-row{
     display:flex;
     justify-content:space-between;
     padding:10px 0;
     border-bottom:1px solid var(--border);
   }
-  .loc-row:last-child{ border-bottom:none; }
   .loc-name{ font-weight:600; }
   .loc-actions span{
     margin-left:10px;
@@ -185,6 +188,31 @@
     opacity:.75;
   }
   .loc-actions span:hover{ opacity:1; }
+
+  /* Monthly Summary */
+  .summary-title{
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  .summary-row{
+    display:flex;
+    justify-content:space-between;
+    padding:8px 0;
+    border-bottom:1px solid var(--border);
+    font-size:14px;
+  }
+  .summary-row:last-child{
+    border-bottom:none;
+  }
+  .summary-month{
+    font-weight:600;
+  }
+  .summary-values{
+    text-align:right;
+  }
+  .summary-values span{
+    display:block;
+  }
 
   .version{
     color:#555;
@@ -197,134 +225,498 @@
 
 <body>
 <div class="c">
+<header>EV Charge Log Pro</header>
 
-  <header>
-    EV Charge Log Pro
-  </header>
+<!-- FORM -->
+<div class="card">
+  <div class="section">
+    <input type="date" id="date">
+  </div>
 
-  <!-- FORM -->
-  <div class="card">
-    <div class="section">
-      <input type="date" id="date">
-    </div>
-
-    <div class="section">
-      <div class="row">
-        <input type="text" inputmode="numeric" id="start" placeholder="Start %" maxlength="3">
-        <input type="text" inputmode="numeric" id="end" placeholder="End %" maxlength="3">
-      </div>
-    </div>
-
-    <div class="section">
-      <select id="location">
-        <option value="">Select Location</option>
-        <option value="__ADD__">+ Add New Location</option>
-        <option data-divider></option>
-      </select>
-    </div>
-
-    <div class="section">
-      <div class="quick-btns">
-        <button class="qb" onclick="setRate(0.84)">0.84</button>
-        <button class="qb" onclick="setRate(1.00)">1.00</button>
-        <button class="qb" onclick="setRate(1.30)">1.30</button>
-        <button class="qb" onclick="setRate(1.50)">1.50</button>
-        <button class="qb" onclick="setRate(1.80)">1.80</button>
-        <button class="qb" onclick="setRate(0)">Free</button>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="row">
-        <input type="number" step="0.001" id="rate" placeholder="Rate (RM/kWh)">
-        <input type="number" step="0.01" id="cost" placeholder="Cost (RM)">
-      </div>
-    </div>
-
-    <div class="section">
-      <button class="btn" id="main-btn" onclick="submitForm()">Add Record</button>
-      <button class="btn secondary" id="cancel-btn" onclick="cancelEdit()">Cancel Edit</button>
+  <div class="section">
+    <div class="row">
+      <input type="text" inputmode="numeric" id="start" placeholder="Start %" maxlength="3">
+      <input type="text" inputmode="numeric" id="end" placeholder="End %" maxlength="3">
     </div>
   </div>
 
-  <!-- TABLE -->
-  <div class="card">
-    <div class="section" style="padding:0;">
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Start</th>
-              <th>End</th>
-              <th>kWh</th>
-              <th>Location</th>
-              <th>Rate</th>
-              <th>Cost</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
+  <div class="section">
+    <select id="location">
+      <option value="">Select Location</option>
+      <option value="__ADD__">+ Add New Location</option>
+      <option data-divider></option>
+    </select>
+  </div>
+
+  <div class="section">
+    <div class="quick-btns">
+      <button class="qb" onclick="setRate(0.84)">0.84</button>
+      <button class="qb" onclick="setRate(1.00)">1.00</button>
+      <button class="qb" onclick="setRate(1.30)">1.30</button>
+      <button class="qb" onclick="setRate(1.50)">1.50</button>
+      <button class="qb" onclick="setRate(1.80)">1.80</button>
+      <button class="qb" onclick="setRate(0)">Free</button>
     </div>
   </div>
 
-  <!-- BACKUP -->
-  <div class="card">
-    <div class="section">
-      <button class="btn secondary" onclick="document.getElementById('importFile').click()">Import CSV</button>
-      <button class="btn" onclick="exportAll()">Export All Data</button>
-      <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
+  <div class="section">
+    <div class="row">
+      <input type="number" step="0.001" id="rate" placeholder="Rate (RM/kWh)">
+      <input type="number" step="0.01" id="cost" placeholder="Cost (RM)">
     </div>
   </div>
 
-  <!-- LOCATION MANAGEMENT -->
-  <div class="card">
-    <div class="section">
-      <div style="font-weight:600;margin-bottom:8px;">Saved Locations</div>
-      <div id="loc-list"></div>
-      <button class="btn secondary" style="margin-top:14px;" onclick="addLocationManually()">+ Add Location</button>
+  <div class="section">
+    <button class="btn" id="main-btn" onclick="submitForm()">Add Record</button>
+    <button class="btn secondary" id="cancel-btn" onclick="cancelEdit()">Cancel Edit</button>
+  </div>
+</div>
+
+<!-- MONTHLY SUMMARY -->
+<div class="card">
+  <div class="section">
+    <div class="summary-title">Monthly Summary</div>
+    <div id="month-summary"></div>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="card">
+  <div class="section" style="padding:0;">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th><th>Start</th><th>End</th><th>kWh</th>
+            <th>Location</th><th>Rate</th><th>Cost</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     </div>
   </div>
+</div>
 
-  <div class="version" id="version"></div>
+<!-- BACKUP -->
+<div class="card">
+  <div class="section">
+    <button class="btn secondary" onclick="document.getElementById('importFile').click()">Import CSV</button>
+    <button class="btn" onclick="exportAll()">Export All Data</button>
+    <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
+  </div>
+</div>
+
+<!-- LOCATION MGMT -->
+<div class="card">
+  <div class="section">
+    <div style="font-weight:600;margin-bottom:8px;">Saved Locations</div>
+    <div id="loc-list"></div>
+    <button class="btn secondary" style="margin-top:14px;" onclick="addLocationManually()">+ Add Location</button>
+  </div>
+</div>
+
+<div class="version" id="version"></div>
 
 </div>
 
 <script>
-const KEYS = {
+const KEYS={
   records:'evRecords2025',
   locations:'evLocations2025',
   rates:'evRateMemory2025'
 };
 
-let records = JSON.parse(localStorage.getItem(KEYS.records) || '[]');
-let allLocations = JSON.parse(localStorage.getItem(KEYS.locations) || '["BH","PV","BAMBOO HILL","HOME","WORK"]');
-let rateMemory = JSON.parse(localStorage.getItem(KEYS.rates) || '{}');
-let editingIndex = null;
+let records=JSON.parse(localStorage.getItem(KEYS.records)||'[]');
+let allLocations=JSON.parse(localStorage.getItem(KEYS.locations)||'["BH","PV","BAMBOO HILL","HOME","WORK"]');
+let rateMemory=JSON.parse(localStorage.getItem(KEYS.rates)||'{}');
+let editingIndex=null;
 
-// ========= 日期默认今天 ===========
-document.getElementById('date').value = new Date().toISOString().slice(0,10);
+// 日期默认今天
+document.getElementById('date').value=new Date().toISOString().slice(0,10);
 
-// ========= Start / End 输入逻辑 ===========
-document.getElementById('start').oninput = function(){
-  let v = this.value.replace(/[^0-9]/g,'');
-  if(v.length>3) v = v.slice(0,3);
-  if(v==="00") v="100";
-  this.value = v;
-  if(v.length >= 2) setTimeout(()=>document.getElementById('end').focus(),50);
+// 输入逻辑
+document.getElementById('start').oninput=function(){
+  let v=this.value.replace(/[^0-9]/g,'');
+  if(v.length>3)v=v.slice(0,3);
+  if(v==="00")v="100";
+  this.value=v;
+};
+document.getElementById('end').oninput=function(){
+  let v=this.value.replace(/[^0-9]/g,'');
+  if(v.length>3)v=v.slice(0,3);
+  if(v==="00")v="100";
+  this.value=v;
 };
 
-document.getElementById('end').oninput = function(){
-  let v = this.value.replace(/[^0-9]/g,'');
-  if(v.length>3) v = v.slice(0,3);
-  if(v==="00") v="100";
-  this.value = v;
-  if(v.length >= 2) setTimeout(()=>document.getElementById('location').focus(),50);
-};
+// Rate 快捷按钮
+function setRate(v){
+  const rate=document.getElementById('rate');
+  if(v===0){
+    rate.value="";
+    rate.placeholder="Free / 0";
+  }else{
+    rate.value=v;
+  }
+}
 
-// ========= Location 下拉 ===========
+// LOCATION 下拉
 function renderLocations(){
-  const s = document.getElementById('location');
-  s
+  const s=document.getElementById('location');
+  s.innerHTML="";
+  s.innerHTML=`
+    <option value="">Select Location</option>
+    <option value="__ADD__">+ Add New Location</option>
+    <option data-divider></option>
+  `;
+  allLocations.sort().forEach(l=>{
+    const o=document.createElement('option');
+    o.value=l;
+    o.textContent=l;
+    s.appendChild(o);
+  });
+}
+
+document.getElementById('location').onchange=function(){
+  if(this.value==="__ADD__"){
+    addLocationManually();
+  }else if(rateMemory[this.value]!=null){
+    document.getElementById('rate').value=rateMemory[this.value];
+  }
+};
+
+// ADD LOCATION
+function addLocationManually(){
+  const name=prompt("Enter new location name:");
+  if(!name)return;
+  const up=name.trim().toUpperCase();
+  if(!allLocations.includes(up)){
+    allLocations.push(up);
+    saveAll();
+  }
+  renderLocations();
+  renderLocationList();
+}
+
+// EDIT / DELETE LOCATION
+function editLocationName(oldName){
+  const name=prompt("Rename:",oldName);
+  if(!name)return;
+  const up=name.trim().toUpperCase();
+  if(!up||up===oldName)return;
+
+  const idx=allLocations.indexOf(oldName);
+  if(idx>=0)allLocations[idx]=up;
+
+  records.forEach(r=>{
+    if(r.location===oldName)r.location=up;
+  });
+
+  if(rateMemory[oldName]!=null){
+    rateMemory[up]=rateMemory[oldName];
+    delete rateMemory[oldName];
+  }
+
+  saveAll();
+  renderLocations();
+  renderLocationList();
+  renderTable();
+  renderMonthlySummary();
+}
+
+function deleteLocationName(n){
+  if(!confirm("Remove this location from dropdown? Records remain."))return;
+  allLocations=allLocations.filter(l=>l!==n);
+  delete rateMemory[n];
+  saveAll();
+  renderLocations();
+  renderLocationList();
+}
+
+// LOCATION LIST
+function renderLocationList(){
+  const box=document.getElementById('loc-list');
+  box.innerHTML="";
+  if(!allLocations.length){
+    box.innerHTML='<div class="empty-row">No saved locations</div>';
+    return;
+  }
+  allLocations.sort().forEach(loc=>{
+    const row=document.createElement('div');
+    row.className='loc-row';
+    row.innerHTML=`
+      <div class="loc-name">${loc}</div>
+      <div class="loc-actions">
+        <span onclick="editLocationName('${loc}')">✏️</span>
+        <span onclick="deleteLocationName('${loc}')">🗑</span>
+      </div>
+    `;
+    box.appendChild(row);
+  });
+}
+
+// Helper
+function formatDateDisplay(str){
+  const d=new Date(str);
+  if(isNaN(d))return str;
+  return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+}
+
+function saveAll(){
+  localStorage.setItem(KEYS.records,JSON.stringify(records));
+  localStorage.setItem(KEYS.locations,JSON.stringify(allLocations));
+  localStorage.setItem(KEYS.rates,JSON.stringify(rateMemory));
+}
+
+// Monthly Summary
+function computeMonthlySummary(){
+  const map={}; // key: YYYY-MM
+  records.forEach(r=>{
+    if(!r.date)return;
+    const d=new Date(r.date);
+    if(isNaN(d))return;
+    const y=d.getFullYear();
+    const m=d.getMonth()+1;
+    const key=`${y}-${String(m).padStart(2,'0')}`;
+    if(!map[key]) map[key]={year:y,month:m,totalCost:0,totalKwh:0};
+    const cost=Number(r.cost||0);
+    const rate=Number(r.rate||0);
+    const kwh=(rate>0 && cost>0)?cost/rate:0;
+    map[key].totalCost+=cost;
+    map[key].totalKwh+=kwh;
+  });
+  return Object.values(map).sort((a,b)=>{
+    if(a.year!==b.year) return b.year-a.year;
+    return b.month-a.month;
+  });
+}
+
+function renderMonthlySummary(){
+  const box=document.getElementById('month-summary');
+  box.innerHTML="";
+  if(!records.length){
+    box.innerHTML='<div class="empty-row">No data yet</div>';
+    return;
+  }
+  const list=computeMonthlySummary();
+  list.forEach(item=>{
+    const label=`${String(item.month).padStart(2,'0')}/${item.year}`;
+    const row=document.createElement('div');
+    row.className='summary-row';
+    row.innerHTML=`
+      <div class="summary-month">${label}</div>
+      <div class="summary-values">
+        <span>RM ${item.totalCost.toFixed(2)}</span>
+        <span>${item.totalKwh.toFixed(2)} kWh</span>
+      </div>
+    `;
+    box.appendChild(row);
+  });
+}
+
+// 表格（最新日期在最上）
+function renderTable(){
+  const tbody=document.getElementById('tableBody');
+  tbody.innerHTML="";
+
+  if(!records.length){
+    tbody.innerHTML=`<tr><td colspan="8" class="empty-row">No records yet</td></tr>`;
+    return;
+  }
+
+  const sorted=[...records].map((r,i)=>({...r,_i:i}))
+    .sort((a,b)=> (b.date||'').localeCompare(a.date||'')); // 新的在上
+
+  sorted.forEach(r=>{
+    const kwh=(r.rate&&r.cost)?(r.cost/r.rate):0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${formatDateDisplay(r.date)}</td>
+      <td>${r.start}</td>
+      <td>${r.end}</td>
+      <td>${kwh?kwh.toFixed(2):""}</td>
+      <td>${r.location}</td>
+      <td>${r.rate}</td>
+      <td>${r.cost}</td>
+      <td></td>
+    `;
+    const tdAct=tr.lastElementChild;
+    tdAct.innerHTML=`
+      <span class="action" onclick="startEdit(${r._i})">✏️</span>
+      <span class="action" onclick="deleteRecord(${r._i})">🗑</span>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// 编辑
+function startEdit(i){
+  const r=records[i];
+  editingIndex=i;
+
+  document.getElementById('date').value=r.date;
+  document.getElementById('start').value=r.start;
+  document.getElementById('end').value=r.end;
+  document.getElementById('rate').value=r.rate;
+  document.getElementById('cost').value=r.cost;
+  renderLocations();
+  document.getElementById('location').value=r.location;
+
+  document.getElementById('main-btn').textContent="Save Changes";
+  document.getElementById('cancel-btn').style.display="block";
+}
+
+function cancelEdit(){
+  editingIndex=null;
+  document.getElementById('main-btn').textContent="Add Record";
+  document.getElementById('cancel-btn').style.display="none";
+
+  document.getElementById('date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('start').value="";
+  document.getElementById('end').value="";
+  document.getElementById('location').value="";
+  document.getElementById('rate').value="";
+  document.getElementById('cost').value="";
+}
+
+function deleteRecord(i){
+  if(!confirm("Delete this record?"))return;
+  records.splice(i,1);
+  saveAll();
+  cancelEdit();
+  renderTable();
+  renderMonthlySummary();
+}
+
+// 新增保存
+function submitForm(){
+  const date=document.getElementById('date').value;
+  const start=Number(document.getElementById('start').value||0);
+  const end=Number(document.getElementById('end').value||0);
+  const loc=(document.getElementById('location').value||"").toUpperCase();
+  const rate=Number(document.getElementById('rate').value||0);
+  const cost=Number(document.getElementById('cost').value||0);
+
+  if(!date||!loc||!rate||!cost){
+    alert("Date / Location / Rate / Cost required");
+    return;
+  }
+
+  const rec={date,start,end,location:loc,rate,cost};
+  rateMemory[loc]=rate;
+
+  if(editingIndex===null) records.push(rec);
+  else records[editingIndex]=rec;
+
+  saveAll();
+  cancelEdit();
+  renderTable();
+  renderLocationList();
+  renderMonthlySummary();
+}
+
+// EXPORT CSV
+function exportAll(){
+  if(!records.length){
+    alert("No data to export.");
+    return;
+  }
+
+  let csv="date,start,end,location,rate,cost\n";
+  records.forEach(r=>{
+    csv+=`${r.date},${r.start},${r.end},"${(r.location||"").replace(/"/g,'""')}",${r.rate},${r.cost}\n`;
+  });
+
+  const blob=new Blob([csv],{type:"text/csv"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="ev_charge_backup.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// CSV 解析
+function parseCSV(text){
+  const lines=text.split(/\r?\n/).filter(x=>x.trim());
+  if(lines.length<=1) return[];
+
+  const header=lines[0].toLowerCase().split(",");
+  const idx={
+    date:header.indexOf("date"),
+    start:header.indexOf("start"),
+    end:header.indexOf("end"),
+    loc:header.indexOf("location"),
+    rate:header.indexOf("rate"),
+    cost:header.indexOf("cost")
+  };
+
+  const out=[];
+  for(let i=1;i<lines.length;i++){
+    const row=lines[i];
+    const cols=row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map(v=>v.replace(/^"|"$/g,""));
+    if(!cols)continue;
+    out.push({
+      date:cols[idx.date]||"",
+      start:Number(cols[idx.start]||0),
+      end:Number(cols[idx.end]||0),
+      location:(cols[idx.loc]||"").toUpperCase(),
+      rate:Number(cols[idx.rate]||0),
+      cost:Number(cols[idx.cost]||0)
+    });
+  }
+  return out;
+}
+
+// IMPORT CSV
+function importAll(input){
+  const file=input.files[0];
+  if(!file)return;
+
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const txt=e.target.result;
+    const loaded=parseCSV(txt);
+
+    if(!loaded.length){
+      alert("CSV has no valid data.");
+      return;
+    }
+
+    const replace=confirm("Replace existing data?\nOK = Replace\nCancel = Append");
+
+    if(replace) records=loaded;
+    else records=[...records,...loaded];
+
+    // rebuild locations
+    const set=new Set(allLocations);
+    loaded.forEach(r=>set.add(r.location));
+    allLocations=[...set];
+
+    saveAll();
+    renderLocations();
+    renderLocationList();
+    renderTable();
+    renderMonthlySummary();
+    alert("Import completed!");
+  };
+
+  reader.readAsText(file);
+}
+
+// 版本号
+(function(){
+  const d=new Date();
+  document.getElementById('version').textContent=
+    `Version v3-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+})();
+
+// INIT
+renderLocations();
+renderTable();
+renderLocationList();
+renderMonthlySummary();
+document.getElementById('start').focus();
+</script>
+
+</body>
+</html>
