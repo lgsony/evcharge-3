@@ -7,18 +7,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-  :root{
-    --bg:#000;--card:#1c1c1e;--text:#fff;--tesla-red:#E31937;--gray:#333;--border:#2c2c2e;
-  }
+  :root{--bg:#000;--card:#1c1c1e;--text:#fff;--tesla-red:#E31937;--gray:#333;--border:#2c2c2e;}
   .dark-mode{--bg:#000000;--card:#0d0d0d;--border:#1a1a1a;--gray:#222;}
   body{margin:0;font-family:-apple-system,sans-serif;background:var(--bg);color:var(--text);
-       padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-       transition:background 0.3s;}
+       padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);transition:all 0.3s;}
   .c{max-width:600px;margin:0 auto;padding:0 16px;padding-bottom:120px;}
   header{padding:24px 0 16px;text-align:center;font-size:34px;font-weight:800;color:var(--tesla-red);position:relative;}
   .toggle{position:absolute;right:16px;top:20px;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:13px;}
-  .card{background:var(--card);border-radius:20px;overflow:hidden;margin:20px 0;
-         box-shadow:0 4px 16px rgba(227,25,55,0.15);border:1px solid var(--border);}
+  .card{background:var(--card);border-radius:20px;overflow:hidden;margin:20px 0;box-shadow:0 4px 16px rgba(227,25,55,0.15);border:1px solid var(--border);}
   .section{padding:20px 20px 24px;}
   .section:not(:last-child){border-bottom:1px solid var(--border);}
   input,select{
@@ -27,11 +23,7 @@
   }
   .row{display:flex;gap:12px;align-items:center;}
   .row > div{flex:1;}
-  .btn{
-    background:linear-gradient(180deg,#ff2a47,#e31937);color:white;border:none;
-    padding:18px;border-radius:16px;font-size:19px;font-weight:700;margin-top:16px;
-    box-shadow:0 6px 20px rgba(227,25,55,0.4);
-  }
+  .btn{background:linear-gradient(180deg,#ff2a47,#e31937);color:white;border:none;padding:18px;border-radius:16px;font-size:19px;font-weight:700;margin-top:16px;box-shadow:0 6px 20px rgba(227,25,55,0.4);}
   .quick-btns{display:flex;flex-wrap:wrap;gap:11px;margin:14px 0 6px;justify-content:center;}
   .qb{padding:11px 18px;background:var(--gray);color:white;border-radius:30px;font-size:16px;font-weight:600;}
   .footer{text-align:center;color:#666;font-size:12px;margin:40px 0 20px;}
@@ -51,8 +43,8 @@
 
     <div class="section">
       <div class="row">
-        <input type="number" id="start" placeholder="Start %">
-        <input type="number" id="end" placeholder="End %">
+        <input type="text" inputmode="numeric" id="start" placeholder="Start %" maxlength="2">
+        <input type="text" inputmode="numeric" id="end" placeholder="End %" maxlength="3">
       </div>
     </div>
 
@@ -86,69 +78,45 @@
       <button class="btn" onclick="addRecord()">Add Record</button>
     </div>
   </div>
-
-  <div class="card">
-    <div class="section" style="padding-bottom:0;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead><tr style="text-align:left;color:#aaa;">
-          <th style="padding:12px 0;">Date</th>
-          <th>Start</th><th>End</th><th>kWh</th><th>Location</th><th>Rate</th><th>Cost</th>
-        </tr></thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="section">
-      <button class="btn" style="background:#333;" onclick="document.getElementById('importFile').click()">Import CSV</button>
-      <button class="btn" onclick="exportAll()">Export All Data</button>
-      <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
-    </div>
-  </div>
-
-  <div class="footer">lgsony.github.io · 极简 · 丝滑 · 永久免费</div>
 </div>
 
 <script>
 const BATTERY_CAPACITY = 60;
-const KEYS = {
-  records: 'evRecords2025',
-  locations: 'evLocations2025',
-  rates: 'evRateMemory2025',
-  lang: 'evLang2025',
-  dark: 'evDark2025'
-};
+const KEYS = {records:'evRecords2025',locations:'evLocations2025',rates:'evRateMemory2025',lang:'evLang2025',dark:'evDark2025'};
 
 let records = JSON.parse(localStorage.getItem(KEYS.records)||'[]');
 let allLocations = JSON.parse(localStorage.getItem(KEYS.locations)||'["BH","PV","BAMBOO HILL","HOME","WORK"]');
 let rateMemory = JSON.parse(localStorage.getItem(KEYS.rates)||'{}');
-let isCN = localStorage.getItem(KEYS.lang) === 'cn';
-let isUltraDark = localStorage.getItem(KEYS.dark) === 'true';
-
-if(isUltraDark) document.body.classList.add('dark-mode');
-if(isCN) document.querySelector('.toggle').textContent = 'EN';
+let isCN = localStorage.getItem(KEYS.lang)==='cn';
+let isUltraDark = localStorage.getItem(KEYS.dark)==='true';
+if(isUltraDark)document.body.classList.add('dark-mode');
+if(isCN)document.querySelector('.toggle').textContent='EN';
 
 function toggleLang(){isCN=!isCN;localStorage.setItem(KEYS.lang,isCN?'cn':'en');location.reload();}
 function toggleDark(){isUltraDark=!isUltraDark;localStorage.setItem(KEYS.dark,isUltraDark);document.body.classList.toggle('dark-mode',isUltraDark);}
 
-// 丝滑双位数跳转
-let lastTime = 0;
-function smartJump(input, nextId){
-  const now = Date.now();
-  const diff = now - lastTime;
-  lastTime = now;
-  const val = input.value.trim();
-  if(val.length===1 && diff>500){
-    setTimeout(()=>document.getElementById(nextId)?.focus(),300);
-  }else if(val.length>=2){
-    setTimeout(()=>document.getElementById(nextId)?.focus(),50);
+// Start %：两位数立刻跳（不可能 100% 开始充）
+document.getElementById('start').oninput = function() {
+  let val = this.value.replace(/[^0-9]/g,'');
+  if(val.length > 2) val = val.slice(0,2);
+  this.value = val;
+  if(val.length === 2) {
+    setTimeout(() => document.getElementById('end').focus(), 50);
   }
-}
-document.getElementById('start').oninput = ()=>smartJump(document.getElementById('start'),'end');
-document.getElementById('end').oninput = ()=>smartJump(document.getElementById('end'),'location');
+};
 
-// 地点管理
+// End %：三位数才跳（支持 099、100）
+document.getElementById('end').oninput = function() {
+  let val = this.value.replace(/[^0-9]/g,'');
+  if(val.length > 3) val = val.slice(0,3);
+  this.value = val;
+  const num = parseInt(val||'0');
+  if(val.length === 3 || num === 100) {
+    setTimeout(() => document.getElementById('location').focus(), 50);
+  }
+};
+
+// 地点管理（长按编辑/删除）
 function renderLocations(){
   const s=document.getElementById('location');
   s.innerHTML=`<option value="">Select Location</option><option value="__ADD__">+ Add New Location</option><option disabled>────────────────</option>`;
@@ -159,7 +127,7 @@ document.getElementById('location').addEventListener('pointerdown',e=>{
   if(!e.target.value||e.target.value.startsWith('__'))return;
   const loc=e.target.value;
   longPressTimer=setTimeout(()=>{
-    const nn=prompt(`Edit location (leave blank to delete)\nCurrent: ${loc}`,loc);
+    const nn=prompt(`Edit (blank=delete)\nCurrent: ${loc}`,loc);
     if(nn===null)return;
     if(nn.trim()===""){
       if(confirm(`Delete ${loc}?`)){
@@ -188,7 +156,7 @@ document.getElementById('location').addEventListener('pointerdown',e=>{
 
 document.getElementById('location').onchange=function(){
   if(this.value==="__ADD__"){
-    const n=prompt("New location name")?.trim().toUpperCase();
+    const n=prompt("New location")?.trim().toUpperCase();
     if(n&&!allLocations.includes(n)){allLocations.push(n);localStorage.setItem(KEYS.locations,JSON.stringify(allLocations));renderLocations();this.value=n;autoFillRate();}
     else this.value="";
   }else autoFillRate();
@@ -200,13 +168,12 @@ function autoFillRate(){
 }
 function setRate(v){document.getElementById('rate').value=v;}
 
-// 添加记录
 function addRecord(){
   const loc=document.getElementById('location').value;
   if(!loc)return alert("Select location");
   const start=parseInt(document.getElementById('start').value||0);
   const end=parseInt(document.getElementById('end').value||0);
-  if(isNaN(start)||isNaN(end))return alert("Enter start & end %");
+  if(isNaN(start)||isNaN(end)||start>=end)return alert("Check start & end %");
   const rate=document.getElementById('rate').value?parseFloat(document.getElementById('rate').value):null;
   const manualCost=document.getElementById('cost').value?parseFloat(document.getElementById('cost').value):null;
   const kwh=((end-start)/100*BATTERY_CAPACITY).toFixed(2);
@@ -216,48 +183,11 @@ function addRecord(){
   localStorage.setItem(KEYS.records,JSON.stringify(records));
   document.getElementById('start').value=document.getElementById('end').value=document.getElementById('rate').value=document.getElementById('cost').value='';
   document.getElementById('start').focus();
-  renderTable();
-}
-
-// 表格 + 导出导入
-function renderTable(){
-  const t=document.getElementById('tableBody');t.innerHTML='';
-  records.slice().reverse().forEach(r=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="padding:12px 0;">${r.date.split('-').reverse().join('/')}</td><td>${r.start}</td><td>${r.end}</td><td>${r.kwh}</td><td>${r.location}</td><td>${r.rate||'-'}</td><td>${r.cost!=null?'RM'+r.cost.toFixed(2):'-'}</td>`;
-    t.appendChild(tr);
-  });
-}
-function exportAll(){
-  let csv='\uFEFF# EV Charge Log Pro\n# Locations: '+allLocations.join('|')+'\n# RateMemory: '+JSON.stringify(rateMemory)+'\n\nDate,Start%,End%,kWh,Location,Rate,Cost\n';
-  records.forEach(r=>csv+=`${r.date},${r.start},${r.end},${r.kwh},${r.location},${r.rate||''},${r.cost||''}\n`);
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download=`EV_Log_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-}
-function importAll(i){
-  const f=i.files[0];if(!f)return;
-  const r=new FileReader();r.onload=e=>{
-    const lines=e.target.result.split('\n');
-    lines.forEach(l=>{
-      if(l.startsWith('# Locations:'))allLocations=l.split(':')[1].trim().split('|').filter(Boolean);
-      if(l.startsWith('# RateMemory:'))try{rateMemory=JSON.parse(l.split(':')[1].trim());}catch{}
-    });
-    const s=lines.findIndex(l=>l.includes('Date,Start%,End%'));
-    if(s!==-1){records=[];lines.slice(s+1).forEach(l=>{if(!l.trim()||l.startsWith('#'))return;
-      const[d,st,en,k,loc,ra,co]=l.split(',');if(d)records.push({date:d.trim(),start:+st,end:+en,kwh:+k,location:loc.trim(),rate:ra?+ra:null,cost:co?+co:null,id:Date.now()+Math.random()});});}
-    localStorage.setItem(KEYS.records,JSON.stringify(records));
-    localStorage.setItem(KEYS.locations,JSON.stringify(allLocations));
-    localStorage.setItem(KEYS.rates,JSON.stringify(rateMemory));
-    renderLocations();renderTable();alert('All data restored!');
-  };r.readAsText(f);
 }
 
 // 初始化
 document.getElementById('date').value=new Date().toISOString().slice(0,10);
 renderLocations();
-renderTable();
 document.getElementById('start').focus();
 </script>
 </body>
