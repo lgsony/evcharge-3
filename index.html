@@ -34,7 +34,6 @@
   .quick-btns{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 8px;justify-content:center;}
   .qb{padding:12px 20px;background:var(--gray);color:white;border-radius:40px;font-size:17px;font-weight:600;border:1px solid #555;}
 
-  /* 完美表格 */
   .table-wrapper{overflow:auto;-webkit-overflow-scrolling:touch;border-radius:16px;margin:8px 0;}
   table{width:100%;min-width:680px;border-collapse:separate;border-spacing:0;}
   th,td{padding:16px 10px;text-align:center;border-bottom:1px solid var(--border);border-right:1px solid var(--border);font-size:15px;}
@@ -44,10 +43,7 @@
   .action{font-size:20px;cursor:pointer;opacity:0.7;}
   .action:hover{opacity:1;}
   .version{color:#555;font-size:11px;text-align:center;margin-top:50px;}
-
-  /* 重点：干掉丑横线，改用纯CSS美化分隔 */
-  #location option:disabled{display:none;}
-  #location option[data-divider]{height:1px;background:#444;margin:8px 0;pointer-events:none;}
+  #location option[data-divider]{height:1px;background:#444;margin:8px 16px;pointer-events:none;}
 </style>
 </head>
 <body>
@@ -121,9 +117,11 @@ if(isUltraDark)document.body.classList.add('dark-mode');
 function toggleLang(){isCN=!isCN;localStorage.setItem(KEYS.lang,isCN?'cn':'en');location.reload();}
 function toggleDark(){isUltraDark=!isUltraDark;localStorage.setItem(KEYS.dark,isUltraDark);document.body.classList.toggle('dark-mode',isUltraDark);}
 
+// 输入跳转
 document.getElementById('start').oninput=function(){let v=this.value.replace(/[^0-9]/g,'');if(v.length>2)v=v.slice(0,2);this.value=v;if(v.length===2)setTimeout(()=>document.getElementById('end').focus(),50);}
 document.getElementById('end').oninput=function(){let v=this.value.replace(/[^0-9]/g,'');if(v.length>3)v=v.slice(0,3);this.value=v;if(v.length===3||parseInt(v)===100)setTimeout(()=>document.getElementById('location').focus(),50);}
 
+// 地点管理（完美无横线）
 function renderLocations(){
   const s=document.getElementById('location');
   s.innerHTML=`<option value="">Select Location</option><option value="__ADD__">+ Add New Location</option><option data-divider></option>`;
@@ -133,10 +131,161 @@ function renderLocations(){
     s.appendChild(o);
   });
 }
+let longPressTimer;
+document.getElementById('location').addEventListener('pointerdown',e=>{
+  if(!e.target.value||e.target.value==="__ADD__")return;
+  const loc=e.target.value;
+  longPressTimer=setTimeout(()=>{
+    const nn=prompt(`Edit (blank=delete)\nCurrent: ${loc}`,loc);
+    if(nn===null)return;
+    if(nn.trim()===""){
+      if(confirm(`Delete ${loc}?`)){
+        allLocations=allLocations.filter(x=>x!==loc);
+        delete rateMemory[loc];
+        localStorage.setItem(KEYS.locations,JSON.stringify(allLocations));
+        localStorage.setItem(KEYS.rates,JSON.stringify(rateMemory));
+        renderLocations();
+      }
+    }else{
+      const newName=nn.trim().toUpperCase();
+      if(newName&&!allLocations.includes(newName)){
+        const i=allLocations.indexOf(loc);
+        allLocations[i]=newName;
+        if(rateMemory[loc]){rateMemory[newName]=rateMemory[loc];delete rateMemory[loc];}
+        localStorage.setItem(KEYS.locations,JSON.stringify(allLocations));
+        localStorage.setItem(KEYS.rates,JSON.stringify(rateMemory));
+        renderLocations();
+        document.getElementById('location').value=newName;
+        autoFillRate();
+      }
+    }
+  },800);
+});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>document.getElementById('location').addEventListener(ev,()=>clearTimeout(longPressTimer)));
 
-// 其余功能保持不变（添加、编辑、删除、导入导出、版本号等）
-/* 省略相同逻辑，已全部测试通过 */
+document.getElementById('location').onchange=function(){
+  if(this.value==="__ADD__"){
+    const n=prompt("New location name")?.trim().toUpperCase();
+    if(n&&!allLocations.includes(n)){
+      allLocations.push(n);
+      localStorage.setItem(KEYS.locations,JSON.stringify(allLocations));
+      renderLocations();
+      this.value=n;
+      autoFillRate();
+    }else this.value="";
+  }else autoFillRate();
+};
 
+function autoFillRate(){
+  const loc=document.getElementById('location').value;
+  if(loc&&rateMemory[loc])document.getElementById('rate').value=rateMemory[loc];
+}
+function setRate(v){document.getElementById('rate').value=v;}
+
+function addRecord(){
+  const loc=document.getElementById('location').value;
+  if(!loc)return;
+  const start=parseInt(document.getElementById('start').value||0);
+  const end=parseInt(document.getElementById('end').value||0);
+  if(isNaN(start)||isNaN(end)||start>=end)return;
+  const rate=document.getElementById('rate').value?parseFloat(document.getElementById('rate').value):null;
+  const manualCost=document.getElementById('cost').value?parseFloat(document.getElementById('cost').value):null;
+  const kwh=((end-start)/100*BATTERY_CAPACITY).toFixed(2);
+  const cost=manualCost!==null?manualCost:(rate?(kwh*rate).toFixed(2):null);
+  if(rate){rateMemory[loc]=rate;localStorage.setItem(KEYS.rates,JSON.stringify(rateMemory));}
+  records.push({date:document.getElementById('date').value,start,end,kwh:parseFloat(kwh),location:loc,rate,cost:cost?parseFloat(cost):null,id:Date.now()});
+  localStorage.setItem(KEYS.records,JSON.stringify(records));
+  document.getElementById('start').value=document.getElementById('end').value=document.getElementById('rate').value=document.getElementById('cost').value='';
+  document.getElementById('start').focus();
+  renderTable();
+  updateVersion();
+}
+
+function renderTable(){
+  const tbody=document.getElementById('tableBody');
+  tbody.innerHTML='';
+  records.slice().reverse().forEach((r,idx)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${r.date.split('-').reverse().join('/')}</td>
+      <td>${r.start}</td>
+      <td>${r.end}</td>
+      <td>${r.kwh}</td>
+      <td>${r.location}</td>
+      <td>${r.rate||'-'}</td>
+      <td>${r.cost!=null?'RM'+r.cost.toFixed(2):'-'}</td>
+      <td>
+        <span class="action" onclick="editRecord(${records.length-1-idx})">Edit</span>
+        <span class="action" style="color:#ff453a;margin-left:12px;" onclick="deleteRecord(${records.length-1-idx})">Delete</span>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function editRecord(idx){
+  const r=records[idx];
+  document.getElementById('date').value=r.date;
+  document.getElementById('start').value=r.start;
+  document.getElementById('end').value=r.end;
+  document.getElementById('location').value=r.location;
+  document.getElementById('rate').value=r.rate||'';
+  document.getElementById('cost').value=r.cost||'';
+  deleteRecord(idx);
+}
+function deleteRecord(idx){
+  if(confirm('Delete this record?')){
+    records.splice(idx,1);
+    localStorage.setItem(KEYS.records,JSON.stringify(records));
+    renderTable();
+  }
+}
+
+function exportAll(){
+  let csv='\uFEFF# EV Charge Log Pro\n# Locations: '+allLocations.join('|')+'\n# RateMemory: '+JSON.stringify(rateMemory)+'\n\nDate,Start%,End%,kWh,Location,Rate,Cost\n';
+  records.forEach(r=>csv+=`${r.date},${r.start},${r.end},${r.kwh},${r.location},${r.rate||''},${r.cost||''}\n`);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`EV_Log_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+function importAll(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const lines=e.target.result.split('\n');
+    lines.forEach(l=>{
+      if(l.startsWith('# Locations:')) allLocations=l.split(':')[1].trim().split('|').filter(Boolean);
+      if(l.startsWith('# RateMemory:')) try{rateMemory=JSON.parse(l.split(':')[1].trim());}catch{}
+    });
+    const startLine=lines.findIndex(l=>l.includes('Date,Start%,End%'));
+    if(startLine!==-1){
+      records=[];
+      lines.slice(startLine+1).forEach(l=>{
+        if(!l.trim()||l.startsWith('#'))return;
+        const[d,s,e,k,loc,ra,co]=l.split(',');
+        if(d)records.push({date:d.trim(),start:+s,end:+e,kwh:+k,location:loc.trim(),rate:ra?+ra:null,cost:co?+co:null,id:Date.now()+Math.random()});
+      });
+    }
+    localStorage.setItem(KEYS.records,JSON.stringify(records));
+    localStorage.setItem(KEYS.locations,JSON.stringify(allLocations));
+    localStorage.setItem(KEYS.rates,JSON.stringify(rateMemory));
+    renderLocations();renderTable();updateVersion();
+  };
+  reader.readAsText(file);
+}
+
+function updateVersion(){
+  const d=new Date();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  const h=String(d.getHours()).padStart(2,'0');
+  const min=String(d.getMinutes()).padStart(2,'0');
+  document.getElementById('version').textContent=`Version ${m}${day}-${h}${min}`;
+}
+updateVersion();
+
+// 初始化
 document.getElementById('date').value=new Date().toISOString().slice(0,10);
 renderLocations();
 renderTable();
