@@ -7,13 +7,16 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-  :root{--bg:#000;--card:#1c1c1e;--text:#fff;--text2:#aaa;--green:#30d158;--gray:#333;--border:#2c2c2e;}
-  body{margin:0;font-family:-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-       background:var(--bg);color:var(--text);padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
-  .c{max-width:600px;margin:0 auto;padding:0 16px; padding-bottom:120px; box-sizing:border-box;}
-  header{padding:24px 0 16px;text-align:center;font-size:34px;font-weight:800;letter-spacing:-0.5px;}
+  :root{
+    --bg:#000;--card:#1c1c1e;--text:#fff;--text2:#aaa;
+    --tesla-red:#E31937;--tesla-red-dark:#c0102a;--gray:#333;--border:#2c2c2e;
+  }
+  body{margin:0;font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);
+       padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
+  .c{max-width:600px;margin:0 auto;padding:0 16px;padding-bottom:120px;box-sizing:border-box;}
+  header{padding:24px 0 16px;text-align:center;font-size:34px;font-weight:800;color:var(--tesla-red);}
   .card{background:var(--card);border-radius:20px;overflow:hidden;margin:20px 0;
-         box-shadow:0 4px 12px rgba(0,0,0,0.3);border:1px solid #2a2a2a;}
+         box-shadow:0 4px 16px rgba(227,25,55,0.15);border:1px solid #2a2a2a;}
   .card > div{padding:20px 20px 24px;}
   .card > div:not(:last-child){border-bottom:1px solid var(--border);}
   input,select{
@@ -24,19 +27,14 @@
   .row{display:flex;gap:12px;}
   .row input{flex:1;}
   .btn{
-    background:linear-gradient(180deg,#34d35b,#30c653);color:white;border:none;
+    background:linear-gradient(180deg,#ff2a47,#e31937);color:white;border:none;
     padding:18px;border-radius:16px;font-size:19px;font-weight:700;width:100%;margin-top:16px;
-    box-shadow:0 4px 12px rgba(48,209,88,0.4);
+    box-shadow:0 6px 20px rgba(227,25,55,0.4);
   }
-  .quick-btns{
-    display:flex;flex-wrap:wrap;gap:11px;margin:14px 0 6px;
-  }
-  .qb{
-    padding:11px 18px;background:var(--gray);color:white;border-radius:30px;
-    font-size:16px;font-weight:600;border:1px solid #444;
-  }
+  .quick-btns{display:flex;flex-wrap:wrap;gap:11px;margin:14px 0 6px;}
+  .qb{padding:11px 18px;background:var(--gray);color:white;border-radius:30px;font-size:16px;font-weight:600;border:1px solid #555;}
   .qb:active{transform:scale(0.95);}
-  .export-btn{background:#30d158;}
+  .export-btn{background:var(--tesla-red);box-shadow:0 6px 20px rgba(227,25,55,0.4);}
   .import-btn{background:#333;margin-top:12px;}
   table{width:100%;border-collapse:collapse;margin-top:8px;}
   th,td{padding:14px 0;text-align:left;border-bottom:1px solid #2a2a2a;font-size:15px;}
@@ -49,17 +47,20 @@
 <div class="c">
   <header>EV Charge Log Pro</header>
 
-  <!-- 添加记录卡片 -->
   <div class="card">
-    <div>
-      <input type="date" id="date" value="2025-12-06">
-    </div>
+    <div><input type="date" id="date" value="2025-12-06"></div>
+    
     <div>
       <div class="row">
-        <input type="number" inputmode="decimal" id="start" placeholder="Start %">
-        <input type="number" inputmode="decimal" id="end" placeholder="End %">
+        <input type="number" inputmode="decimal" id="start" placeholder="Start %" min="0" max="100"
+               oninput="if(this.value.length>=2)this.value=this.value.slice(0,3);
+                        if(this.value>=0&&this.value<=100&&this.value.length>=1)document.getElementById('end').focus();">
+        <input type="number" inputmode="decimal" id="end" placeholder="End %" min="0" max="100"
+               oninput="if(this.value.length>=2)this.value=this.value.slice(0,3);
+                        if(this.value>=0&&this.value<=100&&this.value.length>=1)document.getElementById('location').focus();">
       </div>
     </div>
+    
     <div>
       <select id="location" onchange="handleLocationChange()">
         <option value="">Select Location</option>
@@ -67,6 +68,7 @@
         <option disabled>────────────────</option>
       </select>
     </div>
+    
     <div>
       <div class="quick-btns">
         <button class="qb" onclick="setRate(0.84)">0.84</button>
@@ -77,49 +79,44 @@
         <button class="qb" onclick="setRate(0)">Free</button>
       </div>
     </div>
+    
     <div>
       <div class="row">
         <input type="number" step="0.001" inputmode="decimal" id="rate" placeholder="Rate (RM/kWh)">
         <input type="number" step="0.01" inputmode="decimal" id="cost" placeholder="Cost (RM) 可不填">
       </div>
     </div>
-    <div>
-      <button class="btn" onclick="addRecord()">Add Record</button>
-    </div>
+    
+    <div><button class="btn" onclick="addRecord()">Add Record</button></div>
   </div>
 
-  <!-- 记录表格 -->
+  <!-- 表格和导出略（保持不变） -->
   <div class="card">
     <div style="padding-bottom:0;">
       <table id="logTable">
-        <thead>
-          <tr><th>Date</th><th>Start</th><th>End</th><th>kWh</th><th>Location</th><th>Rate</th><th>Cost</th></tr>
-        </thead>
+        <thead><tr><th>Date</th><th>Start</th><th>End</th><th>kWh</th><th>Location</th><th>Rate</th><th>Cost</th></tr></thead>
         <tbody id="tableBody"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- 导出导入 -->
   <div class="card">
     <div style="padding:20px;">
       <button class="btn export-btn" onclick="exportAll()">Export All Data (CSV)</button>
       <button class="btn import-btn" onclick="document.getElementById('importFile').click()">Import All Data (CSV)</button>
       <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importAll(this)">
       <div class="github">
-        完全适配 iPhone 刘海屏 / 动态岛<br>
-        圆角、间距、阴影全原生级别<br>
-        再也不会出位了！
+        极致连打输入体验：<br>
+        Start % → 自动跳 End % → 自动跳 Location<br>
+        Tesla 红主题 · 永久保存 · 一键导入导出
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// ====== 配置区 ======
-const BATTERY_CAPACITY = 60;  // 改成你车的
-
-// ====== 存储键 ======
+// 配置
+const BATTERY_CAPACITY = 60;
 const KEY_RECORDS = 'evRecords2025';
 const KEY_LOCATIONS = 'evLocations2025';
 const KEY_RATES = 'evRateMemory2025';
@@ -127,118 +124,78 @@ const KEY_RATES = 'evRateMemory2025';
 let records = JSON.parse(localStorage.getItem(KEY_RECORDS)||'[]');
 let customLocations = JSON.parse(localStorage.getItem(KEY_LOCATIONS)||'[]');
 let rateMemory = JSON.parse(localStorage.getItem(KEY_RATES)||'{}');
-
 const defaultLocations = ["BH","PV","BAMBOO HILL","HOME","WORK"];
 
-function allLocations() { return [...new Set([...defaultLocations, ...customLocations])].sort(); }
-
-function renderLocations() {
-  const select = document.getElementById('location');
-  select.innerHTML = `<option value="">Select Location</option><option value="__ADD__">+ Add New Location</option><option disabled>────────────────</option>`;
-  allLocations().forEach(loc => {
-    const opt = document.createElement('option');
-    opt.value = loc; opt.textContent = loc;
-    select.appendChild(opt);
-  });
+function allLocations(){return [...new Set([...defaultLocations,...customLocations])].sort();}
+function renderLocations(){
+  const s=document.getElementById('location');
+  s.innerHTML=`<option value="">Select Location</option><option value="__ADD__">+ Add New Location</option><option disabled>────────────────</option>`;
+  allLocations().forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l;s.appendChild(o);});
 }
-
-function handleLocationChange() {
-  if (document.getElementById('location').value === "__ADD__") {
-    const name = prompt("输入新地点名称（自动大写）")?.trim().toUpperCase();
-    if (name && !allLocations().includes(name)) {
-      customLocations.push(name);
-      localStorage.setItem(KEY_LOCATIONS, JSON.stringify(customLocations));
-      renderLocations();
-      document.getElementById('location').value = name;
-    } else {
-      document.getElementById('location').value = "";
-    }
+function handleLocationChange(){
+  if(document.getElementById('location').value==="__ADD__"){
+    const n=prompt("输入新地点（自动大写）")?.trim().toUpperCase();
+    if(n&&!allLocations().includes(n)){customLocations.push(n);localStorage.setItem(KEY_LOCATIONS,JSON.stringify(customLocations));renderLocations();document.getElementById('location').value=n;}
+    else document.getElementById('location').value="";
   }
   autoFillRate();
 }
-
-function autoFillRate() {
-  const loc = document.getElementById('location').value;
-  if (loc && rateMemory[loc]) document.getElementById('rate').value = rateMemory[loc];
+function autoFillRate(){
+  const loc=document.getElementById('location').value;
+  if(loc&&rateMemory[loc])document.getElementById('rate').value=rateMemory[loc];
 }
-
-function setRate(v) { document.getElementById('rate').value = v; }
-
-function addRecord() {
-  let loc = document.getElementById('location').value;
-  if (!loc) return alert("请选择地点");
-
-  const start = parseInt(document.getElementById('start').value||0);
-  const end = parseInt(document.getElementById('end').value||0);
-  if (isNaN(start)||isNaN(end)) return alert("请填写起止电量");
-
-  const rate = document.getElementById('rate').value ? parseFloat(document.getElementById('rate').value) : null;
-  const manualCost = document.getElementById('cost').value ? parseFloat(document.getElementById('cost').value) : null;
-  const kwh = ((end-start)/100*BATTERY_CAPACITY).toFixed(2);
-  const cost = manualCost !== null ? manualCost : (rate ? (kwh*rate).toFixed(2) : null);
-
-  if (rate !== null) {
-    rateMemory[loc] = rate;
-    localStorage.setItem(KEY_RATES, JSON.stringify(rateMemory));
-  }
-
+function setRate(v){document.getElementById('rate').value=v;}
+function addRecord(){
+  let loc=document.getElementById('location').value;
+  if(!loc)return alert("请选择地点");
+  const start=parseInt(document.getElementById('start').value||0);
+  const end=parseInt(document.getElementById('end').value||0);
+  if(isNaN(start)||isNaN(end))return alert("请填写起止电量");
+  const rate=document.getElementById('rate').value?parseFloat(document.getElementById('rate').value):null;
+  const manualCost=document.getElementById('cost').value?parseFloat(document.getElementById('cost').value):null;
+  const kwh=((end-start)/100*BATTERY_CAPACITY).toFixed(2);
+  const cost=manualCost!==null?manualCost:(rate?(kwh*rate).toFixed(2):null);
+  if(rate!==null){rateMemory[loc]=rate;localStorage.setItem(KEY_RATES,JSON.stringify(rateMemory));}
   records.push({date:document.getElementById('date').value,start,end,kwh:parseFloat(kwh),location:loc,rate,cost:cost?parseFloat(cost):null,id:Date.now()});
-  localStorage.setItem(KEY_RECORDS, JSON.stringify(records));
-
-  document.getElementById('start').value = document.getElementById('end').value = document.getElementById('cost').value = '';
-  document.getElementById('end').focus();
+  localStorage.setItem(KEY_RECORDS,JSON.stringify(records));
+  document.getElementById('start').value=document.getElementById('end').value=document.getElementById('cost').value='';
+  document.getElementById('start').focus(); // 准备下一条
   renderTable();
 }
-
-function renderTable() {
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '';
-  records.slice().reverse().forEach(r => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${r.date.split('-').reverse().join('/')}</td><td>${r.start}</td><td>${r.end}</td><td>${r.kwh}</td><td>${r.location}</td><td>${r.rate||'-'}</td><td>${r.cost!=null?'RM'+r.cost.toFixed(2):'-'}</td>`;
-    tbody.appendChild(tr);
+function renderTable(){
+  const t=document.getElementById('tableBody');t.innerHTML='';
+  records.slice().reverse().forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.date.split('-').reverse().join('/')}</td><td>${r.start}</td><td>${r.end}</td><td>${r.kwh}</td><td>${r.location}</td><td>${r.rate||'-'}</td><td>${r.cost!=null?'RM'+r.cost.toFixed(2):'-'}</td>`;
+    t.appendChild(tr);
   });
 }
-
-function exportAll() {
-  let csv = '\uFEFF# EV Charge Log Pro Full Backup\n';
-  csv += `# Locations: ${allLocations().join('|')}\n`;
-  csv += `# RateMemory: ${JSON.stringify(rateMemory)}\n\n`;
-  csv += 'Date,Start%,End%,kWh,Location,Rate,Cost\n';
+function exportAll(){
+  let csv='\uFEFF# EV Charge Log Pro Tesla Edition\n# Locations: '+allLocations().join('|')+'\n# RateMemory: '+JSON.stringify(rateMemory)+'\n\nDate,Start%,End%,kWh,Location,Rate,Cost\n';
   records.forEach(r=>csv+=`${r.date},${r.start},${r.end},${r.kwh},${r.location},${r.rate||''},${r.cost||''}\n`);
-  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=`EV_Log_Pro_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`Tesla_EV_Log_${new Date().toISOString().slice(0,10)}.csv`;a.click();
 }
-
-function importAll(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const lines = e.target.result.split('\n');
-    lines.forEach(l=>{
-      if(l.startsWith('# Locations:')) customLocations = l.split(':')[1].trim().split('|').filter(x=>x && !defaultLocations.includes(x));
-      if(l.startsWith('# RateMemory:')) try{rateMemory=JSON.parse(l.split(':')[1].trim());}catch{}
-    });
-    const start = lines.findIndex(l=>l.includes('Date,Start%,End%'));
-    if(start!==-1){
-      records = [];
-      lines.slice(start+1).forEach(l=>{
-        if(!l.trim()||l.startsWith('#'))return;
-        const [d,s,e,k,loc,r,c] = l.split(',');
-        if(d) records.push({date:d.trim(),start:+s,end:+e,kwh:+k,location:loc.trim(),rate:r?+r:null,cost:c?+c:null,id:Date.now()+Math.random()});
-      });
-    }
+function importAll(i){
+  const f=i.files[0];if(!f)return;
+  const r=new FileReader();r.onload=e=>{
+    const lines=e.target.result.split('\n');
+    lines.forEach(l=>{if(l.startsWith('# Locations:'))customLocations=l.split(':')[1].trim().split('|').filter(x=>x&&!defaultLocations.includes(x));
+      if(l.startsWith('# RateMemory:'))try{rateMemory=JSON.parse(l.split(':')[1].trim());}catch{}});
+    const s=lines.findIndex(l=>l.includes('Date,Start%,End%'));
+    if(s!==-1){records=[];lines.slice(s+1).forEach(l=>{if(!l.trim()||l.startsWith('#'))return;
+      const[d,st,en,k,loc,ra,co]=l.split(',');if(d)records.push({date:d.trim(),start:+st,end:+en,kwh:+k,location:loc.trim(),rate:ra?+ra:null,cost:co?+co:null,id:Date.now()+Math.random()});});}
     localStorage.setItem(KEY_RECORDS,JSON.stringify(records));
     localStorage.setItem(KEY_LOCATIONS,JSON.stringify(customLocations));
     localStorage.setItem(KEY_RATES,JSON.stringify(rateMemory));
-    renderLocations(); renderTable(); alert('全部恢复完成！');
-  };
-  reader.readAsText(file);
+    renderLocations();renderTable();alert('数据已完整恢复！');
+  };r.readAsText(f);
 }
 
 // 初始化
-document.getElementById('date').value = new Date().toISOString().slice(0,10);
-renderLocations(); renderTable();
+document.getElementById('date').value=new Date().toISOString().slice(0,10);
+renderLocations();renderTable();
+document.getElementById('start').focus(); // 打开页面直接输入 Start %
 </script>
 </body>
 </html>
