@@ -263,15 +263,18 @@
       margin-top: 8px;
       border-radius: 14px;
       border: 1px solid #26222a;
-      overflow: hidden;
+      overflow-x: auto;
+      overflow-y: auto;
       max-height: 360px;
       background: #101013;
+      -webkit-overflow-scrolling: touch;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
+      min-width: 760px;
     }
 
     thead {
@@ -511,6 +514,9 @@
       header h1 {
         font-size: 24px;
       }
+      table {
+        min-width: 100%;
+      }
     }
   </style>
 </head>
@@ -543,7 +549,7 @@
 
   <div class="app">
     <header>
-      <div class="sub">TESLA · MODEL Y RWD ver.0145</div>
+      <div class="sub">TESLA · MODEL Y RWD ver.0200</div>
       <h1>EV Charge Log Pro</h1>
     </header>
 
@@ -733,7 +739,6 @@
     const STORAGE_KEY_RECORDS = "evChargeLogPro_v5_records";
     const STORAGE_KEY_LOCATIONS = "evChargeLogPro_v5_locations";
 
-    // 找出同一个 Location 最近一次记录的 Rate
     function getLastRateForLocation(loc, records) {
       if (!loc) return null;
       const target = String(loc).trim().toLowerCase();
@@ -812,7 +817,7 @@
           records = [];
         }
 
-        // 🔧 迁移旧数据：补上 id / createdAt，方便 Edit / Delete 正常工作
+        // migrate old records (add id/createdAt if missing)
         let changed = false;
         const now = Date.now();
         records.forEach((r, idx) => {
@@ -1160,7 +1165,6 @@
         saveState();
       }
 
-      // === Import / Export ===
       function exportCSV() {
         if (!records.length && !locations.length) {
           showToast("没有记录或地点可导出");
@@ -1169,7 +1173,6 @@
 
         const today = defaultToday();
 
-        // 导出记录 CSV
         if (records.length) {
           const header =
             "date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm";
@@ -1204,7 +1207,6 @@
           URL.revokeObjectURL(url);
         }
 
-        // 导出 Saved Locations CSV
         if (locations.length) {
           const locLines = ["location"];
           locations.forEach((loc) => {
@@ -1344,14 +1346,11 @@
         reader.readAsText(file);
       }
 
-      // === 初始化 ===
       dateInput.value = defaultToday();
       loadState();
       updateLocationSelect();
       renderLocationsList();
       refreshAll();
-
-      // === 输入逻辑 ===
 
       // Start%：两位自动跳 End%
       startPercentInput.addEventListener("input", (e) => {
@@ -1384,7 +1383,6 @@
         }
       });
 
-      // Rate 快捷 chip
       rateChips.forEach((chip) => {
         chip.addEventListener("click", () => {
           const val = chip.getAttribute("data-rate");
@@ -1394,7 +1392,6 @@
         });
       });
 
-      // 选 Location → 自动带入该地点最后一次 Rate
       locationSelect.addEventListener("change", () => {
         const loc = (locationSelect.value || "").trim();
         if (!loc) return;
@@ -1407,7 +1404,6 @@
         }
       });
 
-      // 新增/更新 Location
       saveLocationBtn.addEventListener("click", () => {
         const loc = locationCustom.value.trim();
         if (!loc) {
@@ -1565,7 +1561,6 @@
         }
       });
 
-      // Bottom bar Import / Export
       exportBtn.addEventListener("click", exportCSV);
 
       importBtn.addEventListener("click", () => {
