@@ -267,7 +267,6 @@
       color: #f5f5f5;
     }
 
-    /* Table */
     .table-wrapper {
       margin-top: 8px;
       border-radius: 14px;
@@ -343,7 +342,6 @@
       color: var(--text-muted);
     }
 
-    /* Saved locations */
     .loc-row {
       display: flex;
       align-items: center;
@@ -374,7 +372,6 @@
       color: var(--text-muted);
     }
 
-    /* Monthly summary */
     .summary-month {
       padding: 6px 4px;
       border-bottom: 1px solid #25252a;
@@ -407,7 +404,6 @@
       min-width: 90px;
     }
 
-    /* Toast */
     #toast {
       position: fixed;
       left: 50%;
@@ -430,7 +426,6 @@
       transform: translateX(-50%) translateY(-4px);
     }
 
-    /* Import popup */
     .popup-backdrop {
       position: fixed;
       inset: 0;
@@ -583,7 +578,7 @@
           />
         </div>
         <div class="field">
-          <label>End %</label>
+          <label>End % (00 = 100)</label>
           <input
             id="endPercent"
             type="text"
@@ -857,10 +852,8 @@
       function getSortedRecordsDesc() {
         return [...records].sort((a, b) => {
           if (a.date === b.date) {
-            // 同一天按创建时间倒序（最新在上）
             return (b.createdAt || 0) - (a.createdAt || 0);
           }
-          // 日期倒序（最新在上）
           return a.date > b.date ? -1 : 1;
         });
       }
@@ -1159,43 +1152,69 @@
 
       // === Import / Export ===
       function exportCSV() {
-        if (!records.length) {
-          showToast("没有记录可导出");
+        if (!records.length && !locations.length) {
+          showToast("没有记录或地点可导出");
           return;
         }
-        const header =
-          "date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm";
-        const lines = [header];
-        const sorted = getSortedRecordsAsc();
-        sorted.forEach((rec) => {
-          const row = [
-            rec.date || "",
-            rec.start ?? "",
-            rec.end ?? "",
-            rec.odo ?? "",
-            rec.location
-              ? '"' + String(rec.location).replace(/"/g, '""') + '"'
-              : "",
-            rec.rate ?? "",
-            rec.cost ?? "",
-            rec.driveKm ?? "",
-            rec.usedKwh ?? "",
-            rec.whPerKm ?? "",
-          ];
-          lines.push(row.join(","));
-        });
-        const csv = lines.join("\n");
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
+
         const today = defaultToday();
-        a.href = url;
-        a.download = `ev_charge_log_pro_${today}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast("CSV 已导出");
+
+        // 导出记录 CSV
+        if (records.length) {
+          const header =
+            "date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm";
+          const lines = [header];
+          const sorted = getSortedRecordsAsc();
+          sorted.forEach((rec) => {
+            const row = [
+              rec.date || "",
+              rec.start ?? "",
+              rec.end ?? "",
+              rec.odo ?? "",
+              rec.location
+                ? '"' + String(rec.location).replace(/"/g, '""') + '"'
+                : "",
+              rec.rate ?? "",
+              rec.cost ?? "",
+              rec.driveKm ?? "",
+              rec.usedKwh ?? "",
+              rec.whPerKm ?? "",
+            ];
+            lines.push(row.join(","));
+          });
+          const csv = lines.join("\n");
+          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `ev_charge_log_pro_${today}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+
+        // 导出 Saved Locations CSV
+        if (locations.length) {
+          const locLines = ["location"];
+          locations.forEach((loc) => {
+            locLines.push('"' + String(loc).replace(/"/g, '""') + '"');
+          });
+          const locCsv = locLines.join("\n");
+          const locBlob = new Blob([locCsv], {
+            type: "text/csv;charset=utf-8;",
+          });
+          const locUrl = URL.createObjectURL(locBlob);
+          const a2 = document.createElement("a");
+          a2.href = locUrl;
+          a2.download = `ev_charge_log_pro_locations_${today}.csv`;
+          document.body.appendChild(a2);
+          a2.click();
+          document.body.removeChild(a2);
+          URL.revokeObjectURL(locUrl);
+        }
+
+        showToast("CSV 已导出（含 Saved Locations）");
       }
 
       function closeImportModal() {
@@ -1315,14 +1334,16 @@
         reader.readAsText(file);
       }
 
-      // === Events ===
+      // === 初始化 ===
       dateInput.value = defaultToday();
       loadState();
       updateLocationSelect();
       renderLocationsList();
       refreshAll();
 
-      // auto jump start% -> end%
+      // === 输入逻辑 ===
+
+      // Start%：两位自动跳 End%
       startPercentInput.addEventListener("input", (e) => {
         let v = e.target.value.replace(/\D/g, "");
         if (v.length > 2) v = v.slice(0, 2);
@@ -1333,7 +1354,18 @@
         }
       });
 
-      // chips click
+      // End%：两位自动跳 ODO
+      endPercentInput.addEventListener("input", (e) => {
+        let v = e.target.value.replace(/\D/g, "");
+        if (v.length > 2) v = v.slice(0, 2);
+        e.target.value = v;
+        if (v.length >= 2) {
+          odoInput.focus();
+          odoInput.select?.();
+        }
+      });
+
+      // Rate 快捷 chip
       rateChips.forEach((chip) => {
         chip.addEventListener("click", () => {
           const val = chip.getAttribute("data-rate");
@@ -1343,20 +1375,20 @@
         });
       });
 
-      // when select location -> auto last rate
+      // 选 Location → 自动带入该地点最后一次 Rate
       locationSelect.addEventListener("change", () => {
         const loc = (locationSelect.value || "").trim();
         if (!loc) return;
         const lastRate = getLastRateForLocation(loc, records);
         if (lastRate != null && !isNaN(lastRate)) {
           let val = Number(lastRate).toFixed(2).replace(/\.00$/, "");
-          rateInput.value = val; // 覆盖成最后一次记录的 rate
+          rateInput.value = val;
         } else {
           rateInput.value = "";
         }
       });
 
-      // save / add location
+      // 新增/更新 Location
       saveLocationBtn.addEventListener("click", () => {
         const loc = locationCustom.value.trim();
         if (!loc) {
@@ -1395,16 +1427,22 @@
         }
       });
 
+      function parsePercent(raw) {
+        const txt = raw.trim();
+        if (txt === "") return null;
+        // 特殊规则：00 = 100
+        if (txt === "00") return 100;
+        const n = parseInt(txt, 10);
+        if (isNaN(n)) return null;
+        return n;
+      }
+
       addRecordBtn.addEventListener("click", () => {
         const date = dateInput.value || defaultToday();
-        const startNum =
-          startPercentInput.value.trim() === ""
-            ? null
-            : Number(startPercentInput.value);
-        const endNum =
-          endPercentInput.value.trim() === ""
-            ? null
-            : Number(endPercentInput.value);
+
+        const startNum = parsePercent(startPercentInput.value);
+        const endNum = parsePercent(endPercentInput.value);
+
         const odoNum =
           odoInput.value.trim() === "" ? null : Number(odoInput.value);
         const location = locationSelect.value.trim();
@@ -1472,10 +1510,21 @@
           if (!rec) return;
           editingId = id;
           dateInput.value = rec.date || defaultToday();
+
+          // 编辑时：100% 显示成 "00" 以配合 2 位输入 + 00=100 规则
           startPercentInput.value =
-            rec.start != null && !isNaN(rec.start) ? rec.start : "";
+            rec.start != null && !isNaN(rec.start)
+              ? rec.start === 100
+                ? "00"
+                : String(rec.start)
+              : "";
           endPercentInput.value =
-            rec.end != null && !isNaN(rec.end) ? rec.end : "";
+            rec.end != null && !isNaN(rec.end)
+              ? rec.end === 100
+                ? "00"
+                : String(rec.end)
+              : "";
+
           odoInput.value =
             rec.odo != null && !isNaN(rec.odo) ? rec.odo : "";
           rateInput.value =
