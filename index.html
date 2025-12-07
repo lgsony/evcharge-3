@@ -1,132 +1,24 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>EV Charge Log Pro v5</title>
+  <title>EV Charge Log Pro · 60 kWh</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-
-    // Open popup
-importBtn.addEventListener("click", ()=>{
-    document.getElementById("importPopup").style.display = "flex";
-});
-
-// Cancel popup
-document.getElementById("importCancelBtn").addEventListener("click", ()=>{
-    document.getElementById("importPopup").style.display = "none";
-});
-
-// Choose file
-document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
-    const mode = document.querySelector("input[name='importMode']:checked");
-    if(!mode){
-        alert("请选择追加或覆盖。");
-        return;
-    }
-    window.importMode = mode.value;   // 保存选择给后面使用
-    importFile.click();               // 触发真正选文件
-    document.getElementById("importPopup").style.display = "none";
-});
-
-
-    /* ===== Import Popup ===== */
-
-.popup-backdrop{
-    position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    backdrop-filter: blur(6px);
-    background:rgba(0,0,0,0.55);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:9999;
-}
-
-.popup-card{
-    width:88%;
-    max-width:360px;
-    background:#111;
-    border-radius:20px;
-    border:1px solid #333;
-    padding:20px;
-    color:white;
-    box-shadow:0 0 20px rgba(0,0,0,0.5);
-}
-
-.popup-title{
-    font-size:17px;
-    font-weight:600;
-    margin-bottom:6px;
-}
-
-.popup-sub{
-    font-size:13px;
-    color:#aaa;
-    margin-bottom:14px;
-}
-
-.popup-options{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    margin-bottom:18px;
-}
-
-.popup-option{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-size:15px;
-}
-
-.popup-option input[type=radio]{
-    width:18px;
-    height:18px;
-}
-
-.popup-buttons{
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-}
-
-.popup-btn-cancel{
-    flex:1;
-    padding:10px 0;
-    background:#222;
-    border:1px solid #444;
-    border-radius:12px;
-    color:#ccc;
-    font-size:14px;
-}
-
-.popup-btn-primary{
-    flex:1;
-    padding:10px 0;
-    background:#e50914;
-    border:none;
-    border-radius:12px;
-    color:white;
-    font-size:14px;
-    font-weight:600;
-}
-
     :root {
-      --bg-top: #120104;
-      --bg-bottom: #000000;
-      --card: #191919;
-      --card-soft: #222222;
-      --border: #303030;
-      --border-soft: #2a2a2a;
-      --text: #ffffff;
-      --text-soft: #b8b8b8;
-      --accent: #ff3b3b;
-      --accent-soft: #ff4f4f;
+      --bg: #050507;
+      --card-bg: #151518;
+      --card-bg-soft: #18181c;
+      --border-subtle: #26262b;
+      --accent: #e82127;
+      --accent-soft: #ff4d57;
+      --text-main: #ffffff;
+      --text-sub: #bbbbc0;
+      --text-muted: #777782;
+      --chip-bg: #222228;
+      --chip-border: #3a3a42;
       --danger: #ff4b5c;
-      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.7);
-      --radius-lg: 18px;
-      --radius-pill: 999px;
+      --success: #18c37d;
     }
 
     * {
@@ -136,117 +28,119 @@ document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
 
     body {
       margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        system-ui, -segoe-ui, Roboto, sans-serif;
-      background: radial-gradient(circle at top, var(--bg-top) 0, #050002 22%, var(--bg-bottom) 60%);
-      color: var(--text);
       min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1a1a1f 0, #050507 55%, #000 100%);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 24px 12px 84px;
     }
 
     .app {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 12px 14px 88px;
+      width: 100%;
+      max-width: 840px;
     }
 
     header {
       text-align: center;
-      margin-bottom: 10px;
-    }
-
-    header h1 {
-      margin: 6px 0 4px;
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: var(--accent-soft);
-      text-transform: uppercase;
+      margin-bottom: 16px;
     }
 
     header .sub {
-      font-size: 10px;
+      font-size: 12px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--text-soft);
+      color: var(--accent-soft);
     }
 
     .card {
-      background: radial-gradient(circle at top left, #222, #151515);
-      border-radius: 22px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft);
-      padding: 12px 14px;
-      margin-bottom: 10px;
+      background: radial-gradient(circle at top left, #26222a 0, #151518 50%);
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+      border: 1px solid #26222a;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+      margin-bottom: 14px;
     }
 
     .card-header-row {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .card-title {
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 600;
-      color: var(--accent-soft);
     }
 
-    .card-subtitle {
+    .card-sub {
       font-size: 11px;
-      color: var(--text-soft);
+      color: var(--text-muted);
     }
 
     .field {
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
 
     .field label {
       display: block;
-      font-size: 11px;
+      font-size: 12px;
       margin-bottom: 4px;
-      color: var(--text-soft);
+      color: var(--text-sub);
     }
 
-    .field .right-label {
-      float: right;
-      font-size: 10px;
+    .date-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .date-row input[type="date"] {
+      flex: 1;
+    }
+
+    .date-icon {
+      font-size: 16px;
       opacity: 0.6;
-    }
-
-    .input-shell {
-      position: relative;
     }
 
     input,
     select {
       width: 100%;
-      padding: 10px 11px;
-      border-radius: 14px;
-      border: 1px solid var(--border-soft);
-      background: #141414;
-      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #111115;
+      color: var(--text-main);
       font-size: 14px;
       outline: none;
-      transition: border 0.15s ease, background 0.15s ease,
-        box-shadow 0.15s ease;
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
     }
 
     input:focus,
     select:focus {
       border-color: var(--accent-soft);
-      background: #181818;
-      box-shadow: 0 0 0 1px rgba(255, 59, 59, 0.3);
-    }
-
-    input::placeholder {
-      color: #555;
+      box-shadow: 0 0 0 1px rgba(255, 77, 87, 0.7);
     }
 
     .inline-two {
       display: flex;
-      gap: 8px;
+      gap: 10px;
     }
 
     .inline-two .field {
@@ -254,453 +148,376 @@ document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
       margin-bottom: 0;
     }
 
-    .date-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    .right-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: 6px;
     }
 
-    .date-row input[type="date"] {
+    .location-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .location-row > div:first-child {
       flex: 1;
-      font-size: 13px;
     }
 
-    .date-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 12px;
-      border: 1px solid var(--border-soft);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      color: var(--text-soft);
+    .small-pill {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #33333a;
     }
 
-    /* Rate quick buttons */
-    .rate-chips {
+    .chips-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 8px;
       margin-bottom: 6px;
-      margin-top: 4px;
     }
 
     .chip {
+      padding: 6px 10px;
       border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      padding: 5px 10px;
+      border: 1px solid var(--chip-border);
+      background: var(--chip-bg);
       font-size: 12px;
-      color: var(--text-soft);
-      background: #181818;
+      color: var(--text-sub);
       cursor: pointer;
-      min-width: 52px;
-      text-align: center;
-      transition: background 0.15s ease, border 0.15s ease,
-        color 0.15s ease, transform 0.06s ease;
+      user-select: none;
     }
 
-    .chip:active {
-      transform: scale(0.96);
-    }
-
-    .chip.selected {
-      background: var(--accent);
-      color: #000;
+    .chip.active {
       border-color: var(--accent-soft);
+      color: var(--accent-soft);
     }
 
-    .help-text {
-      font-size: 10px;
-      color: #ff9ea7;
-      margin-top: 3px;
-    }
-
-    /* Buttons */
     .btn {
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--border-soft);
-      background: #181818;
-      color: var(--text-soft);
-      font-size: 13px;
-      padding: 8px 14px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
       outline: none;
-      transition: background 0.15s ease, transform 0.06s ease,
-        border 0.15s ease, color 0.15s ease;
-      white-space: nowrap;
-    }
-
-    .btn span.icon {
-      font-size: 16px;
     }
 
     .btn-primary {
       width: 100%;
-      background: linear-gradient(135deg, var(--accent-soft), #e22626);
-      border-color: rgba(255, 59, 59, 0.9);
+      background: linear-gradient(135deg, #ff4050, #e82127);
       color: #fff;
-      font-weight: 600;
-      padding-top: 10px;
-      padding-bottom: 10px;
-      font-size: 15px;
-      margin-top: 6px;
+      box-shadow: 0 14px 30px rgba(232, 33, 39, 0.65);
     }
 
     .btn-primary:active {
-      transform: scale(0.98);
-      background: linear-gradient(135deg, #ff5d5d, #d92020);
+      transform: translateY(1px);
+      box-shadow: 0 10px 22px rgba(232, 33, 39, 0.5);
     }
 
     .btn-soft {
-      background: #141414;
+      background: #19191d;
+      color: #e2e2e7;
+      border-radius: 18px;
+      padding-inline: 18px;
+      font-size: 14px;
+      border: 1px solid #2b2b31;
+    }
+
+    .btn-soft .icon {
+      margin-right: 6px;
+      opacity: 0.9;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 8px 14px 12px;
+      background: linear-gradient(to top, #000 0, rgba(0, 0, 0, 0.2));
+      backdrop-filter: blur(10px);
+      z-index: 12;
+    }
+
+    .bottom-inner {
+      max-width: 840px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .bottom-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .prev-info {
+      margin-top: 10px;
       font-size: 12px;
+      color: var(--text-muted);
+      text-align: left;
     }
 
-    .btn-sm {
-      padding: 5px 10px;
-      font-size: 11px;
+    .prev-info span {
+      color: #f5f5f5;
     }
 
-    .btn:disabled {
-      opacity: 0.4;
-      cursor: default;
-      transform: none;
-    }
-
-    /* Records table */
+    /* Table */
     .table-wrapper {
-      max-height: 260px;
-      overflow: auto;
-      border-radius: 12px;
-      border: 1px solid #1c1c1c;
+      margin-top: 8px;
+      border-radius: 14px;
+      border: 1px solid #26222a;
+      overflow: hidden;
+      max-height: 360px;
+      background: #101013;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 11px;
-      min-width: 650px;
+      font-size: 12px;
     }
 
     thead {
-      background: #141414;
-      position: sticky;
-      top: 0;
-      z-index: 1;
+      background: #18181d;
     }
 
     th,
     td {
-      padding: 6px 6px;
+      padding: 8px 6px;
       text-align: right;
-      border-bottom: 1px solid #1a1a1a;
       white-space: nowrap;
     }
 
     th:first-child,
     td:first-child {
       text-align: left;
+      padding-left: 10px;
     }
 
-    th {
-      font-weight: 500;
-      color: var(--text-soft);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+    th:last-child,
+    td:last-child {
+      padding-right: 10px;
     }
 
-    tbody tr:nth-child(2n) {
-      background: rgba(255, 255, 255, 0.02);
+    tbody tr:nth-child(even) {
+      background: #141419;
     }
 
-    tbody tr:hover {
-      background: rgba(255, 255, 255, 0.04);
+    tbody tr:nth-child(odd) {
+      background: #0f0f13;
     }
 
-    td .badge-loc {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 7px;
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      font-size: 10px;
-      color: var(--text-soft);
-      max-width: 120px;
+    .td-location {
+      max-width: 130px;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    td .action-row {
+    .td-actions {
+      text-align: right;
+      font-size: 15px;
       display: flex;
       justify-content: flex-end;
-      gap: 4px;
+      gap: 8px;
     }
 
-    td .action-row button {
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      background: #101010;
-      color: var(--text-soft);
+    .action-icon {
       cursor: pointer;
-      transition: background 0.12s ease, transform 0.06s ease;
+      opacity: 0.65;
     }
 
-    td .action-row button:active {
-      transform: scale(0.96);
-      background: #191919;
-    }
-
-    td .action-row .delete {
-      border-color: rgba(255, 75, 92, 0.45);
-      color: #ff9aa4;
+    .action-icon:hover {
+      opacity: 1;
     }
 
     .empty-state {
+      padding: 12px;
       text-align: center;
-      padding: 10px 4px;
       font-size: 12px;
-      color: var(--text-soft);
+      color: var(--text-muted);
     }
 
-    /* Monthly summary */
-    .summary-body {
-      font-size: 12px;
-      color: var(--text-soft);
-      margin-top: 4px;
-    }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .summary-card {
-      border-radius: 14px;
-      border: 1px solid var(--border-soft);
-      padding: 6px 8px;
-      background: #141414;
-    }
-
-    .summary-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2px;
-    }
-
-    .summary-month {
-      font-size: 11px;
-      font-weight: 500;
-    }
-
-    .summary-kpi {
-      font-size: 10px;
-      color: var(--text-soft);
-    }
-
-    .summary-kpi strong {
-      color: var(--accent-soft);
-    }
-
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      margin-top: 2px;
-      color: var(--text-soft);
-    }
-
-    .summary-row span.value {
-      color: #f5f5f5;
-    }
-
-    /* Saved locations list */
-    .loc-list-empty {
-      font-size: 12px;
-      color: var(--text-soft);
-      padding: 4px 0 2px;
-    }
-
+    /* Saved locations */
     .loc-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 4px 0;
-      border-bottom: 1px solid #222;
+      padding: 6px 4px;
+      border-bottom: 1px solid #25252a;
+      font-size: 13px;
     }
 
     .loc-row:last-child {
       border-bottom: none;
     }
 
-    .loc-name {
+    .loc-actions {
+      display: flex;
+      gap: 8px;
+      font-size: 16px;
+    }
+
+    .loc-empty {
+      padding: 8px 2px 2px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .badge-count {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Monthly summary */
+    .summary-month {
+      padding: 6px 4px;
+      border-bottom: 1px solid #25252a;
+      font-size: 12px;
+    }
+
+    .summary-month:last-child {
+      border-bottom: none;
+    }
+
+    .summary-header-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .summary-month-title {
+      font-weight: 600;
       font-size: 13px;
     }
 
-    .loc-actions {
+    .summary-body {
       display: flex;
-      gap: 6px;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--text-sub);
     }
 
-    .icon-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      background: #141414;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      color: var(--text-soft);
-      cursor: pointer;
-      padding: 0;
-    }
-
-    .icon-btn:active {
-      transform: scale(0.95);
-      background: #1d1d1d;
-    }
-
-    .icon-btn.danger {
-      border-color: rgba(255, 75, 92, 0.5);
-      color: #ff9aa4;
-    }
-
-    .chip-count {
-      font-size: 10px;
-      color: var(--text-soft);
-    }
-
-    /* Bottom bar */
-    .bottom-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0, 0, 0, 0.94);
-      border-top: 1px solid var(--border);
-      padding: 8px 14px 10px;
-      display: flex;
-      justify-content: center;
-      z-index: 10;
-      backdrop-filter: blur(10px);
-    }
-
-    .bottom-inner {
-      max-width: 480px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
-
-    .bottom-group {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .bottom-hint {
-      font-size: 9px;
-      color: var(--text-soft);
-      text-align: right;
-    }
-
-    input[type="file"] {
-      display: none;
+    .summary-item {
+      min-width: 90px;
     }
 
     /* Toast */
-    .toast {
+    #toast {
       position: fixed;
-      top: 12px;
       left: 50%;
+      bottom: 72px;
       transform: translateX(-50%);
-      background: #171717;
-      color: var(--text-soft);
+      background: rgba(10, 10, 14, 0.95);
+      color: #fff;
+      padding: 8px 14px;
       border-radius: 999px;
-      padding: 6px 14px;
-      border: 1px solid var(--border-soft);
-      font-size: 11px;
+      font-size: 12px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      z-index: 20;
+      transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+      border: 1px solid #33333a;
+      z-index: 30;
     }
 
-    .toast.show {
+    #toast.show {
       opacity: 1;
-      transform: translateX(-50%) translateY(4px);
+      transform: translateX(-50%) translateY(-4px);
     }
 
-    /* Modal */
-    .modal-backdrop {
+    /* Import popup */
+    .popup-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.7);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 20;
+      z-index: 25;
     }
 
-    .modal-backdrop.show {
-      display: flex;
-    }
-
-    .modal {
-      background: #111;
-      border-radius: 18px;
-      border: 1px solid var(--border-soft);
-      padding: 14px 14px 12px;
-      width: 100%;
+    .popup-card {
+      width: 90%;
       max-width: 360px;
-      box-shadow: var(--shadow-soft);
+      background: #16161b;
+      border-radius: 18px;
+      border: 1px solid #34343e;
+      padding: 16px 16px 14px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
     }
 
-    .modal-title {
-      font-size: 14px;
-      font-weight: 500;
+    .popup-title {
+      font-size: 15px;
+      font-weight: 600;
       margin-bottom: 6px;
     }
 
-    .modal-body {
+    .popup-sub {
       font-size: 12px;
-      color: var(--text-soft);
+      color: var(--text-sub);
       margin-bottom: 10px;
     }
 
-    .radio-row {
-      display: flex;
-      gap: 10px;
-      font-size: 12px;
-      margin-bottom: 8px;
+    .popup-options {
+      margin-bottom: 10px;
     }
 
-    .radio-row label {
+    .popup-option {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
+      padding: 6px 4px;
+      font-size: 13px;
       cursor: pointer;
     }
 
-    .modal-actions {
+    .popup-option span {
+      color: var(--text-main);
+    }
+
+    .popup-option input[type="radio"] {
+      accent-color: var(--accent-soft);
+    }
+
+    .popup-buttons {
       display: flex;
       justify-content: flex-end;
-      gap: 6px;
+      gap: 8px;
       margin-top: 4px;
+    }
+
+    .popup-btn-cancel {
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: 1px solid #33333a;
+      background: #15151a;
+      color: var(--text-sub);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .popup-btn-primary {
+      border-radius: 999px;
+      padding: 8px 16px;
+      border: none;
+      background: linear-gradient(135deg, #ff4050, #e82127);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(232, 33, 39, 0.7);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
     }
 
     @media (min-width: 520px) {
@@ -711,34 +528,31 @@ document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
   </style>
 </head>
 <body>
-  <div class="toast" id="toast"></div>
+  <div id="toast"></div>
 
-  <!-- Import Popup -->
-<div id="importPopup" class="popup-backdrop" style="display:none;">
+  <!-- Import popup -->
+  <div id="importModal" class="popup-backdrop">
     <div class="popup-card">
-        <div class="popup-title">Import CSV</div>
+      <div class="popup-title">Import CSV</div>
+      <div class="popup-sub">选择导入方式:</div>
 
-        <div class="popup-sub">选择导入方式:</div>
+      <div class="popup-options">
+        <label class="popup-option">
+          <input type="radio" name="importMode" value="append" checked />
+          <span>追加 (Append)</span>
+        </label>
+        <label class="popup-option">
+          <input type="radio" name="importMode" value="replace" />
+          <span>覆盖 (Replace)</span>
+        </label>
+      </div>
 
-        <div class="popup-options">
-            <label class="popup-option">
-                <input type="radio" name="importMode" value="append">
-                <span>追加 (Append)</span>
-            </label>
-
-            <label class="popup-option">
-                <input type="radio" name="importMode" value="replace">
-                <span>覆盖 (Replace)</span>
-            </label>
-        </div>
-
-        <div class="popup-buttons">
-            <button class="popup-btn-cancel" id="importCancelBtn">取消</button>
-            <button class="popup-btn-primary" id="importChooseFileBtn">选择文件</button>
-        </div>
+      <div class="popup-buttons">
+        <button class="popup-btn-cancel" id="importCancelBtn">取消</button>
+        <button class="popup-btn-primary" id="importConfirmBtn">选择文件</button>
+      </div>
     </div>
-</div>
-
+  </div>
 
   <div class="app">
     <header>
@@ -746,7 +560,7 @@ document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
       <h1>EV Charge Log Pro</h1>
     </header>
 
-    <!-- Main form card -->
+    <!-- Main form -->
     <section class="card">
       <div class="field">
         <label>Date</label>
@@ -795,7 +609,7 @@ document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
       <div class="field">
         <label>
           Select Location
-          <span class="right-label chip-count" id="locationCount">0 saved</span>
+          <span class="badge-count" id="locationCount"></span>
         </label>
         <select id="locationSelect">
           <option value="">请选择地点</option>
@@ -804,21 +618,21 @@ document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
 
       <div class="field">
         <label>Add / Edit Location</label>
-        <input
-          id="locationCustom"
-          type="text"
-          placeholder="例如 HOME, PAVILION-KL, BAMBOO HILL..."
-        />
-        <div style="display:flex; gap:6px; margin-top:6px;">
-          <button class="btn btn-soft btn-sm" id="saveLocationBtn">
-            <span class="icon">＋</span> 保存地点
-          </button>
+        <div class="location-row">
+          <div>
+            <input
+              id="locationCustom"
+              type="text"
+              placeholder="例如 HOME, PV-KL, BAMBOO HILL..."
+            />
+          </div>
+          <button class="btn-soft" id="saveLocationBtn">保存地点</button>
         </div>
       </div>
 
       <div class="field">
         <label>Rate (RM/kWh)</label>
-        <div class="rate-chips">
+        <div class="chips-row">
           <div class="chip" data-rate="0.84">0.84</div>
           <div class="chip" data-rate="1.00">1.00</div>
           <div class="chip" data-rate="1.30">1.30</div>
@@ -826,35 +640,32 @@ document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
           <div class="chip" data-rate="1.80">1.80</div>
           <div class="chip" data-rate="0">Free</div>
         </div>
+        <div class="inline-two">
+          <div class="field">
+            <label>Rate (RM/kWh)</label>
+            <input
+              id="rateInput"
+              type="text"
+              inputmode="decimal"
+              placeholder="例如 1.50"
+            />
+          </div>
+          <div class="field">
+            <label>Cost (RM)</label>
+            <input
+              id="costInput"
+              type="text"
+              inputmode="decimal"
+              placeholder="例如 18.90"
+            />
+          </div>
+        </div>
       </div>
 
-      <div class="inline-two">
-        <div class="field">
-          <label>Rate (RM/kWh)</label>
-          <input
-            id="rateInput"
-            type="text"
-            inputmode="decimal"
-            placeholder="例如 1.50"
-          />
-        </div>
-        <div class="field">
-          <label>Cost (RM)</label>
-          <input
-            id="costInput"
-            type="text"
-            inputmode="decimal"
-            placeholder="例如 18.90"
-          />
-        </div>
-      </div>
+      <button class="btn btn-primary" id="addRecordBtn">Add Record</button>
 
-      <button class="btn btn-primary" id="addRecordBtn">
-        Add Record
-      </button>
-
-      <div class="summary-body" id="prevInfo" style="margin-top:6px;">
-        暂无历史记录。第一条记录将不会计算 KM / kWh / Wh/km。
+      <div class="prev-info" id="prevInfo">
+        上一条记录: <span>暂无</span>
       </div>
     </section>
 
@@ -863,37 +674,38 @@ document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
       <div class="card-header-row">
         <div class="card-title">Monthly Summary (60 kWh pack)</div>
       </div>
-      <div id="summaryContainer">
+      <div id="summaryContainer" class="summary-container">
         <div class="empty-state">No drive data yet</div>
       </div>
     </section>
 
-    <!-- Records table -->
+    <!-- Charge log -->
     <section class="card">
       <div class="card-header-row">
         <div class="card-title">Charge Log</div>
-        <div class="card-subtitle">Date / Start / End / kWh / KM / Rate / Cost</div>
+        <div class="card-sub">Date / Start / End / kWh / KM / Rate / Cost</div>
       </div>
+
       <div class="table-wrapper" id="tableWrapper">
         <table>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Start%</th>
-              <th>End%</th>
-              <th>Used kWh</th>
+              <th>DATE</th>
+              <th>START%</th>
+              <th>END%</th>
+              <th>USED kWh</th>
               <th>KM</th>
               <th>Wh/km</th>
               <th>Location</th>
               <th>Rate</th>
               <th>Cost</th>
-              <th>Actions</th>
+              <th>⋯</th>
             </tr>
           </thead>
           <tbody id="recordsBody"></tbody>
         </table>
       </div>
-      <div class="empty-state" id="emptyState">
+      <div id="emptyState" class="empty-state" style="display:none;">
         还没有记录。上面填写一次充电数据，然后点「Add Record」。
       </div>
     </section>
@@ -904,9 +716,11 @@ document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
         <div class="card-title">Saved Locations</div>
       </div>
       <div id="locationsList">
-        <div class="loc-list-empty">暂时没有保存的地点。</div>
+        <div class="loc-empty">暂时没有保存的地点。</div>
       </div>
     </section>
+
+    <footer>Version v4-ODO-20251207</footer>
   </div>
 
   <!-- Bottom bar -->
@@ -920,785 +734,589 @@ document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
           <span class="icon">⇡</span> Import
         </button>
       </div>
-
     </div>
   </div>
 
+  <input id="fileInput" type="file" accept=".csv,text/csv" style="display:none;" />
+
   <script>
-  // 找出同一个 Location 最近一次记录的 Rate
-function getLastRateForLocation(loc){
-    if (!loc) return null;
-    const target = loc.trim().toLowerCase();
-
-    // 从最后一条开始往前找 → 最新记录优先
-    for (let i = records.length - 1; i >= 0; i--) {
-        const r = records[i];
-        const rLoc = (r.location || "").trim().toLowerCase();
-        if (rLoc === target && r.rate != null && !isNaN(r.rate)) {
-            return r.rate;
-        }
-    }
-    return null;
-}
-
+    const BATTERY_KWH = 60;
     const STORAGE_KEY_RECORDS = "evChargeLogPro_v5_records";
     const STORAGE_KEY_LOCATIONS = "evChargeLogPro_v5_locations";
 
-    const dateInput = document.getElementById("dateInput");
-    const startPercentInput = document.getElementById("startPercent");
-    const endPercentInput = document.getElementById("endPercent");
-    const odoInput = document.getElementById("odoInput");
-    const locationSelect = document.getElementById("locationSelect");
-    const locationCustom = document.getElementById("locationCustom");
-    const locationCount = document.getElementById("locationCount");
-    const rateInput = document.getElementById("rateInput");
-    const costInput = document.getElementById("costInput");
-    const addRecordBtn = document.getElementById("addRecordBtn");
-    const saveLocationBtn = document.getElementById("saveLocationBtn");
-    const prevInfo = document.getElementById("prevInfo");
-
-    const recordsBody = document.getElementById("recordsBody");
-    const emptyState = document.getElementById("emptyState");
-    const summaryContainer = document.getElementById("summaryContainer");
-    const locationsList = document.getElementById("locationsList");
-
-    const exportBtn = document.getElementById("exportBtn");
-    const importBtn = document.getElementById("importBtn");
-    const toastEl = document.getElementById("toast");
-    const tableWrapper = document.getElementById("tableWrapper");
-
-    const importModal = document.getElementById("importModal");
-    const importCancelBtn = document.getElementById("importCancelBtn");
-    const importConfirmBtn = document.getElementById("importConfirmBtn");
-    const fileInput = document.getElementById("fileInput");
-    // ===== Import / Export 事件 =====
-
-// Export 维持原本逻辑
-exportBtn.addEventListener("click", onExport);
-
-// 点击底部 Import 按钮 → 打开弹窗
-importBtn.addEventListener("click", () => {
-    importModal.style.display = "flex";
-});
-
-// 弹窗里的“取消”
-importCancelBtn.addEventListener("click", () => {
-    importModal.style.display = "none";
-});
-
-// 弹窗里的“选择文件”
-importConfirmBtn.addEventListener("click", () => {
-    // 读取单选：追加 / 覆盖
-    const checked = document.querySelector('input[name="importMode"]:checked');
-    const mode = checked ? checked.value : "append";   // 没选就当 append
-
-    window.importMode = mode;      // 保存这次的选择
-    fileInput.click();             // 打开文件选择器
-    importModal.style.display = "none";
-});
-
-// 真正选完文件之后，触发导入
-fileInput.addEventListener("change", onImportFile);
-
-
-    const rateChips = document.querySelectorAll(".chip[data-rate]");
-
-// 当从下拉菜单选择 Location 时，自动带出最近一次该地点的 Rate
-locationSelect.addEventListener("change", () => {
-    const loc = (locationSelect.value || "").trim();
-    if (!loc) return;
-
-    const lastRate = getLastRateForLocation(loc);
-    if (lastRate != null && !isNaN(lastRate)) {
-        let val = Number(lastRate).toFixed(2).replace(/\.00$/,"");
-        rateInput.value = val;   // 直接覆盖成最后一次记录的 rate
-    } else {
-        // 这个地点还没有记录过 rate，就留空让你自己填
-        rateInput.value = "";
-    }
-});
-
-
-
-    let records = [];
-    let locations = [];
-    let editingId = null;
-    let editingLocationIndex = null;
-
-    function showToast(msg, duration = 2000) {
-      toastEl.textContent = msg;
-      toastEl.classList.add("show");
-      setTimeout(() => {
-        toastEl.classList.remove("show");
-      }, duration);
-    }
-
-    function loadState() {
-      try {
-        const recStr = localStorage.getItem(STORAGE_KEY_RECORDS);
-        records = recStr ? JSON.parse(recStr) : [];
-      } catch (e) {
-        records = [];
-      }
-      try {
-        const locStr = localStorage.getItem(STORAGE_KEY_LOCATIONS);
-        locations = locStr ? JSON.parse(locStr) : [];
-      } catch (e) {
-        locations = [];
-      }
-    }
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
-      localStorage.setItem(STORAGE_KEY_LOCATIONS, JSON.stringify(locations));
-    }
-
-    function formatNumber(num, decimals) {
-      if (num === null || num === undefined || isNaN(num)) return "-";
-      return Number(num).toFixed(decimals);
-    }
-
-    function defaultToday() {
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${y}-${m}-${day}`;
-    }
-
-    function updateLocationSelect() {
-      locationSelect.innerHTML = '<option value="">请选择地点</option>';
-      locations.forEach((loc) => {
-        const opt = document.createElement("option");
-        opt.value = loc;
-        opt.textContent = loc;
-        locationSelect.appendChild(opt);
+    // 找出同一个 Location 最近一次记录的 Rate
+    function getLastRateForLocation(loc, records) {
+      if (!loc) return null;
+      const target = String(loc).trim().toLowerCase();
+      const sorted = [...records].sort((a, b) => {
+        if (a.date === b.date) return (a.createdAt || 0) - (b.createdAt || 0);
+        return a.date < b.date ? -1 : 1;
       });
-      locationCount.textContent = `${locations.length} saved`;
-      renderLocationsList();
-    }
-
-    function renderLocationsList() {
-      locationsList.innerHTML = "";
-      if (!locations.length) {
-        const div = document.createElement("div");
-        div.className = "loc-list-empty";
-        div.textContent = "暂时没有保存的地点。";
-        locationsList.appendChild(div);
-        return;
-      }
-      locations.forEach((loc, index) => {
-        const row = document.createElement("div");
-        row.className = "loc-row";
-
-        const name = document.createElement("div");
-        name.className = "loc-name";
-        name.textContent = loc;
-        row.appendChild(name);
-
-        const actions = document.createElement("div");
-        actions.className = "loc-actions";
-
-        const editBtn = document.createElement("button");
-        editBtn.className = "icon-btn";
-        editBtn.innerHTML = "✏️";
-        editBtn.addEventListener("click", () => {
-          editingLocationIndex = index;
-          locationCustom.value = loc;
-          locationSelect.value = loc;
-          showToast("已载入地点，可编辑后点“保存地点”");
-        });
-
-        const delBtn = document.createElement("button");
-        delBtn.className = "icon-btn danger";
-        delBtn.innerHTML = "🗑";
-        delBtn.addEventListener("click", () => {
-          if (!confirm(`确定删除地点「${loc}」？`)) return;
-          locations.splice(index, 1);
-          if (editingLocationIndex === index) editingLocationIndex = null;
-          updateLocationSelect();
-          saveState();
-          showToast("地点已删除");
-        });
-
-        actions.appendChild(editBtn);
-        actions.appendChild(delBtn);
-        row.appendChild(actions);
-
-        locationsList.appendChild(row);
-      });
-    }
-
-    function getSelectedLocation() {
-      if (locationCustom.value.trim()) {
-        return locationCustom.value.trim();
-      }
-      return locationSelect.value || "";
-    }
-
-    function ensureLocationExists(loc) {
-      if (!loc) return;
-      if (!locations.includes(loc)) {
-        locations.push(loc);
-        locations.sort((a, b) => a.localeCompare(b));
-        updateLocationSelect();
-        saveState();
-      }
-    }
-
-    function getSortedRecords() {
-      return [...records].sort((a, b) => {
-        if (a.date === b.date) {
-          return (a.createdAt || 0) - (b.createdAt || 0);
-        }
-        return a.date.localeCompare(b.date);
-      });
-    }
-
-    function recomputeDerived() {
-      const sorted = getSortedRecords();
-      for (let i = 0; i < sorted.length; i++) {
-        const curr = sorted[i];
-        if (i === 0) {
-          curr.driveKm = null;
-          curr.usedKwh = null;
-          curr.whPerKm = null;
-        } else {
-          const prev = sorted[i - 1];
-
-          let driveKm = null;
-          if (curr.odo != null && prev.odo != null) {
-            driveKm = curr.odo - prev.odo;
-            if (!isFinite(driveKm) || isNaN(driveKm) || driveKm <= 0) {
-              driveKm = null;
-            }
-          }
-
-          const startCurr = Number(curr.start);
-          const endPrev = Number(prev.end);
-          let usedKwh = (60 * (endPrev - startCurr)) / 100;
-          if (!isFinite(usedKwh) || isNaN(usedKwh) || usedKwh <= 0) {
-            usedKwh = null;
-          }
-
-          let whPerKm = null;
-          if (driveKm != null && usedKwh != null) {
-            whPerKm = (usedKwh * 1000) / driveKm;
-          }
-
-          curr.driveKm = driveKm;
-          curr.usedKwh = usedKwh;
-          curr.whPerKm = whPerKm;
+      for (let i = sorted.length - 1; i >= 0; i--) {
+        const r = sorted[i];
+        const rLoc = (r.location || "").trim().toLowerCase();
+        if (rLoc === target && typeof r.rate === "number" && !isNaN(r.rate)) {
+          return r.rate;
         }
       }
-      records = sorted;
-    }
-
-    function renderPrevInfo() {
-      if (!records.length) {
-        prevInfo.textContent =
-          "暂无历史记录。第一条记录将不会计算 KM / kWh / Wh/km。";
-        return;
-      }
-      const last = getSortedRecords()[records.length - 1];
-      prevInfo.innerHTML = `上一条记录：<strong>${last.date}</strong> · End <strong>${last.end}%</strong> · ODO <strong>${last.odo ?? "-"} km</strong>`;
-    }
-
-    function renderRecords() {
-      recordsBody.innerHTML = "";
-      const sorted = getSortedRecords();
-      if (!sorted.length) {
-        emptyState.style.display = "block";
-        return;
-      }
-      emptyState.style.display = "none";
-
-      sorted.forEach((rec) => {
-        const tr = document.createElement("tr");
-
-        const tdDate = document.createElement("td");
-        tdDate.textContent = rec.date;
-
-        const tdStart = document.createElement("td");
-        tdStart.textContent = rec.start;
-
-        const tdEnd = document.createElement("td");
-        tdEnd.textContent = rec.end;
-
-        const tdUsed = document.createElement("td");
-        tdUsed.textContent = formatNumber(rec.usedKwh, 2);
-
-        const tdKm = document.createElement("td");
-        tdKm.textContent = rec.driveKm == null ? "-" : rec.driveKm;
-
-        const tdWh = document.createElement("td");
-        tdWh.textContent = formatNumber(rec.whPerKm, 0);
-
-        const tdLoc = document.createElement("td");
-        const locBadge = document.createElement("span");
-        locBadge.className = "badge-loc";
-        locBadge.textContent = rec.location || "—";
-        tdLoc.appendChild(locBadge);
-
-        const tdRate = document.createElement("td");
-        tdRate.textContent =
-          rec.rate === "" || rec.rate == null ? "-" : formatNumber(rec.rate, 2);
-
-        const tdCost = document.createElement("td");
-        tdCost.textContent =
-          rec.cost === "" || rec.cost == null ? "-" : formatNumber(rec.cost, 2);
-
-        const tdActions = document.createElement("td");
-        const actionRow = document.createElement("div");
-        actionRow.className = "action-row";
-
-        const editBtn = document.createElement("button");
-        editBtn.textContent = "Edit";
-        editBtn.addEventListener("click", () => {
-          loadRecordToForm(rec.id);
-        });
-
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "Del";
-        delBtn.className = "delete";
-        delBtn.addEventListener("click", () => {
-          if (confirm("确定删除这条记录？")) {
-            deleteRecord(rec.id);
-          }
-        });
-
-        actionRow.appendChild(editBtn);
-        actionRow.appendChild(delBtn);
-        tdActions.appendChild(actionRow);
-
-        tr.appendChild(tdDate);
-        tr.appendChild(tdStart);
-        tr.appendChild(tdEnd);
-        tr.appendChild(tdUsed);
-        tr.appendChild(tdKm);
-        tr.appendChild(tdWh);
-        tr.appendChild(tdLoc);
-        tr.appendChild(tdRate);
-        tr.appendChild(tdCost);
-        tr.appendChild(tdActions);
-
-        recordsBody.appendChild(tr);
-      });
-    }
-
-    function renderSummary() {
-      summaryContainer.innerHTML = "";
-      const sorted = getSortedRecords();
-      if (!sorted.length) {
-        summaryContainer.innerHTML =
-          '<div class="empty-state">No drive data yet</div>';
-        return;
-      }
-
-      const byMonth = {};
-      sorted.forEach((rec) => {
-        if (!rec.date) return;
-        const month = rec.date.slice(0, 7);
-        if (!byMonth[month]) {
-          byMonth[month] = {
-            totalRM: 0,
-            totalKwh: 0,
-            totalKm: 0,
-            whSum: 0,
-            whCount: 0,
-          };
-        }
-        const bucket = byMonth[month];
-        const cost = Number(rec.cost);
-        const kwh = Number(rec.usedKwh);
-        const km = Number(rec.driveKm);
-        const wh = Number(rec.whPerKm);
-
-        if (!isNaN(cost)) bucket.totalRM += cost;
-        if (!isNaN(kwh)) bucket.totalKwh += kwh;
-        if (!isNaN(km)) bucket.totalKm += km;
-        if (!isNaN(wh)) {
-          bucket.whSum += wh;
-          bucket.whCount += 1;
-        }
-      });
-
-      const months = Object.keys(byMonth).sort();
-      const grid = document.createElement("div");
-      grid.className = "summary-grid";
-
-      months.forEach((month) => {
-        const data = byMonth[month];
-        const avgWh =
-          data.whCount > 0 ? data.whSum / data.whCount : null;
-
-        const card = document.createElement("div");
-        card.className = "summary-card";
-
-        const header = document.createElement("div");
-        header.className = "summary-header";
-
-        const mLabel = document.createElement("div");
-        mLabel.className = "summary-month";
-        mLabel.textContent = month;
-
-        const kpi = document.createElement("div");
-        kpi.className = "summary-kpi";
-        kpi.innerHTML = `Wh/km: <strong>${
-          avgWh == null ? "-" : avgWh.toFixed(0)
-        }</strong>`;
-
-        header.appendChild(mLabel);
-        header.appendChild(kpi);
-
-        const row1 = document.createElement("div");
-        row1.className = "summary-row";
-        row1.innerHTML = `<span>总 RM</span><span class="value">${data.totalRM.toFixed(
-          2
-        )}</span>`;
-
-        const row2 = document.createElement("div");
-        row2.className = "summary-row";
-        row2.innerHTML = `<span>总 used kWh</span><span class="value">${data.totalKwh.toFixed(
-          2
-        )}</span>`;
-
-        const row3 = document.createElement("div");
-        row3.className = "summary-row";
-        row3.innerHTML = `<span>总 KM</span><span class="value">${data.totalKm.toFixed(
-          0
-        )}</span>`;
-
-        card.appendChild(header);
-        card.appendChild(row1);
-        card.appendChild(row2);
-        card.appendChild(row3);
-
-        grid.appendChild(card);
-      });
-
-      summaryContainer.appendChild(grid);
-    }
-
-    function refreshAll() {
-      recomputeDerived();
-      saveState();
-      renderRecords();
-      renderSummary();
-      renderPrevInfo();
-    }
-
-    function clearForm() {
-      editingId = null;
-      startPercentInput.value = "";
-      endPercentInput.value = "";
-      odoInput.value = "";
-      locationCustom.value = "";
-      locationSelect.value = "";
-      rateInput.value = "";
-      costInput.value = "";
-      addRecordBtn.textContent = "Add Record";
-      rateChips.forEach((c) => c.classList.remove("selected"));
-    }
-
-    function loadRecordToForm(id) {
-      const rec = records.find((r) => r.id === id);
-      if (!rec) return;
-      editingId = id;
-      dateInput.value = rec.date;
-      startPercentInput.value = rec.start;
-      endPercentInput.value = rec.end;
-      odoInput.value = rec.odo ?? "";
-      rateInput.value = rec.rate ?? "";
-      costInput.value = rec.cost ?? "";
-      locationCustom.value = rec.location || "";
-
-      if (rec.location && locations.includes(rec.location)) {
-        locationSelect.value = rec.location;
-      } else {
-        locationSelect.value = "";
-      }
-
-      rateChips.forEach((chip) => {
-        const r = chip.getAttribute("data-rate");
-        if (rec.rate != null && Number(r) === Number(rec.rate)) {
-          chip.classList.add("selected");
-        } else {
-          chip.classList.remove("selected");
-        }
-      });
-
-      addRecordBtn.textContent = "Update Record";
-      showToast("已载入记录，可编辑后保存");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function deleteRecord(id) {
-      records = records.filter((r) => r.id !== id);
-      refreshAll();
-      showToast("已删除记录");
-    }
-
-    function handleSaveRecord() {
-      const date = dateInput.value || defaultToday();
-      const start = startPercentInput.value.trim();
-      const end = endPercentInput.value.trim();
-      const odo = odoInput.value.trim();
-      const rate = rateInput.value.trim();
-      const cost = costInput.value.trim();
-      const location = getSelectedLocation();
-
-      if (!start || !end) {
-        showToast("Start / End 必须填写");
-        return;
-      }
-
-      const startNum = Number(start);
-      let endNum = Number(end);
-
-      if (end === "100") {
-        endNum = 100;
-      }
-
-      if (
-        isNaN(startNum) ||
-        isNaN(endNum) ||
-        startNum < 0 ||
-        startNum > 100 ||
-        endNum < 0 ||
-        endNum > 100
-      ) {
-        showToast("Start / End 数值不合法 (0–100)");
-        return;
-      }
-
-      const odoNum = odo ? Number(odo) : null;
-      if (odo && (isNaN(odoNum) || odoNum < 0)) {
-        showToast("ODO 数值不合法");
-        return;
-      }
-
-      const rateNum = rate ? Number(rate) : null;
-      const costNum = cost ? Number(cost) : null;
-
-      if (rate && isNaN(rateNum)) {
-        showToast("Rate 格式错误");
-        return;
-      }
-      if (cost && isNaN(costNum)) {
-        showToast("Cost 格式错误");
-        return;
-      }
-
-      const now = Date.now();
-
-      if (editingId) {
-        const rec = records.find((r) => r.id === editingId);
-        if (rec) {
-          rec.date = date;
-          rec.start = startNum;
-          rec.end = endNum;
-          rec.odo = odoNum;
-          rec.rate = rateNum;
-          rec.cost = costNum;
-          rec.location = location;
-        }
-        ensureLocationExists(location);
-        refreshAll();
-        clearForm();
-        showToast("记录已更新");
-      } else {
-        const newRec = {
-          id: "rec_" + now + "_" + Math.random().toString(16).slice(2),
-          createdAt: now,
-          date,
-          start: startNum,
-          end: endNum,
-          odo: odoNum,
-          rate: rateNum,
-          cost: costNum,
-          location,
-          driveKm: null,
-          usedKwh: null,
-          whPerKm: null,
-        };
-        records.push(newRec);
-        ensureLocationExists(location);
-        refreshAll();
-        clearForm();
-        showToast("已新增记录");
-        setTimeout(() => {
-          tableWrapper.scrollTop = tableWrapper.scrollHeight;
-        }, 100);
-      }
-    }
-
-    function exportCSV() {
-      if (!records.length) {
-        showToast("没有记录可导出");
-        return;
-      }
-      const header =
-        "date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm";
-      const lines = [header];
-      const sorted = getSortedRecords();
-      sorted.forEach((rec) => {
-        const row = [
-          rec.date || "",
-          rec.start ?? "",
-          rec.end ?? "",
-          rec.odo ?? "",
-          rec.location
-            ? '"' + String(rec.location).replace(/"/g, '""') + '"'
-            : "",
-          rec.rate ?? "",
-          rec.cost ?? "",
-          rec.driveKm ?? "",
-          rec.usedKwh ?? "",
-          rec.whPerKm ?? "",
-        ];
-        lines.push(row.join(","));
-      });
-      const csv = lines.join("\n");
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      const today = defaultToday();
-      a.href = url;
-      a.download = `ev_charge_log_pro_${today}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast("CSV 已导出");
-    }
-
-    function openImportModal() {
-      importModal.classList.add("show");
-    }
-
-    function closeImportModal() {
-      importModal.classList.remove("show");
-      fileInput.value = "";
-    }
-
-    function handleFileChosen(mode) {
-      const file = fileInput.files[0];
-     	if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target.result;
-        importCSVText(text, mode);
-      };
-      reader.readAsText(file);
-    }
-
-    function importCSVText(text, mode) {
-      const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-      if (!lines.length) {
-        showToast("CSV 内容为空");
-        return;
-      }
-      const headerLine = lines[0];
-      const headerFields = headerLine.split(",").map((h) => h.trim());
-      const expectedHeader = [
-        "date",
-        "start",
-        "end",
-        "odo",
-        "location",
-        "rate",
-        "cost",
-        "driveKm",
-        "usedKwh",
-        "whPerKm",
-      ];
-
-      const matchesHeader =
-        expectedHeader.length === headerFields.length &&
-        expectedHeader.every(
-          (h, idx) => h.toLowerCase() === headerFields[idx].toLowerCase()
-        );
-
-      let startIdx = 0;
-      if (matchesHeader) startIdx = 1;
-
-      const imported = [];
-      for (let i = startIdx; i < lines.length; i++) {
-        const line = lines[i];
-        if (!line.trim()) continue;
-
-        const cells = [];
-        let current = "";
-        let inQuotes = false;
-        for (let ch of line) {
-          if (ch === '"') {
-            inQuotes = !inQuotes;
-          } else if (ch === "," && !inQuotes) {
-            cells.push(current);
-            current = "";
-          } else {
-            current += ch;
-          }
-        }
-        cells.push(current);
-
-        const [date, start, end, odo, location, rate, cost] = cells;
-
-        const newRec = {
-          id:
-            "imp_" +
-            Date.now() +
-            "_" +
-            i +
-            "_" +
-            Math.random().toString(16).slice(2),
-          createdAt: Date.now() + i,
-          date: date || defaultToday(),
-          start: start ? Number(start) : null,
-          end: end ? Number(end) : null,
-          odo: odo ? Number(odo) : null,
-          rate: rate ? Number(rate) : null,
-          cost: cost ? Number(cost) : null,
-          location: location ? location.replace(/^"|"$/g, "") : "",
-          driveKm: null,
-          usedKwh: null,
-          whPerKm: null,
-        };
-
-        imported.push(newRec);
-      }
-
-      if (!imported.length) {
-        showToast("没有有效记录被导入");
-        return;
-      }
-
-      if (mode === "replace") {
-        records = imported;
-      } else {
-        records = records.concat(imported);
-      }
-
-      imported.forEach((rec) => {
-        ensureLocationExists(rec.location);
-      });
-
-      refreshAll();
-      showToast(
-        `CSV 已导入 (${mode === "replace" ? "覆盖" : "追加"}) · 共 ${
-          imported.length
-        } 条`
-      );
+      return null;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      const dateInput = document.getElementById("dateInput");
+      const startPercentInput = document.getElementById("startPercent");
+      const endPercentInput = document.getElementById("endPercent");
+      const odoInput = document.getElementById("odoInput");
+      const locationSelect = document.getElementById("locationSelect");
+      const locationCustom = document.getElementById("locationCustom");
+      const locationCount = document.getElementById("locationCount");
+      const rateInput = document.getElementById("rateInput");
+      const costInput = document.getElementById("costInput");
+      const addRecordBtn = document.getElementById("addRecordBtn");
+      const saveLocationBtn = document.getElementById("saveLocationBtn");
+      const prevInfo = document.getElementById("prevInfo");
+
+      const recordsBody = document.getElementById("recordsBody");
+      const emptyState = document.getElementById("emptyState");
+      const summaryContainer = document.getElementById("summaryContainer");
+      const locationsList = document.getElementById("locationsList");
+      const tableWrapper = document.getElementById("tableWrapper");
+
+      const exportBtn = document.getElementById("exportBtn");
+      const importBtn = document.getElementById("importBtn");
+      const toastEl = document.getElementById("toast");
+
+      const importModal = document.getElementById("importModal");
+      const importCancelBtn = document.getElementById("importCancelBtn");
+      const importConfirmBtn = document.getElementById("importConfirmBtn");
+      const fileInput = document.getElementById("fileInput");
+
+      const rateChips = document.querySelectorAll(".chip[data-rate]");
+
+      let records = [];
+      let locations = [];
+      let editingId = null;
+      let editingLocationIndex = null;
+      let currentImportMode = "append";
+
+      function showToast(msg, duration = 2000) {
+        toastEl.textContent = msg;
+        toastEl.classList.add("show");
+        setTimeout(() => {
+          toastEl.classList.remove("show");
+        }, duration);
+      }
+
+      function defaultToday() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }
+
+      function loadState() {
+        try {
+          const recStr = localStorage.getItem(STORAGE_KEY_RECORDS);
+          records = recStr ? JSON.parse(recStr) : [];
+        } catch {
+          records = [];
+        }
+        try {
+          const locStr = localStorage.getItem(STORAGE_KEY_LOCATIONS);
+          locations = locStr ? JSON.parse(locStr) : [];
+        } catch {
+          locations = [];
+        }
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
+        localStorage.setItem(STORAGE_KEY_LOCATIONS, JSON.stringify(locations));
+      }
+
+      function ensureLocationExists(loc) {
+        const v = (loc || "").trim();
+        if (!v) return;
+        if (!locations.includes(v)) {
+          locations.push(v);
+          locations.sort((a, b) => a.localeCompare(b));
+          saveState();
+        }
+      }
+
+      function getSortedRecordsAsc() {
+        return [...records].sort((a, b) => {
+          if (a.date === b.date) return (a.createdAt || 0) - (b.createdAt || 0);
+          return a.date < b.date ? -1 : 1;
+        });
+      }
+
+      function getSortedRecordsDesc() {
+        return [...records].sort((a, b) => {
+          if (a.date === b.date) return (a.createdAt || 0) - (b.createdAt || 0);
+          return a.date > b.date ? -1 : 1;
+        });
+      }
+
+      function recomputeDriveStats() {
+        const sorted = getSortedRecordsAsc();
+        let prev = null;
+        sorted.forEach((rec) => {
+          rec.driveKm = null;
+          rec.usedKwh = null;
+          rec.whPerKm = null;
+
+          if (prev) {
+            if (
+              typeof prev.end === "number" &&
+              typeof rec.start === "number" &&
+              !isNaN(prev.end) &&
+              !isNaN(rec.start)
+            ) {
+              const diffPct = prev.end - rec.start;
+              if (diffPct > 0) {
+                const used = (BATTERY_KWH * diffPct) / 100;
+                rec.usedKwh = used;
+              }
+            }
+
+            if (
+              typeof prev.odo === "number" &&
+              typeof rec.odo === "number" &&
+              !isNaN(prev.odo) &&
+              !isNaN(rec.odo)
+            ) {
+              const km = rec.odo - prev.odo;
+              if (km > 0) rec.driveKm = km;
+            }
+
+            if (rec.driveKm && rec.usedKwh) {
+              const wh = (rec.usedKwh * 1000) / rec.driveKm;
+              if (wh > 0) rec.whPerKm = wh;
+            }
+          }
+
+          prev = rec;
+        });
+        saveState();
+      }
+
+      function formatNumber(num, decimals) {
+        if (num === null || num === undefined || isNaN(num)) return "-";
+        return Number(num).toFixed(decimals);
+      }
+
+      function updateLocationSelect() {
+        locationSelect.innerHTML = '<option value="">请选择地点</option>';
+        locations.forEach((loc) => {
+          const opt = document.createElement("option");
+          opt.value = loc;
+          opt.textContent = loc;
+          locationSelect.appendChild(opt);
+        });
+        if (locations.length) {
+          locationCount.textContent = `${locations.length} saved`;
+        } else {
+          locationCount.textContent = "";
+        }
+      }
+
+      function renderLocationsList() {
+        locationsList.innerHTML = "";
+        if (!locations.length) {
+          const div = document.createElement("div");
+          div.className = "loc-empty";
+          div.textContent = "暂时没有保存的地点。";
+          locationsList.appendChild(div);
+          return;
+        }
+        locations.forEach((loc, idx) => {
+          const row = document.createElement("div");
+          row.className = "loc-row";
+
+          const nameDiv = document.createElement("div");
+          nameDiv.textContent = loc;
+
+          const actions = document.createElement("div");
+          actions.className = "loc-actions";
+
+          const editSpan = document.createElement("span");
+          editSpan.className = "action-icon";
+          editSpan.textContent = "✏️";
+          editSpan.dataset.action = "editLocation";
+          editSpan.dataset.index = idx;
+
+          const delSpan = document.createElement("span");
+          delSpan.className = "action-icon";
+          delSpan.textContent = "🗑️";
+          delSpan.dataset.action = "deleteLocation";
+          delSpan.dataset.index = idx;
+
+          actions.appendChild(editSpan);
+          actions.appendChild(delSpan);
+          row.appendChild(nameDiv);
+          row.appendChild(actions);
+
+          locationsList.appendChild(row);
+        });
+      }
+
+      function renderPrevInfo() {
+        if (!records.length) {
+          prevInfo.innerHTML = '上一条记录: <span>暂无</span>';
+          return;
+        }
+        const sorted = getSortedRecordsAsc();
+        const last = sorted[sorted.length - 1];
+        const date = last.date || "-";
+        const end = last.end != null ? `${last.end}%` : "-";
+        const odo =
+          last.odo != null && !isNaN(last.odo) ? `${last.odo} km` : "-";
+        prevInfo.innerHTML = `上一条记录: <span>${date}</span> · End <span>${end}</span> · ODO <span>${odo}</span>`;
+      }
+
+      function renderTable() {
+        recordsBody.innerHTML = "";
+        const sorted = getSortedRecordsDesc();
+        if (!sorted.length) {
+          tableWrapper.style.display = "none";
+          emptyState.style.display = "block";
+          return;
+        }
+        tableWrapper.style.display = "block";
+        emptyState.style.display = "none";
+
+        sorted.forEach((rec) => {
+          const tr = document.createElement("tr");
+
+          const tdDate = document.createElement("td");
+          tdDate.textContent = rec.date || "-";
+          tr.appendChild(tdDate);
+
+          const tdStart = document.createElement("td");
+          tdStart.textContent =
+            rec.start != null && !isNaN(rec.start) ? rec.start : "-";
+          tr.appendChild(tdStart);
+
+          const tdEnd = document.createElement("td");
+          tdEnd.textContent =
+            rec.end != null && !isNaN(rec.end) ? rec.end : "-";
+          tr.appendChild(tdEnd);
+
+          const tdUsed = document.createElement("td");
+          tdUsed.textContent =
+            rec.usedKwh != null ? formatNumber(rec.usedKwh, 2) : "-";
+          tr.appendChild(tdUsed);
+
+          const tdKm = document.createElement("td");
+          tdKm.textContent =
+            rec.driveKm != null ? formatNumber(rec.driveKm, 0) : "-";
+          tr.appendChild(tdKm);
+
+          const tdWh = document.createElement("td");
+          tdWh.textContent =
+            rec.whPerKm != null ? formatNumber(rec.whPerKm, 0) : "-";
+          tr.appendChild(tdWh);
+
+          const tdLoc = document.createElement("td");
+          tdLoc.className = "td-location";
+          tdLoc.textContent = rec.location || "-";
+          tr.appendChild(tdLoc);
+
+          const tdRate = document.createElement("td");
+          tdRate.textContent =
+            rec.rate != null && !isNaN(rec.rate)
+              ? formatNumber(rec.rate, 2)
+              : "-";
+          tr.appendChild(tdRate);
+
+          const tdCost = document.createElement("td");
+          tdCost.textContent =
+            rec.cost != null && !isNaN(rec.cost)
+              ? formatNumber(rec.cost, 2)
+              : "-";
+          tr.appendChild(tdCost);
+
+          const tdActions = document.createElement("td");
+          tdActions.className = "td-actions";
+
+          const editSpan = document.createElement("span");
+          editSpan.className = "action-icon";
+          editSpan.textContent = "✏️";
+          editSpan.dataset.action = "edit";
+          editSpan.dataset.id = rec.id;
+
+          const delSpan = document.createElement("span");
+          delSpan.className = "action-icon";
+          delSpan.textContent = "🗑️";
+          delSpan.dataset.action = "delete";
+          delSpan.dataset.id = rec.id;
+
+          tdActions.appendChild(editSpan);
+          tdActions.appendChild(delSpan);
+          tr.appendChild(tdActions);
+
+          recordsBody.appendChild(tr);
+        });
+      }
+
+      function renderMonthlySummary() {
+        summaryContainer.innerHTML = "";
+        if (!records.length) {
+          const div = document.createElement("div");
+          div.className = "empty-state";
+          div.textContent = "No drive data yet";
+          summaryContainer.appendChild(div);
+          return;
+        }
+
+        const byMonth = {};
+        records.forEach((rec) => {
+          if (!rec.date) return;
+          const ym = rec.date.slice(0, 7);
+          if (!byMonth[ym]) {
+            byMonth[ym] = { totalRm: 0, totalKwh: 0, totalKm: 0 };
+          }
+          const m = byMonth[ym];
+          if (rec.cost) m.totalRm += Number(rec.cost) || 0;
+          if (rec.usedKwh) m.totalKwh += Number(rec.usedKwh) || 0;
+          if (rec.driveKm) m.totalKm += Number(rec.driveKm) || 0;
+        });
+
+        const months = Object.keys(byMonth).sort().reverse();
+        months.forEach((ym) => {
+          const m = byMonth[ym];
+          const wrap = document.createElement("div");
+          wrap.className = "summary-month";
+
+          const header = document.createElement("div");
+          header.className = "summary-header-row";
+
+          const title = document.createElement("div");
+          title.className = "summary-month-title";
+          title.textContent = ym.replace("-", "/");
+
+          const whSpan = document.createElement("div");
+          let wh = "-";
+          if (m.totalKm > 0 && m.totalKwh > 0) {
+            wh = ((m.totalKwh * 1000) / m.totalKm).toFixed(0);
+          }
+          whSpan.textContent = `Wh/km: ${wh}`;
+
+          header.appendChild(title);
+          header.appendChild(whSpan);
+
+          const body = document.createElement("div");
+          body.className = "summary-body";
+
+          const itemRm = document.createElement("div");
+          itemRm.className = "summary-item";
+          itemRm.textContent = `总 RM: ${m.totalRm.toFixed(2)}`;
+
+          const itemKwh = document.createElement("div");
+          itemKwh.className = "summary-item";
+          itemKwh.textContent = `总 used kWh: ${m.totalKwh.toFixed(2)}`;
+
+          const itemKm = document.createElement("div");
+          itemKm.className = "summary-item";
+          itemKm.textContent = `总 KM: ${m.totalKm.toFixed(0)}`;
+
+          body.appendChild(itemRm);
+          body.appendChild(itemKwh);
+          body.appendChild(itemKm);
+
+          wrap.appendChild(header);
+          wrap.appendChild(body);
+
+          summaryContainer.appendChild(wrap);
+        });
+      }
+
+      function clearForm() {
+        startPercentInput.value = "";
+        endPercentInput.value = "";
+        odoInput.value = "";
+        rateInput.value = "";
+        costInput.value = "";
+        editingId = null;
+        addRecordBtn.textContent = "Add Record";
+      }
+
+      function refreshAll() {
+        recomputeDriveStats();
+        renderTable();
+        renderMonthlySummary();
+        renderPrevInfo();
+        saveState();
+      }
+
+      // === Import / Export ===
+      function exportCSV() {
+        if (!records.length) {
+          showToast("没有记录可导出");
+          return;
+        }
+        const header =
+          "date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm";
+        const lines = [header];
+        const sorted = getSortedRecordsAsc();
+        sorted.forEach((rec) => {
+          const row = [
+            rec.date || "",
+            rec.start ?? "",
+            rec.end ?? "",
+            rec.odo ?? "",
+            rec.location
+              ? '"' + String(rec.location).replace(/"/g, '""') + '"'
+              : "",
+            rec.rate ?? "",
+            rec.cost ?? "",
+            rec.driveKm ?? "",
+            rec.usedKwh ?? "",
+            rec.whPerKm ?? "",
+          ];
+          lines.push(row.join(","));
+        });
+        const csv = lines.join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const today = defaultToday();
+        a.href = url;
+        a.download = `ev_charge_log_pro_${today}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("CSV 已导出");
+      }
+
+      function closeImportModal() {
+        importModal.style.display = "none";
+        fileInput.value = "";
+      }
+
+      function importCSVText(text, mode) {
+        const lines = text
+          .split(/\r?\n/)
+          .filter((l) => l.trim().length > 0);
+        if (!lines.length) {
+          showToast("CSV 内容为空");
+          return;
+        }
+        const headerLine = lines[0];
+        const headerFields = headerLine.split(",").map((h) => h.trim());
+        const expectedHeader = [
+          "date",
+          "start",
+          "end",
+          "odo",
+          "location",
+          "rate",
+          "cost",
+          "driveKm",
+          "usedKwh",
+          "whPerKm",
+        ];
+
+        const matchesHeader =
+          expectedHeader.length === headerFields.length &&
+          expectedHeader.every(
+            (h, idx) => h.toLowerCase() === headerFields[idx].toLowerCase()
+          );
+
+        let startIdx = 0;
+        if (matchesHeader) startIdx = 1;
+
+        const imported = [];
+        for (let i = startIdx; i < lines.length; i++) {
+          const line = lines[i];
+          if (!line.trim()) continue;
+
+          const cells = [];
+          let current = "";
+          let inQuotes = false;
+          for (let ch of line) {
+            if (ch === '"') {
+              inQuotes = !inQuotes;
+            } else if (ch === "," && !inQuotes) {
+              cells.push(current);
+              current = "";
+            } else {
+              current += ch;
+            }
+          }
+          cells.push(current);
+
+          const [date, start, end, odo, location, rate, cost] = cells;
+
+          const newRec = {
+            id:
+              "imp_" +
+              Date.now() +
+              "_" +
+              i +
+              "_" +
+              Math.random().toString(16).slice(2),
+            createdAt: Date.now() + i,
+            date: date || defaultToday(),
+            start: start ? Number(start) : null,
+            end: end ? Number(end) : null,
+            odo: odo ? Number(odo) : null,
+            rate: rate ? Number(rate) : null,
+            cost: cost ? Number(cost) : null,
+            location: location ? location.replace(/^"|"$/g, "") : "",
+            driveKm: null,
+            usedKwh: null,
+            whPerKm: null,
+          };
+
+          imported.push(newRec);
+        }
+
+        if (!imported.length) {
+          showToast("没有有效记录被导入");
+          return;
+        }
+
+        if (mode === "replace") {
+          records = imported;
+        } else {
+          records = records.concat(imported);
+        }
+
+        imported.forEach((rec) => {
+          ensureLocationExists(rec.location);
+        });
+
+        refreshAll();
+        showToast(
+          `CSV 已导入 (${mode === "replace" ? "覆盖" : "追加"}) · 共 ${
+            imported.length
+          } 条`
+        );
+      }
+
+      function handleFileChosen(mode) {
+        const file = fileInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target.result;
+          importCSVText(text, mode);
+        };
+        reader.readAsText(file);
+      }
+
+      // === Events ===
       dateInput.value = defaultToday();
       loadState();
       updateLocationSelect();
+      renderLocationsList();
       refreshAll();
 
-      // Auto jump: Start% -> End%
+      // auto jump start% -> end%
       startPercentInput.addEventListener("input", (e) => {
         let v = e.target.value.replace(/\D/g, "");
         if (v.length > 2) v = v.slice(0, 2);
@@ -1709,68 +1327,196 @@ locationSelect.addEventListener("change", () => {
         }
       });
 
-      // Auto jump & 00 = 100 for End%
-      endPercentInput.addEventListener("input", (e) => {
-        let v = e.target.value.replace(/\D/g, "");
-        if (v.length > 2) v = v.slice(0, 2);
-        if (v === "00") {
-          e.target.value = "100";
-          odoInput.focus();
-          odoInput.select?.();
-          return;
-        }
-        e.target.value = v;
-        if (v.length >= 2) {
-          odoInput.focus();
-          odoInput.select?.();
-        }
-      });
-
-      addRecordBtn.addEventListener("click", handleSaveRecord);
-
-      saveLocationBtn.addEventListener("click", () => {
-        const loc = locationCustom.value.trim();
-        if (!loc) {
-          showToast("请输入地点名称再保存");
-          return;
-        }
-        if (editingLocationIndex !== null) {
-          locations[editingLocationIndex] = loc;
-          locations.sort((a, b) => a.localeCompare(b));
-          editingLocationIndex = null;
-          showToast("地点已更新");
-          saveState();
-          updateLocationSelect();
-          locationSelect.value = loc;
-        } else {
-          ensureLocationExists(loc);
-          locationSelect.value = loc;
-          showToast("地点已保存");
-        }
-      });
-
+      // chips click
       rateChips.forEach((chip) => {
         chip.addEventListener("click", () => {
-          const value = chip.getAttribute("data-rate");
-          rateChips.forEach((c) => c.classList.remove("selected"));
-          chip.classList.add("selected");
-          rateInput.value = value === "0" ? "0" : value;
-          if (value === "0" && !costInput.value) {
-            costInput.value = "0";
-          }
+          const val = chip.getAttribute("data-rate");
+          rateInput.value = val === "0" ? "" : val;
+          rateChips.forEach((c) => c.classList.remove("active"));
+          chip.classList.add("active");
         });
       });
 
+      // when select location -> auto last rate
+      locationSelect.addEventListener("change", () => {
+        const loc = (locationSelect.value || "").trim();
+        if (!loc) return;
+        const lastRate = getLastRateForLocation(loc, records);
+        if (lastRate != null && !isNaN(lastRate)) {
+          let val = Number(lastRate).toFixed(2).replace(/\.00$/, "");
+          rateInput.value = val; // 覆盖成最后一次记录的 rate
+        } else {
+          rateInput.value = "";
+        }
+      });
+
+      // save / add location
+      saveLocationBtn.addEventListener("click", () => {
+        const loc = locationCustom.value.trim();
+        if (!loc) {
+          showToast("地点不能为空");
+          return;
+        }
+        if (editingLocationIndex != null) {
+          locations[editingLocationIndex] = loc;
+          editingLocationIndex = null;
+          saveLocationBtn.textContent = "保存地点";
+        } else if (!locations.includes(loc)) {
+          locations.push(loc);
+        }
+        locations.sort((a, b) => a.localeCompare(b));
+        saveState();
+        updateLocationSelect();
+        renderLocationsList();
+        locationCustom.value = "";
+      });
+
+      locationsList.addEventListener("click", (e) => {
+        const t = e.target;
+        const action = t.dataset.action;
+        const idx = t.dataset.index ? Number(t.dataset.index) : null;
+        if (action === "editLocation" && idx != null) {
+          editingLocationIndex = idx;
+          locationCustom.value = locations[idx];
+          saveLocationBtn.textContent = "更新地点";
+        } else if (action === "deleteLocation" && idx != null) {
+          if (!confirm("删除这个地点？")) return;
+          locations.splice(idx, 1);
+          editingLocationIndex = null;
+          saveState();
+          updateLocationSelect();
+          renderLocationsList();
+        }
+      });
+
+      addRecordBtn.addEventListener("click", () => {
+        const date = dateInput.value || defaultToday();
+        const startNum =
+          startPercentInput.value.trim() === ""
+            ? null
+            : Number(startPercentInput.value);
+        const endNum =
+          endPercentInput.value.trim() === ""
+            ? null
+            : Number(endPercentInput.value);
+        const odoNum =
+          odoInput.value.trim() === "" ? null : Number(odoInput.value);
+        const location = locationSelect.value.trim();
+        const rateNum =
+          rateInput.value.trim() === "" ? null : Number(rateInput.value);
+        const costNum =
+          costInput.value.trim() === "" ? null : Number(costInput.value);
+
+        if (!location || rateNum === null || costNum === null) {
+          showToast("Location / Rate / Cost 不能为空");
+          return;
+        }
+
+        const now = Date.now();
+
+        if (editingId) {
+          const rec = records.find((r) => r.id === editingId);
+          if (rec) {
+            rec.date = date;
+            rec.start = startNum;
+            rec.end = endNum;
+            rec.odo = odoNum;
+            rec.rate = rateNum;
+            rec.cost = costNum;
+            rec.location = location;
+          }
+          ensureLocationExists(location);
+          refreshAll();
+          clearForm();
+          showToast("记录已更新");
+        } else {
+          const newRec = {
+            id: "rec_" + now + "_" + Math.random().toString(16).slice(2),
+            createdAt: now,
+            date,
+            start: startNum,
+            end: endNum,
+            odo: odoNum,
+            rate: rateNum,
+            cost: costNum,
+            location,
+            driveKm: null,
+            usedKwh: null,
+            whPerKm: null,
+          };
+          records.push(newRec);
+          ensureLocationExists(location);
+          refreshAll();
+          clearForm();
+          showToast("已新增记录");
+          setTimeout(() => {
+            tableWrapper.scrollTop = tableWrapper.scrollHeight;
+          }, 100);
+        }
+      });
+
+      recordsBody.addEventListener("click", (e) => {
+        const t = e.target;
+        const action = t.dataset.action;
+        const id = t.dataset.id;
+        if (!action || !id) return;
+
+        if (action === "edit") {
+          const rec = records.find((r) => r.id === id);
+          if (!rec) return;
+          editingId = id;
+          dateInput.value = rec.date || defaultToday();
+          startPercentInput.value =
+            rec.start != null && !isNaN(rec.start) ? rec.start : "";
+          endPercentInput.value =
+            rec.end != null && !isNaN(rec.end) ? rec.end : "";
+          odoInput.value =
+            rec.odo != null && !isNaN(rec.odo) ? rec.odo : "";
+          rateInput.value =
+            rec.rate != null && !isNaN(rec.rate)
+              ? String(rec.rate).replace(/\.00$/, "")
+              : "";
+          costInput.value =
+            rec.cost != null && !isNaN(rec.cost)
+              ? String(rec.cost).replace(/\.00$/, "")
+              : "";
+          ensureLocationExists(rec.location);
+          updateLocationSelect();
+          locationSelect.value = rec.location || "";
+          addRecordBtn.textContent = "Save Changes";
+        } else if (action === "delete") {
+          if (!confirm("Delete this record?")) return;
+          records = records.filter((r) => r.id !== id);
+          editingId = null;
+          refreshAll();
+          showToast("记录已删除");
+        }
+      });
+
+      // Bottom bar Import / Export
       exportBtn.addEventListener("click", exportCSV);
-      importBtn.addEventListener("click", openImportModal);
-      importCancelBtn.addEventListener("click", closeImportModal);
-      importConfirmBtn.addEventListener("click", () => fileInput.click());
-      fileInput.addEventListener("change", () => {
-        const mode =
-          document.querySelector('input[name="importMode"]:checked')?.value ||
-          "append";
-        handleFileChosen(mode);
+
+      importBtn.addEventListener("click", () => {
+        importModal.style.display = "flex";
+      });
+
+      importCancelBtn.addEventListener("click", () => {
         closeImportModal();
+      });
+
+      importConfirmBtn.addEventListener("click", () => {
+        const checked = document.querySelector(
+          'input[name="importMode"]:checked'
+        );
+        currentImportMode = checked ? checked.value : "append";
+        fileInput.click();
+        closeImportModal();
+      });
+
+      fileInput.addEventListener("change", () => {
+        if (!fileInput.files.length) return;
+        handleFileChosen(currentImportMode || "append");
+        currentImportMode = "append";
       });
     });
   </script>
