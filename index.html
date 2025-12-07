@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>EV Charge Log Pro · 60 kWh</title>
+  <title>EV Charge Log Pro · 60 kWh ver 0142</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
@@ -656,7 +656,7 @@
       </div>
     </section>
 
-    <!-- Charge log (moved above summary) -->
+    <!-- Charge log -->
     <section class="card">
       <div class="card-header-row">
         <div class="card-title">Charge Log</div>
@@ -689,7 +689,7 @@
       </div>
     </section>
 
-    <!-- Monthly summary (now after Charge Log) -->
+    <!-- Monthly summary -->
     <section class="card">
       <div class="card-header-row">
         <div class="card-title">Monthly Summary (60 kWh pack)</div>
@@ -811,6 +811,24 @@
         } catch {
           records = [];
         }
+
+        // 🔧 迁移旧数据：补上 id / createdAt，方便 Edit / Delete 正常工作
+        let changed = false;
+        const now = Date.now();
+        records.forEach((r, idx) => {
+          if (!r.id) {
+            r.id = "rec_migr_" + now + "_" + idx;
+            changed = true;
+          }
+          if (typeof r.createdAt !== "number") {
+            r.createdAt = now + idx;
+            changed = true;
+          }
+        });
+        if (changed) {
+          localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
+        }
+
         try {
           const locStr = localStorage.getItem(STORAGE_KEY_LOCATIONS);
           locations = locStr ? JSON.parse(locStr) : [];
@@ -1335,7 +1353,7 @@
 
       // === 输入逻辑 ===
 
-      // Start%：两位自动跳 End%（00 就是 0，不做 100 处理）
+      // Start%：两位自动跳 End%
       startPercentInput.addEventListener("input", (e) => {
         let v = e.target.value.replace(/\D/g, "");
         if (v.length > 2) v = v.slice(0, 2);
@@ -1519,7 +1537,6 @@
           editingId = id;
           dateInput.value = rec.date || defaultToday();
 
-          // 编辑时：直接显示真实数值（100 就是 100）
           startPercentInput.value =
             rec.start != null && !isNaN(rec.start) ? String(rec.start) : "";
           endPercentInput.value =
