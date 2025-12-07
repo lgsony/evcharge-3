@@ -163,14 +163,6 @@
       flex: 1;
     }
 
-    .small-pill {
-      font-size: 11px;
-      color: var(--text-muted);
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid #33333a;
-    }
-
     .chips-row {
       display: flex;
       flex-wrap: wrap;
@@ -551,7 +543,7 @@
 
   <div class="app">
     <header>
-      <div class="sub">TESLA · 60 kWh PACK</div>
+      <div class="sub">TESLA · MODEL Y RWD</div>
       <h1>EV Charge Log Pro</h1>
     </header>
 
@@ -664,17 +656,7 @@
       </div>
     </section>
 
-    <!-- Monthly summary -->
-    <section class="card">
-      <div class="card-header-row">
-        <div class="card-title">Monthly Summary (60 kWh pack)</div>
-      </div>
-      <div id="summaryContainer" class="summary-container">
-        <div class="empty-state">No drive data yet</div>
-      </div>
-    </section>
-
-    <!-- Charge log -->
+    <!-- Charge log (moved above summary) -->
     <section class="card">
       <div class="card-header-row">
         <div class="card-title">Charge Log</div>
@@ -704,6 +686,16 @@
       </div>
       <div id="emptyState" class="empty-state" style="display:none;">
         还没有记录。上面填写一次充电数据，然后点「Add Record」。
+      </div>
+    </section>
+
+    <!-- Monthly summary (now after Charge Log) -->
+    <section class="card">
+      <div class="card-header-row">
+        <div class="card-title">Monthly Summary (60 kWh pack)</div>
+      </div>
+      <div id="summaryContainer" class="summary-container">
+        <div class="empty-state">No drive data yet</div>
       </div>
     </section>
 
@@ -1343,7 +1335,7 @@
 
       // === 输入逻辑 ===
 
-      // Start%：两位自动跳 End%
+      // Start%：两位自动跳 End%（00 就是 0，不做 100 处理）
       startPercentInput.addEventListener("input", (e) => {
         let v = e.target.value.replace(/\D/g, "");
         if (v.length > 2) v = v.slice(0, 2);
@@ -1354,11 +1346,20 @@
         }
       });
 
-      // End%：两位自动跳 ODO（并应用 00=100 规则在保存时）
+      // End%：两位自动跳 ODO，输入 00 直接显示 100 再跳
       endPercentInput.addEventListener("input", (e) => {
         let v = e.target.value.replace(/\D/g, "");
         if (v.length > 2) v = v.slice(0, 2);
-        e.target.value = v;
+
+        if (v === "00") {
+          endPercentInput.value = "100";
+          odoInput.focus();
+          odoInput.select?.();
+          return;
+        }
+
+        endPercentInput.value = v;
+
         if (v.length >= 2) {
           odoInput.focus();
           odoInput.select?.();
@@ -1427,10 +1428,17 @@
         }
       });
 
-      function parsePercent(raw) {
+      function parseStartPercent(raw) {
         const txt = raw.trim();
         if (txt === "") return null;
-        // 特殊规则：00 = 100
+        const n = parseInt(txt, 10);
+        if (isNaN(n)) return null;
+        return n;
+      }
+
+      function parseEndPercent(raw) {
+        const txt = raw.trim();
+        if (txt === "") return null;
         if (txt === "00") return 100;
         const n = parseInt(txt, 10);
         if (isNaN(n)) return null;
@@ -1440,8 +1448,8 @@
       addRecordBtn.addEventListener("click", () => {
         const date = dateInput.value || defaultToday();
 
-        const startNum = parsePercent(startPercentInput.value);
-        const endNum = parsePercent(endPercentInput.value);
+        const startNum = parseStartPercent(startPercentInput.value);
+        const endNum = parseEndPercent(endPercentInput.value);
 
         const odoNum =
           odoInput.value.trim() === "" ? null : Number(odoInput.value);
@@ -1511,19 +1519,11 @@
           editingId = id;
           dateInput.value = rec.date || defaultToday();
 
-          // 编辑时：100% 显示成 "00" 以配合 2 位输入 + 00=100 规则
+          // 编辑时：直接显示真实数值（100 就是 100）
           startPercentInput.value =
-            rec.start != null && !isNaN(rec.start)
-              ? rec.start === 100
-                ? "00"
-                : String(rec.start)
-              : "";
+            rec.start != null && !isNaN(rec.start) ? String(rec.start) : "";
           endPercentInput.value =
-            rec.end != null && !isNaN(rec.end)
-              ? rec.end === 100
-                ? "00"
-                : String(rec.end)
-              : "";
+            rec.end != null && !isNaN(rec.end) ? String(rec.end) : "";
 
           odoInput.value =
             rec.odo != null && !isNaN(rec.odo) ? rec.odo : "";
