@@ -920,9 +920,7 @@ document.getElementById("importChooseFileBtn").addEventListener("click", ()=>{
           <span class="icon">⇡</span> Import
         </button>
       </div>
-      <div class="bottom-hint">
-        CSV 字段：date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm
-      </div>
+
     </div>
   </div>
 
@@ -973,6 +971,35 @@ function getLastRateForLocation(loc){
     const importCancelBtn = document.getElementById("importCancelBtn");
     const importConfirmBtn = document.getElementById("importConfirmBtn");
     const fileInput = document.getElementById("fileInput");
+    // ===== Import / Export 事件 =====
+
+// Export 维持原本逻辑
+exportBtn.addEventListener("click", onExport);
+
+// 点击底部 Import 按钮 → 打开弹窗
+importBtn.addEventListener("click", () => {
+    importModal.style.display = "flex";
+});
+
+// 弹窗里的“取消”
+importCancelBtn.addEventListener("click", () => {
+    importModal.style.display = "none";
+});
+
+// 弹窗里的“选择文件”
+importConfirmBtn.addEventListener("click", () => {
+    // 读取单选：追加 / 覆盖
+    const checked = document.querySelector('input[name="importMode"]:checked');
+    const mode = checked ? checked.value : "append";   // 没选就当 append
+
+    window.importMode = mode;      // 保存这次的选择
+    fileInput.click();             // 打开文件选择器
+    importModal.style.display = "none";
+});
+
+// 真正选完文件之后，触发导入
+fileInput.addEventListener("change", onImportFile);
+
 
     const rateChips = document.querySelectorAll(".chip[data-rate]");
 
