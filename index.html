@@ -683,7 +683,9 @@
     <section class="card">
       <div class="card-header-row">
         <div class="card-title">Charge Log</div>
-        <div class="card-sub">Date / Start / End / kWh / KM / Rate / Cost</div>
+        <div class="card-sub">
+          Date / Start / End / Used kWh / KM / Wh/km / Location / Rate / Cost / Edit·Delete
+        </div>
       </div>
 
       <div class="table-wrapper" id="tableWrapper">
@@ -854,7 +856,11 @@
 
       function getSortedRecordsDesc() {
         return [...records].sort((a, b) => {
-          if (a.date === b.date) return (a.createdAt || 0) - (b.createdAt || 0);
+          if (a.date === b.date) {
+            // 同一天按创建时间倒序（最新在上）
+            return (b.createdAt || 0) - (a.createdAt || 0);
+          }
+          // 日期倒序（最新在上）
           return a.date > b.date ? -1 : 1;
         });
       }
@@ -1522,3 +1528,4 @@
   </script>
 </body>
 </html>
+
