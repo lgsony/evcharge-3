@@ -766,7 +766,39 @@
 
   <input id="fileInput" type="file" accept=".csv,text/csv" style="display:none;" />
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    onSnapshot,
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // === 1. 填入你的 Firebase config（从 Firebase 控制台复制） ===
+const firebaseConfig = {
+  apiKey: "AIzaSyCbqYoEXpNIqq076dCin3vcVzCKP5E3gVY",
+  authDomain: "evcharge3-3a6e9.firebaseapp.com",
+  projectId: "evcharge3-3a6e9",
+  storageBucket: "evcharge3-3a6e9.firebasestorage.app",
+  messagingSenderId: "525208875638",
+  appId: "1:525208875638:web:f6ecb552e2ac08ef336557"
+};
+
+  // === 2. 初始化 Firebase / Firestore ===
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+  const cloudDocRef = doc(db, "evChargeLogPro", "main"); // 一个 collection, 一个 document
+
+  // 本地更新时间（用来判断谁比较新）
+  let lastUpdated = Number(
+    localStorage.getItem("evChargeLogPro_updatedAt") || 0
+  );
+  let isApplyingCloud = false; // 避免 snapshot → refreshAll → 再写回 cloud 造成死循环
+
+  // ====== 下面开始是你原本的逻辑 + 云同步整合 ======
+
   const BATTERY_KWH = 60;
   const STORAGE_KEY_RECORDS = "evChargeLogPro_v5_records";
   const STORAGE_KEY_LOCATIONS = "evChargeLogPro_v5_locations";
@@ -874,18 +906,33 @@
       }
     }
 
-    function saveState() {
+    function saveStateOnlyLocal() {
       localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
-      localStorage.setItem(STORAGE_KEY_LOCATIONS, JSON.stringify(locations));
+      localStorage.setItem(STORAGE_KEY_LOCATIONS", JSON.stringify(locations));
     }
 
-    function ensureLocationExists(loc) {
-      const v = (loc || "").trim();
-      if (!v) return;
-      if (!locations.includes(v)) {
-        locations.push(v);
-        locations.sort((a, b) => a.localeCompare(b));
-        saveState();
+    // === 云同步：把当前 records / locations 推上 Firestore ===
+    async function syncCloud() {
+      if (!db || !cloudDocRef) return;
+      if (isApplyingCloud) return; // 正在套用云端资料时不要再写回去
+
+      try {
+        lastUpdated = Date.now();
+        localStorage.setItem(
+          "evChargeLogPro_updatedAt",
+          String(lastUpdated)
+        );
+        await setDoc(
+          cloudDocRef,
+          {
+            records,
+            locations,
+            updatedAt: lastUpdated,
+          },
+          { merge: true }
+        );
+      } catch (err) {
+        console.error("syncCloud error:", err);
       }
     }
 
@@ -945,7 +992,6 @@
 
         prev = rec;
       });
-      saveState();
     }
 
     function formatNumber(num, decimals) {
@@ -1179,6 +1225,18 @@
       });
     }
 
+    // 总刷新：可选择是否写回 Cloud
+    function refreshAll(skipCloud = false) {
+      recomputeDriveStats();
+      renderTable();
+      renderMonthlySummary();
+      renderPrevInfo();
+      saveStateOnlyLocal();
+      if (!skipCloud) {
+        syncCloud();
+      }
+    }
+
     function clearForm() {
       startPercentInput.value = "";
       endPercentInput.value = "";
@@ -1189,485 +1247,93 @@
       addRecordBtn.textContent = "Add Record";
     }
 
-    function refreshAll() {
-      recomputeDriveStats();
-      renderTable();
-      renderMonthlySummary();
-      renderPrevInfo();
-      saveState();
-    }
-
-    function exportCSV() {
-      if (!records.length && !locations.length) {
-        showToast("没有记录或地点可导出");
-        return;
-      }
-
-      const today = defaultToday();
-
-      if (records.length) {
-        const header =
-          "date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm";
-        const lines = [header];
-        const sorted = getSortedRecordsAsc();
-        sorted.forEach((rec) => {
-          const row = [
-            rec.date || "",
-            rec.start ?? "",
-            rec.end ?? "",
-            rec.odo ?? "",
-            rec.location
-              ? '"' + String(rec.location).replace(/"/g, '""') + '"'
-              : "",
-            rec.rate ?? "",
-            rec.cost ?? "",
-            rec.driveKm ?? "",
-            rec.usedKwh ?? "",
-            rec.whPerKm ?? "",
-          ];
-          lines.push(row.join(","));
-        });
-        const csv = lines.join("\n");
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `ev_charge_log_pro_${today}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-
-      if (locations.length) {
-        const locLines = ["location"];
-        locations.forEach((loc) => {
-          locLines.push('"' + String(loc).replace(/"/g, '""') + '"');
-        });
-        const locCsv = locLines.join("\n");
-        const locBlob = new Blob([locCsv], {
-          type: "text/csv;charset=utf-8;",
-        });
-        const locUrl = URL.createObjectURL(locBlob);
-        const a2 = document.createElement("a");
-        a2.href = locUrl;
-        a2.download = `ev_charge_log_pro_locations_${today}.csv`;
-        document.body.appendChild(a2);
-        a2.click();
-        document.body.removeChild(a2);
-        URL.revokeObjectURL(locUrl);
-      }
-
-      showToast("CSV 已导出（含 Saved Locations）");
-    }
-
-    function closeImportModal() {
-      importModal.style.display = "none";
-      fileInput.value = "";
-    }
-
-    // 解析一行简单 CSV（支持引号）
-    function parseCsvLine(line) {
-      const cells = [];
-      let current = "";
-      let inQuotes = false;
-      for (let ch of line) {
-        if (ch === '"') {
-          inQuotes = !inQuotes;
-        } else if (ch === "," && !inQuotes) {
-          cells.push(current);
-          current = "";
-        } else {
-          current += ch;
-        }
-      }
-      cells.push(current);
-      return cells;
-    }
-
-    function importCSVText(text, mode) {
-      const lines = text
-        .split(/\r?\n/)
-        .filter((l) => l.trim().length > 0);
-      if (!lines.length) {
-        showToast("CSV 内容为空");
-        return;
-      }
-      const headerLine = lines[0];
-      const headerFields = headerLine
-        .split(",")
-        .map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
-
-      // 🆕 情况 1：Saved Locations CSV（只有一栏：location）
-      if (headerFields.length === 1 && headerFields[0] === "location") {
-        const importedLocs = [];
-        for (let i = 1; i < lines.length; i++) {
-          const cells = parseCsvLine(lines[i]);
-          const raw = (cells[0] || "").replace(/^"|"$/g, "").trim();
-          if (!raw) continue;
-          importedLocs.push(raw);
-        }
-        if (!importedLocs.length) {
-          showToast("没有有效地点被导入");
-          return;
-        }
-
-        if (mode === "replace") {
-          locations = Array.from(new Set(importedLocs));
-        } else {
-          importedLocs.forEach((loc) => {
-            if (!locations.includes(loc)) locations.push(loc);
-          });
-        }
+    function ensureLocationExists(loc) {
+      const v = (loc || "").trim();
+      if (!v) return;
+      if (!locations.includes(v)) {
+        locations.push(v);
         locations.sort((a, b) => a.localeCompare(b));
-        saveState();
-        updateLocationSelect();
-        renderLocationsList();
-        showToast(
-          `Saved Locations 已导入 (${mode === "replace" ? "覆盖" : "追加"}) · 共 ${
-            importedLocs.length
-          } 个`
-        );
-        return;
+        saveStateOnlyLocal();
       }
-
-      // 情况 2：正常 Charge Log CSV
-      const expectedHeader = [
-        "date",
-        "start",
-        "end",
-        "odo",
-        "location",
-        "rate",
-        "cost",
-        "drivekm",
-        "usedkwh",
-        "whperkm",
-      ];
-
-      const matchesHeader =
-        expectedHeader.length === headerFields.length &&
-        expectedHeader.every(
-          (h, idx) => h === headerFields[idx].toLowerCase()
-        );
-
-      let startIdx = 0;
-      if (matchesHeader) startIdx = 1;
-
-      const imported = [];
-      for (let i = startIdx; i < lines.length; i++) {
-        const line = lines[i];
-        if (!line.trim()) continue;
-
-        const cells = parseCsvLine(line);
-        const [date, start, end, odo, location, rate, cost] = cells;
-
-        const newRec = {
-          id:
-            "imp_" +
-            Date.now() +
-            "_" +
-            i +
-            "_" +
-            Math.random().toString(16).slice(2),
-          createdAt: Date.now() + i,
-          date: date || defaultToday(),
-          start: start ? Number(start) : null,
-          end: end ? Number(end) : null,
-          odo: odo ? Number(odo) : null,
-          rate: rate ? Number(rate) : null,
-          cost: cost ? Number(cost) : null,
-          location: location ? location.replace(/^"|"$/g, "") : "",
-          driveKm: null,
-          usedKwh: null,
-          whPerKm: null,
-        };
-
-        imported.push(newRec);
-      }
-
-      if (!imported.length) {
-        showToast("没有有效记录被导入");
-        return;
-      }
-
-      if (mode === "replace") {
-        records = imported;
-      } else {
-        records = records.concat(imported);
-      }
-
-      imported.forEach((rec) => {
-        ensureLocationExists(rec.location);
-      });
-
-      refreshAll();
-      showToast(
-        `CSV 已导入 (${mode === "replace" ? "覆盖" : "追加"}) · 共 ${
-          imported.length
-        } 条`
-      );
     }
 
-    function handleFileChosen(mode) {
-      const file = fileInput.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target.result;
-        importCSVText(text, mode);
-      };
-      reader.readAsText(file);
-    }
+    // ====== Export / Import（保持原本逻辑，不再赘述） ======
+    // 这里你可以继续用你现在那段 exportCSV / importCSVText / parseCsvLine 等函数
+    // 调整：在需要的地方，把原本 refreshAll() 改成 refreshAll() 就好（会自动同步 Cloud）
+
+    // ……（为了不让讯息太长，这里省略你原本的 Import / Export 代码，
+    // 你可以把我之前给你的最新版 script 里相关部分直接搬进来，
+    // 唯一要改的是：所有地方调用 refreshAll() 的，都不要传参数，
+    // 让它默认 syncCloud）……
 
     // ==== 初始化 ====
     dateInput.value = defaultToday();
     loadState();
     updateLocationSelect();
     renderLocationsList();
-    refreshAll();
+    // 先用本地数据渲染一次，但不推上云端
+    refreshAll(true);
 
-    // Start%：两位自动跳 End%
-    startPercentInput.addEventListener("input", (e) => {
-      let v = e.target.value.replace(/\D/g, "");
-      if (v.length > 2) v = v.slice(0, 2);
-      e.target.value = v;
-      if (v.length >= 2) {
-        endPercentInput.focus();
-        endPercentInput.select?.();
-      }
-    });
-
-    // End%：两位自动跳 ODO，输入 00 直接显示 100 再跳
-    endPercentInput.addEventListener("input", (e) => {
-      let v = e.target.value.replace(/\D/g, "");
-      if (v.length > 2) v = v.slice(0, 2);
-
-      if (v === "00") {
-        endPercentInput.value = "100";
-        odoInput.focus();
-        odoInput.select?.();
-        return;
-      }
-
-      endPercentInput.value = v;
-
-      if (v.length >= 2) {
-        odoInput.focus();
-        odoInput.select?.();
-      }
-    });
-
-    // Rate 快捷 chip
-    rateChips.forEach((chip) => {
-      chip.addEventListener("click", () => {
-        const val = chip.getAttribute("data-rate");
-        rateInput.value = val === "0" ? "" : val;
-        rateChips.forEach((c) => c.classList.remove("active"));
-        chip.classList.add("active");
-      });
-    });
-
-    // Location 改变 → 带入最新 Rate
-    locationSelect.addEventListener("change", () => {
-      const loc = (locationSelect.value || "").trim();
-      if (!loc) return;
-      const lastRate = getLastRateForLocation(loc, records);
-      if (lastRate != null && !isNaN(lastRate)) {
-        let val = Number(lastRate).toFixed(2).replace(/\.00$/, "");
-        rateInput.value = val;
-      } else {
-        rateInput.value = "";
-      }
-    });
-
-    // 新增 / 更新 Location
-    saveLocationBtn.addEventListener("click", () => {
-      const loc = locationCustom.value.trim();
-      if (!loc) {
-        showToast("地点不能为空");
-        return;
-      }
-      if (editingLocationIndex != null) {
-        locations[editingLocationIndex] = loc;
-        editingLocationIndex = null;
-        saveLocationBtn.textContent = "保存地点";
-      } else if (!locations.includes(loc)) {
-        locations.push(loc);
-      }
-      locations.sort((a, b) => a.localeCompare(b));
-      saveState();
-      updateLocationSelect();
-      renderLocationsList();
-      locationCustom.value = "";
-    });
-
-    locationsList.addEventListener("click", (e) => {
-      const t = e.target;
-      const action = t.dataset.action;
-      const idx = t.dataset.index ? Number(t.dataset.index) : null;
-      if (action === "editLocation" && idx != null) {
-        editingLocationIndex = idx;
-        locationCustom.value = locations[idx];
-        saveLocationBtn.textContent = "更新地点";
-      } else if (action === "deleteLocation" && idx != null) {
-        if (!confirm("删除这个地点？")) return;
-        locations.splice(idx, 1);
-        editingLocationIndex = null;
-        saveState();
-        updateLocationSelect();
-        renderLocationsList();
-      }
-    });
-
-    function parseStartPercent(raw) {
-      const txt = raw.trim();
-      if (txt === "") return null;
-      const n = parseInt(txt, 10);
-      if (isNaN(n)) return null;
-      return n;
-    }
-
-    function parseEndPercent(raw) {
-      const txt = raw.trim();
-      if (txt === "") return null;
-      if (txt === "00") return 100;
-      const n = parseInt(txt, 10);
-      if (isNaN(n)) return null;
-      return n;
-    }
-
-    // Add / Save record
-    addRecordBtn.addEventListener("click", () => {
-      const date = dateInput.value || defaultToday();
-
-      const startNum = parseStartPercent(startPercentInput.value);
-      const endNum = parseEndPercent(endPercentInput.value);
-
-      const odoNum =
-        odoInput.value.trim() === "" ? null : Number(odoInput.value);
-      const location = locationSelect.value.trim();
-      const rateNum =
-        rateInput.value.trim() === "" ? null : Number(rateInput.value);
-      const costNum =
-        costInput.value.trim() === "" ? null : Number(costInput.value);
-
-      if (!location || rateNum === null || costNum === null) {
-        showToast("Location / Rate / Cost 不能为空");
-        return;
-      }
-
-      const now = Date.now();
-
-      if (editingId) {
-        const rec = records.find((r) => r.id === editingId);
-        if (rec) {
-          rec.date = date;
-          rec.start = startNum;
-          rec.end = endNum;
-          rec.odo = odoNum;
-          rec.rate = rateNum;
-          rec.cost = costNum;
-          rec.location = location;
+    // ==== 初始化 Cloud，同步策略：谁新听谁的 ====
+    (async () => {
+      try {
+        const snap = await getDoc(cloudDocRef);
+        if (snap.exists()) {
+          const data = snap.data() || {};
+          const cloudUpdated = Number(data.updatedAt || 0);
+          if (cloudUpdated > lastUpdated) {
+            // 云端比本地新 → 套用云端
+            isApplyingCloud = true;
+            records = data.records || [];
+            locations = data.locations || [];
+            lastUpdated = cloudUpdated;
+            localStorage.setItem(
+              "evChargeLogPro_updatedAt",
+              String(lastUpdated)
+            );
+            updateLocationSelect();
+            renderLocationsList();
+            refreshAll(true); // 套用云端但不要再写回云端
+            isApplyingCloud = false;
+          } else {
+            // 本地比较新 → 推到云端
+            syncCloud();
+          }
+        } else {
+          // 云端还没资料 → 以本地为准推上去
+          syncCloud();
         }
-        ensureLocationExists(location);
-        refreshAll();
-        clearForm();
-        showToast("记录已更新");
-      } else {
-        const newRec = {
-          id: "rec_" + now + "_" + Math.random().toString(16).slice(2),
-          createdAt: now,
-          date,
-          start: startNum,
-          end: endNum,
-          odo: odoNum,
-          rate: rateNum,
-          cost: costNum,
-          location,
-          driveKm: null,
-          usedKwh: null,
-          whPerKm: null,
-        };
-        records.push(newRec);
-        ensureLocationExists(location);
-        refreshAll();
-        clearForm();
-        showToast("已新增记录");
-        setTimeout(() => {
-          tableWrapper.scrollTop = tableWrapper.scrollHeight;
-        }, 100);
+
+        // 实时监听：别的装置更新时自动拉下来
+        onSnapshot(cloudDocRef, (snap2) => {
+          if (!snap2.exists()) return;
+          const data2 = snap2.data() || {};
+          const cloudUpdated2 = Number(data2.updatedAt || 0);
+          if (cloudUpdated2 <= lastUpdated) return; // 比我们旧或一样就忽略
+
+          isApplyingCloud = true;
+          records = data2.records || [];
+          locations = data2.locations || [];
+          lastUpdated = cloudUpdated2;
+          localStorage.setItem(
+            "evChargeLogPro_updatedAt",
+            String(lastUpdated)
+          );
+          updateLocationSelect();
+          renderLocationsList();
+          refreshAll(true); // 用云端资料重算，但不写回云端
+          isApplyingCloud = false;
+        });
+      } catch (e) {
+        console.error("init cloud error:", e);
       }
-    });
+    })();
 
-    // Edit / Delete record
-    recordsBody.addEventListener("click", (e) => {
-      const t = e.target;
-      const action = t.dataset.action;
-      const id = t.dataset.id;
-      if (!action || !id) return;
-
-      if (action === "edit") {
-        const rec = records.find((r) => r.id === id);
-        if (!rec) return;
-        editingId = id;
-        dateInput.value = rec.date || defaultToday();
-
-        startPercentInput.value =
-          rec.start != null && !isNaN(rec.start) ? String(rec.start) : "";
-        endPercentInput.value =
-          rec.end != null && !isNaN(rec.end) ? String(rec.end) : "";
-
-        odoInput.value =
-          rec.odo != null && !isNaN(rec.odo) ? rec.odo : "";
-        rateInput.value =
-          rec.rate != null && !isNaN(rec.rate)
-            ? String(rec.rate).replace(/\.00$/, "")
-            : "";
-        costInput.value =
-          rec.cost != null && !isNaN(rec.cost)
-            ? String(rec.cost).replace(/\.00$/, "")
-            : "";
-        ensureLocationExists(rec.location);
-        updateLocationSelect();
-        locationSelect.value = rec.location || "";
-        addRecordBtn.textContent = "Save Changes";
-      } else if (action === "delete") {
-        if (!confirm("Delete this record?")) return;
-        records = records.filter((r) => r.id !== id);
-        editingId = null;
-        refreshAll();
-        showToast("记录已删除");
-      }
-    });
-
-    // Bottom bar Import / Export
-    exportBtn.addEventListener("click", exportCSV);
-
-    importBtn.addEventListener("click", () => {
-      importModal.style.display = "flex";
-    });
-
-    importCancelBtn.addEventListener("click", () => {
-      closeImportModal();
-    });
-
-    importConfirmBtn.addEventListener("click", () => {
-      const checked = document.querySelector(
-        'input[name="importMode"]:checked'
-      );
-      currentImportMode = checked ? checked.value : "append";
-      fileInput.click();
-      closeImportModal();
-    });
-
-    fileInput.addEventListener("change", () => {
-      if (!fileInput.files.length) return;
-      handleFileChosen(currentImportMode || "append");
-      currentImportMode = "append";
-    });
+    // 下面继续接你的事件绑定：Start%/End% 自动跳、Add Record、Edit/Delete、Import/Export…
+    // 所有「数据有改变」的地方，只要最后调用 refreshAll() 就会同时存 local + Cloud。
   });
 </script>
+
   
 </body>
 </html>
