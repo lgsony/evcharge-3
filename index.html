@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>EV Charge Log Pro · 60 kWh</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  />
   <style>
     :root {
       --bg: #050507;
@@ -26,16 +29,41 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    html,
     body {
       margin: 0;
-      min-height: 100vh;
+      padding: 0;
+      height: 100%;
+      background: #000;
+    }
+
+    body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
         "Segoe UI", sans-serif;
       background: radial-gradient(circle at top, #1a1a1f 0, #050507 55%, #000 100%);
       color: var(--text-main);
+      overflow: hidden; /* 锁住 body，只让内部容器滚动 */
+    }
+
+    .app-shell {
+      height: 100vh;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .app-scroll {
+      flex: 1;
+      width: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 24px 12px 84px;
       display: flex;
       justify-content: center;
-      padding: 24px 12px 84px;
     }
 
     .app {
@@ -124,7 +152,7 @@
       border: 1px solid var(--border-subtle);
       background: #111115;
       color: var(--text-main);
-      font-size: 14px;
+      font-size: 16px; /* >=16 避免 iOS 自动放大 */
       outline: none;
     }
 
@@ -274,7 +302,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
-      min-width: 760px;
+      min-width: 760px; /* 手机可横滑，桌面铺满 */
     }
 
     thead {
@@ -547,175 +575,179 @@
     </div>
   </div>
 
-  <div class="app">
-    <header>
-      <div class="sub">TESLA · MODEL Y RWD ver.0200</div>
-      <h1>EV Charge Log Pro</h1>
-    </header>
+  <div class="app-shell">
+    <div class="app-scroll">
+      <div class="app">
+        <header>
+          <div class="sub">TESLA · MODEL Y RWD VER.0912-1035</div>
+          <h1>EV Charge Log Pro</h1>
+        </header>
 
-    <!-- Main form -->
-    <section class="card">
-      <div class="field">
-        <label>Date</label>
-        <div class="date-row">
-          <input id="dateInput" type="date" />
-          <div class="date-icon">📅</div>
-        </div>
-      </div>
+        <!-- Main form -->
+        <section class="card">
+          <div class="field">
+            <label>Date</label>
+            <div class="date-row">
+              <input id="dateInput" type="date" />
+              <div class="date-icon">📅</div>
+            </div>
+          </div>
 
-      <div class="inline-two" style="margin-bottom:8px;">
-        <div class="field">
-          <label>Start %</label>
-          <input
-            id="startPercent"
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            maxlength="2"
-            placeholder="Start %"
-          />
-        </div>
-        <div class="field">
-          <label>End %</label>
-          <input
-            id="endPercent"
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            maxlength="2"
-            placeholder="End %"
-          />
-        </div>
-      </div>
+          <div class="inline-two" style="margin-bottom:8px;">
+            <div class="field">
+              <label>Start %</label>
+              <input
+                id="startPercent"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="2"
+                placeholder="Start %"
+              />
+            </div>
+            <div class="field">
+              <label>End %</label>
+              <input
+                id="endPercent"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="2"
+                placeholder="End %"
+              />
+            </div>
+          </div>
 
-      <div class="field">
-        <label>ODO (km) <span class="right-label">可空</span></label>
-        <input
-          id="odoInput"
-          type="text"
-          inputmode="numeric"
-          pattern="[0-9]*"
-          placeholder="可不填，例如 12850"
-        />
-      </div>
-
-      <div class="field">
-        <label>
-          Select Location
-          <span class="badge-count" id="locationCount"></span>
-        </label>
-        <select id="locationSelect">
-          <option value="">请选择地点</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Add / Edit Location</label>
-        <div class="location-row">
-          <div>
+          <div class="field">
+            <label>ODO (km) <span class="right-label">可空</span></label>
             <input
-              id="locationCustom"
+              id="odoInput"
               type="text"
-              placeholder="例如 HOME, PV-KL, BAMBOO HILL..."
+              inputmode="numeric"
+              pattern="[0-9]*"
+              placeholder="可不填，例如 12850"
             />
           </div>
-          <button class="btn-soft" id="saveLocationBtn">保存地点</button>
-        </div>
-      </div>
 
-      <div class="field">
-        <label>Rate (RM/kWh)</label>
-        <div class="chips-row">
-          <div class="chip" data-rate="0.84">0.84</div>
-          <div class="chip" data-rate="1.00">1.00</div>
-          <div class="chip" data-rate="1.30">1.30</div>
-          <div class="chip" data-rate="1.50">1.50</div>
-          <div class="chip" data-rate="1.80">1.80</div>
-          <div class="chip" data-rate="0">Free</div>
-        </div>
-        <div class="inline-two">
+          <div class="field">
+            <label>
+              Select Location
+              <span class="badge-count" id="locationCount"></span>
+            </label>
+            <select id="locationSelect">
+              <option value="">请选择地点</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Add / Edit Location</label>
+            <div class="location-row">
+              <div>
+                <input
+                  id="locationCustom"
+                  type="text"
+                  placeholder="例如 HOME, PV-KL, BAMBOO HILL..."
+                />
+              </div>
+              <button class="btn-soft" id="saveLocationBtn">保存地点</button>
+            </div>
+          </div>
+
           <div class="field">
             <label>Rate (RM/kWh)</label>
-            <input
-              id="rateInput"
-              type="text"
-              inputmode="decimal"
-              placeholder="例如 1.50"
-            />
+            <div class="chips-row">
+              <div class="chip" data-rate="0.84">0.84</div>
+              <div class="chip" data-rate="1.00">1.00</div>
+              <div class="chip" data-rate="1.30">1.30</div>
+              <div class="chip" data-rate="1.50">1.50</div>
+              <div class="chip" data-rate="1.80">1.80</div>
+              <div class="chip" data-rate="0">Free</div>
+            </div>
+            <div class="inline-two">
+              <div class="field">
+                <label>Rate (RM/kWh)</label>
+                <input
+                  id="rateInput"
+                  type="text"
+                  inputmode="decimal"
+                  placeholder="例如 1.50"
+                />
+              </div>
+              <div class="field">
+                <label>Cost (RM)</label>
+                <input
+                  id="costInput"
+                  type="text"
+                  inputmode="decimal"
+                  placeholder="例如 18.90"
+                />
+              </div>
+            </div>
           </div>
-          <div class="field">
-            <label>Cost (RM)</label>
-            <input
-              id="costInput"
-              type="text"
-              inputmode="decimal"
-              placeholder="例如 18.90"
-            />
+
+          <button class="btn btn-primary" id="addRecordBtn">Add Record</button>
+
+          <div class="prev-info" id="prevInfo">
+            上一条记录: <span>暂无</span>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <button class="btn btn-primary" id="addRecordBtn">Add Record</button>
+        <!-- Charge log -->
+        <section class="card">
+          <div class="card-header-row">
+            <div class="card-title">Charge Log</div>
+            <div class="card-sub">
+              Date / Start / End / Used kWh / KM / Wh/km / Location / Rate / Cost / Edit·Delete
+            </div>
+          </div>
 
-      <div class="prev-info" id="prevInfo">
-        上一条记录: <span>暂无</span>
-      </div>
-    </section>
+          <div class="table-wrapper" id="tableWrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>DATE</th>
+                  <th>START%</th>
+                  <th>END%</th>
+                  <th>USED kWh</th>
+                  <th>KM</th>
+                  <th>Wh/km</th>
+                  <th>Location</th>
+                  <th>Rate</th>
+                  <th>Cost</th>
+                  <th>⋯</th>
+                </tr>
+              </thead>
+              <tbody id="recordsBody"></tbody>
+            </table>
+          </div>
+          <div id="emptyState" class="empty-state" style="display:none;">
+            还没有记录。上面填写一次充电数据，然后点「Add Record」。
+          </div>
+        </section>
 
-    <!-- Charge log -->
-    <section class="card">
-      <div class="card-header-row">
-        <div class="card-title">Charge Log</div>
-        <div class="card-sub">
-          Date / Start / End / Used kWh / KM / Wh/km / Location / Rate / Cost / Edit·Delete
-        </div>
-      </div>
+        <!-- Monthly summary -->
+        <section class="card">
+          <div class="card-header-row">
+            <div class="card-title">Monthly Summary (60 kWh pack)</div>
+          </div>
+          <div id="summaryContainer" class="summary-container">
+            <div class="empty-state">No drive data yet</div>
+          </div>
+        </section>
 
-      <div class="table-wrapper" id="tableWrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>DATE</th>
-              <th>START%</th>
-              <th>END%</th>
-              <th>USED kWh</th>
-              <th>KM</th>
-              <th>Wh/km</th>
-              <th>Location</th>
-              <th>Rate</th>
-              <th>Cost</th>
-              <th>⋯</th>
-            </tr>
-          </thead>
-          <tbody id="recordsBody"></tbody>
-        </table>
-      </div>
-      <div id="emptyState" class="empty-state" style="display:none;">
-        还没有记录。上面填写一次充电数据，然后点「Add Record」。
-      </div>
-    </section>
+        <!-- Saved locations -->
+        <section class="card">
+          <div class="card-header-row">
+            <div class="card-title">Saved Locations</div>
+          </div>
+          <div id="locationsList">
+            <div class="loc-empty">暂时没有保存的地点。</div>
+          </div>
+        </section>
 
-    <!-- Monthly summary -->
-    <section class="card">
-      <div class="card-header-row">
-        <div class="card-title">Monthly Summary (60 kWh pack)</div>
+        <footer>Version v4-ODO-20251207</footer>
       </div>
-      <div id="summaryContainer" class="summary-container">
-        <div class="empty-state">No drive data yet</div>
-      </div>
-    </section>
-
-    <!-- Saved locations -->
-    <section class="card">
-      <div class="card-header-row">
-        <div class="card-title">Saved Locations</div>
-      </div>
-      <div id="locationsList">
-        <div class="loc-empty">暂时没有保存的地点。</div>
-      </div>
-    </section>
-
-    <footer>Version v4-ODO-20251207</footer>
+    </div>
   </div>
 
   <!-- Bottom bar -->
@@ -1264,7 +1296,7 @@
           );
 
         let startIdx = 0;
-        if (matchesHeader) startIdx = 1;
+               if (matchesHeader) startIdx = 1;
 
         const imported = [];
         for (let i = startIdx; i < lines.length; i++) {
@@ -1346,6 +1378,7 @@
         reader.readAsText(file);
       }
 
+      // 初始化
       dateInput.value = defaultToday();
       loadState();
       updateLocationSelect();
@@ -1383,6 +1416,7 @@
         }
       });
 
+      // Rate 快捷 chip
       rateChips.forEach((chip) => {
         chip.addEventListener("click", () => {
           const val = chip.getAttribute("data-rate");
@@ -1392,6 +1426,7 @@
         });
       });
 
+      // Location 改变 → 带入最新 Rate
       locationSelect.addEventListener("change", () => {
         const loc = (locationSelect.value || "").trim();
         if (!loc) return;
@@ -1404,6 +1439,7 @@
         }
       });
 
+      // 新增 / 更新 Location
       saveLocationBtn.addEventListener("click", () => {
         const loc = locationCustom.value.trim();
         if (!loc) {
@@ -1459,6 +1495,7 @@
         return n;
       }
 
+      // Add / Save record
       addRecordBtn.addEventListener("click", () => {
         const date = dateInput.value || defaultToday();
 
@@ -1521,6 +1558,7 @@
         }
       });
 
+      // Edit / Delete record
       recordsBody.addEventListener("click", (e) => {
         const t = e.target;
         const action = t.dataset.action;
@@ -1561,6 +1599,7 @@
         }
       });
 
+      // Bottom bar Import / Export
       exportBtn.addEventListener("click", exportCSV);
 
       importBtn.addEventListener("click", () => {
