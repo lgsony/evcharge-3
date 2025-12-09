@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>EV Charge Log Pro · 60 kWh</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  />
+  <style>
+    :root {
+      --bg: #050507;
+      --card-bg: #151518;
+      --card-bg-soft: #18181c;
+      --border-subtle: #26262b;
+      --accent: #e82127;
+      --accent-soft: #ff4d57;
+      --text-main: #ffffff;
+      --text-sub: #bbbbc0;
+      --text-muted: #777782;
+      --chip-bg: #222228;
+      --chip-border: #3a3a42;
+      --danger: #ff4b5c;
+      --success: #18c37d;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #000;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1a1a1f 0, #050507 55%, #000 100%);
+      color: var(--text-main);
+      overflow: hidden; /* 锁住 body，只让内部容器滚动 */
+    }
+
+    .app-shell {
+      height: 100vh;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .app-scroll {
+      flex: 1;
+      width: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 24px 12px 84px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 840px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    header .sub {
+      font-size: 12px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-soft);
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #26222a 0, #151518 50%);
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+      border: 1px solid #26222a;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+      margin-bottom: 14px;
+    }
+
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .card-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+      color: var(--text-sub);
+    }
+
+    .date-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .date-row input[type="date"] {
+      flex: 1;
+    }
+
+    .date-icon {
+      font-size: 16px;
+      opacity: 0.6;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #111115;
+      color: var(--text-main);
+      font-size: 16px; /* >=16 避免 iOS 自动放大 */
+      outline: none;
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent-soft);
+      box-shadow: 0 0 0 1px rgba(255, 77, 87, 0.7);
+    }
+
+    .inline-two {
+      display: flex;
+      gap: 10px;
+    }
+
+    .inline-two .field {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .right-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: 6px;
+    }
+
+    .location-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .location-row > div:first-child {
+      flex: 1;
+    }
+
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--chip-border);
+      background: var(--chip-bg);
+      font-size: 12px;
+      color: var(--text-sub);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chip.active {
+      border-color: var(--accent-soft);
+      color: var(--accent-soft);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #ff4050, #e82127);
+      color: #fff;
+      box-shadow: 0 14px 30px rgba(232, 33, 39, 0.65);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 10px 22px rgba(232, 33, 39, 0.5);
+    }
+
+    .btn-soft {
+      background: #19191d;
+      color: #e2e2e7;
+      border-radius: 18px;
+      padding-inline: 18px;
+      font-size: 14px;
+      border: 1px solid #2b2b31;
+    }
+
+    .btn-soft .icon {
+      margin-right: 6px;
+      opacity: 0.9;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 8px 14px 12px;
+      background: linear-gradient(to top, #000 0, rgba(0, 0, 0, 0.2));
+      backdrop-filter: blur(10px);
+      z-index: 12;
+    }
+
+    .bottom-inner {
+      max-width: 840px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .bottom-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .prev-info {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: left;
+    }
+
+    .prev-info span {
+      color: #f5f5f5;
+    }
+
+    .table-wrapper {
+      margin-top: 8px;
+      border-radius: 14px;
+      border: 1px solid #26222a;
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: 360px;
+      background: #101013;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      min-width: 760px; /* 手机可横滑，桌面铺满 */
+    }
+
+    thead {
+      background: #18181d;
+    }
+
+    th,
+    td {
+      padding: 8px 6px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+      padding-left: 10px;
+    }
+
+    th:last-child,
+    td:last-child {
+      padding-right: 10px;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #141419;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: #0f0f13;
+    }
+
+    .td-location {
+      max-width: 130px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .td-actions {
+      text-align: right;
+      font-size: 15px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .action-icon {
+      cursor: pointer;
+      opacity: 0.65;
+    }
+
+    .action-icon:hover {
+      opacity: 1;
+    }
+
+    .empty-state {
+      padding: 12px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .loc-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 4px;
+      border-bottom: 1px solid #25252a;
+      font-size: 13px;
+    }
+
+    .loc-row:last-child {
+      border-bottom: none;
+    }
+
+    .loc-actions {
+      display: flex;
+      gap: 8px;
+      font-size: 16px;
+    }
+
+    .loc-empty {
+      padding: 8px 2px 2px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .badge-count {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .summary-month {
+      padding: 6px 4px;
+      border-bottom: 1px solid #25252a;
+      font-size: 12px;
+    }
+
+    .summary-month:last-child {
+      border-bottom: none;
+    }
+
+    .summary-header-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .summary-month-title {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .summary-body {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--text-sub);
+    }
+
+    .summary-item {
+      min-width: 90px;
+    }
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 72px;
+      transform: translateX(-50%);
+      background: rgba(10, 10, 14, 0.95);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+      border: 1px solid #33333a;
+      z-index: 30;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    .popup-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 25;
+    }
+
+    .popup-card {
+      width: 90%;
+      max-width: 360px;
+      background: #16161b;
+      border-radius: 18px;
+      border: 1px solid #34343e;
+      padding: 16px 16px 14px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .popup-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .popup-sub {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 10px;
+    }
+
+    .popup-options {
+      margin-bottom: 10px;
+    }
+
+    .popup-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 4px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .popup-option span {
+      color: var(--text-main);
+    }
+
+    .popup-option input[type="radio"] {
+      accent-color: var(--accent-soft);
+    }
+
+    .popup-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .popup-btn-cancel {
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: 1px solid #33333a;
+      background: #15151a;
+      color: var(--text-sub);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .popup-btn-primary {
+      border-radius: 999px;
+      padding: 8px 16px;
+      border: none;
+      background: linear-gradient(135deg, #ff4050, #e82127);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(232, 33, 39, 0.7);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    @media (min-width: 520px) {
+      header h1 {
+        font-size: 24px;
+      }
+      table {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="toast"></div>
+
+  <!-- Import popup -->
+  <div id="importModal" class="popup-backdrop">
+    <div class="popup-card">
+      <div class="popup-title">Import CSV</div>
+      <div class="popup-sub">选择导入方式:</div>
+
+      <div class="popup-options">
+        <label class="popup-option">
+          <input type="radio" name="importMode" value="append" checked />
+          <span>追加 (Append)</span>
+        </label>
+        <label class="popup-option">
+          <input type="radio" name="importMode" value="replace" />
+          <span>覆盖 (Replace)</span>
+        </label>
+      </div>
+
+      <div class="popup-buttons">
+        <button class="popup-btn-cancel" id="importCancelBtn">取消</button>
+        <button class="popup-btn-primary" id="importConfirmBtn">选择文件</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <div class="app-scroll">
+      <div class="app">
+        <header>
+          <div class="sub">TESLA · MODEL Y RWD VER.0912-1052</div>
+          <h1>EV Charge Log Pro</h1>
+        </header>
+
+        <!-- Main form -->
+        <section class="card">
+          <div class="field">
+            <label>Date</label>
+            <div class="date-row">
+              <input id="dateInput" type="date" />
+              <div class="date-icon">📅</div>
+            </div>
+          </div>
+
+          <div class="inline-two" style="margin-bottom:8px;">
+            <div class="field">
+              <label>Start %</label>
+              <input
+                id="startPercent"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="2"
+                placeholder="Start %"
+              />
+            </div>
+            <div class="field">
+              <label>End %</label>
+              <input
+                id="endPercent"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="2"
+                placeholder="End %"
+              />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>ODO (km) <span class="right-label">可空</span></label>
+            <input
+              id="odoInput"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              placeholder="可不填，例如 12850"
+            />
+          </div>
+
+          <div class="field">
+            <label>
+              Select Location
+              <span class="badge-count" id="locationCount"></span>
+            </label>
+            <select id="locationSelect">
+              <option value="">请选择地点</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Add / Edit Location</label>
+            <div class="location-row">
+              <div>
+                <input
+                  id="locationCustom"
+                  type="text"
+                  placeholder="例如 HOME, PV-KL, BAMBOO HILL..."
+                />
+              </div>
+              <button class="btn-soft" id="saveLocationBtn">保存地点</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Rate (RM/kWh)</label>
+            <div class="chips-row">
+              <div class="chip" data-rate="0.84">0.84</div>
+              <div class="chip" data-rate="1.00">1.00</div>
+              <div class="chip" data-rate="1.30">1.30</div>
+              <div class="chip" data-rate="1.50">1.50</div>
+              <div class="chip" data-rate="1.80">1.80</div>
+              <div class="chip" data-rate="0">Free</div>
+            </div>
+            <div class="inline-two">
+              <div class="field">
+                <label>Rate (RM/kWh)</label>
+                <input
+                  id="rateInput"
+                  type="text"
+                  inputmode="decimal"
+                  placeholder="例如 1.50"
+                />
+              </div>
+              <div class="field">
+                <label>Cost (RM)</label>
+                <input
+                  id="costInput"
+                  type="text"
+                  inputmode="decimal"
+                  placeholder="例如 18.90"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="addRecordBtn">Add Record</button>
+
+          <div class="prev-info" id="prevInfo">
+            上一条记录: <span>暂无</span>
+          </div>
+        </section>
+
+        <!-- Charge log -->
+        <section class="card">
+          <div class="card-header-row">
+            <div class="card-title">Charge Log</div>
+            <div class="card-sub">
+              Date / Start / End / Used kWh / KM / Wh/km / Location / Rate / Cost / Edit·Delete
+            </div>
+          </div>
+
+          <div class="table-wrapper" id="tableWrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>DATE</th>
+                  <th>START%</th>
+                  <th>END%</th>
+                  <th>USED kWh</th>
+                  <th>KM</th>
+                  <th>Wh/km</th>
+                  <th>Location</th>
+                  <th>Rate</th>
+                  <th>Cost</th>
+                  <th>⋯</th>
+                </tr>
+              </thead>
+              <tbody id="recordsBody"></tbody>
+            </table>
+          </div>
+          <div id="emptyState" class="empty-state" style="display:none;">
+            还没有记录。上面填写一次充电数据，然后点「Add Record」。
+          </div>
+        </section>
+
+        <!-- Monthly summary -->
+        <section class="card">
+          <div class="card-header-row">
+            <div class="card-title">Monthly Summary (60 kWh pack)</div>
+          </div>
+          <div id="summaryContainer" class="summary-container">
+            <div class="empty-state">No drive data yet</div>
+          </div>
+        </section>
+
+        <!-- Saved locations -->
+        <section class="card">
+          <div class="card-header-row">
+            <div class="card-title">Saved Locations</div>
+          </div>
+          <div id="locationsList">
+            <div class="loc-empty">暂时没有保存的地点。</div>
+          </div>
+        </section>
+
+        <footer>Version v4-ODO-20251207</footer>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="bottom-bar">
+    <div class="bottom-inner">
+      <div class="bottom-group">
+        <button class="btn btn-soft" id="exportBtn">
+          <span class="icon">⇣</span> Export
+        </button>
+        <button class="btn btn-soft" id="importBtn">
+          <span class="icon">⇡</span> Import
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <input id="fileInput" type="file" accept=".csv,text/csv" style="display:none;" />
+
+<script>
+  const BATTERY_KWH = 60;
+  const STORAGE_KEY_RECORDS = "evChargeLogPro_v5_records";
+  const STORAGE_KEY_LOCATIONS = "evChargeLogPro_v5_locations";
+
+  function getLastRateForLocation(loc, records) {
+    if (!loc) return null;
+    const target = String(loc).trim().toLowerCase();
+    const sorted = [...records].sort((a, b) => {
+      if (a.date === b.date) return (a.createdAt || 0) - (b.createdAt || 0);
+      return a.date < b.date ? -1 : 1;
+    });
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      const r = sorted[i];
+      const rLoc = (r.location || "").trim().toLowerCase();
+      if (rLoc === target && typeof r.rate === "number" && !isNaN(r.rate)) {
+        return r.rate;
+      }
+    }
+    return null;
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const dateInput = document.getElementById("dateInput");
+    const startPercentInput = document.getElementById("startPercent");
+    const endPercentInput = document.getElementById("endPercent");
+    const odoInput = document.getElementById("odoInput");
+    const locationSelect = document.getElementById("locationSelect");
+    const locationCustom = document.getElementById("locationCustom");
+    const locationCount = document.getElementById("locationCount");
+    const rateInput = document.getElementById("rateInput");
+    const costInput = document.getElementById("costInput");
+    const addRecordBtn = document.getElementById("addRecordBtn");
+    const saveLocationBtn = document.getElementById("saveLocationBtn");
+    const prevInfo = document.getElementById("prevInfo");
+
+    const recordsBody = document.getElementById("recordsBody");
+    const emptyState = document.getElementById("emptyState");
+    const summaryContainer = document.getElementById("summaryContainer");
+    const locationsList = document.getElementById("locationsList");
+    const tableWrapper = document.getElementById("tableWrapper");
+
+    const exportBtn = document.getElementById("exportBtn");
+    const importBtn = document.getElementById("importBtn");
+    const toastEl = document.getElementById("toast");
+
+    const importModal = document.getElementById("importModal");
+    const importCancelBtn = document.getElementById("importCancelBtn");
+    const importConfirmBtn = document.getElementById("importConfirmBtn");
+    const fileInput = document.getElementById("fileInput");
+
+    const rateChips = document.querySelectorAll(".chip[data-rate]");
+
+    let records = [];
+    let locations = [];
+    let editingId = null;
+    let editingLocationIndex = null;
+    let currentImportMode = "append";
+
+    function showToast(msg, duration = 2000) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      setTimeout(() => {
+        toastEl.classList.remove("show");
+      }, duration);
+    }
+
+    function defaultToday() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function loadState() {
+      try {
+        const recStr = localStorage.getItem(STORAGE_KEY_RECORDS);
+        records = recStr ? JSON.parse(recStr) : [];
+      } catch {
+        records = [];
+      }
+
+      // migrate old records (add id/createdAt if missing)
+      let changed = false;
+      const now = Date.now();
+      records.forEach((r, idx) => {
+        if (!r.id) {
+          r.id = "rec_migr_" + now + "_" + idx;
+          changed = true;
+        }
+        if (typeof r.createdAt !== "number") {
+          r.createdAt = now + idx;
+          changed = true;
+        }
+      });
+      if (changed) {
+        localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
+      }
+
+      try {
+        const locStr = localStorage.getItem(STORAGE_KEY_LOCATIONS);
+        locations = locStr ? JSON.parse(locStr) : [];
+      } catch {
+        locations = [];
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
+      localStorage.setItem(STORAGE_KEY_LOCATIONS, JSON.stringify(locations));
+    }
+
+    function ensureLocationExists(loc) {
+      const v = (loc || "").trim();
+      if (!v) return;
+      if (!locations.includes(v)) {
+        locations.push(v);
+        locations.sort((a, b) => a.localeCompare(b));
+        saveState();
+      }
+    }
+
+    function getSortedRecordsAsc() {
+      return [...records].sort((a, b) => {
+        if (a.date === b.date) return (a.createdAt || 0) - (b.createdAt || 0);
+        return a.date < b.date ? -1 : 1;
+      });
+    }
+
+    function getSortedRecordsDesc() {
+      return [...records].sort((a, b) => {
+        if (a.date === b.date) {
+          return (b.createdAt || 0) - (a.createdAt || 0);
+        }
+        return a.date > b.date ? -1 : 1;
+      });
+    }
+
+    function recomputeDriveStats() {
+      const sorted = getSortedRecordsAsc();
+      let prev = null;
+      sorted.forEach((rec) => {
+        rec.driveKm = null;
+        rec.usedKwh = null;
+        rec.whPerKm = null;
+
+        if (prev) {
+          if (
+            typeof prev.end === "number" &&
+            typeof rec.start === "number" &&
+            !isNaN(prev.end) &&
+            !isNaN(rec.start)
+          ) {
+            const diffPct = prev.end - rec.start;
+            if (diffPct > 0) {
+              const used = (BATTERY_KWH * diffPct) / 100;
+              rec.usedKwh = used;
+            }
+          }
+
+          if (
+            typeof prev.odo === "number" &&
+            typeof rec.odo === "number" &&
+            !isNaN(prev.odo) &&
+            !isNaN(rec.odo)
+          ) {
+            const km = rec.odo - prev.odo;
+            if (km > 0) rec.driveKm = km;
+          }
+
+          if (rec.driveKm && rec.usedKwh) {
+            const wh = (rec.usedKwh * 1000) / rec.driveKm;
+            if (wh > 0) rec.whPerKm = wh;
+          }
+        }
+
+        prev = rec;
+      });
+      saveState();
+    }
+
+    function formatNumber(num, decimals) {
+      if (num === null || num === undefined || isNaN(num)) return "-";
+      return Number(num).toFixed(decimals);
+    }
+
+    function updateLocationSelect() {
+      locationSelect.innerHTML = '<option value="">请选择地点</option>';
+      locations.forEach((loc) => {
+        const opt = document.createElement("option");
+        opt.value = loc;
+        opt.textContent = loc;
+        locationSelect.appendChild(opt);
+      });
+      if (locations.length) {
+        locationCount.textContent = `${locations.length} saved`;
+      } else {
+        locationCount.textContent = "";
+      }
+    }
+
+    function renderLocationsList() {
+      locationsList.innerHTML = "";
+      if (!locations.length) {
+        const div = document.createElement("div");
+        div.className = "loc-empty";
+        div.textContent = "暂时没有保存的地点。";
+        locationsList.appendChild(div);
+        return;
+      }
+      locations.forEach((loc, idx) => {
+        const row = document.createElement("div");
+        row.className = "loc-row";
+
+        const nameDiv = document.createElement("div");
+        nameDiv.textContent = loc;
+
+        const actions = document.createElement("div");
+        actions.className = "loc-actions";
+
+        const editSpan = document.createElement("span");
+        editSpan.className = "action-icon";
+        editSpan.textContent = "✏️";
+        editSpan.dataset.action = "editLocation";
+        editSpan.dataset.index = idx;
+
+        const delSpan = document.createElement("span");
+        delSpan.className = "action-icon";
+        delSpan.textContent = "🗑️";
+        delSpan.dataset.action = "deleteLocation";
+        delSpan.dataset.index = idx;
+
+        actions.appendChild(editSpan);
+        actions.appendChild(delSpan);
+        row.appendChild(nameDiv);
+        row.appendChild(actions);
+
+        locationsList.appendChild(row);
+      });
+    }
+
+    function renderPrevInfo() {
+      if (!records.length) {
+        prevInfo.innerHTML = '上一条记录: <span>暂无</span>';
+        return;
+      }
+      const sorted = getSortedRecordsAsc();
+      const last = sorted[sorted.length - 1];
+      const date = last.date || "-";
+      const end = last.end != null ? `${last.end}%` : "-";
+      const odo =
+        last.odo != null && !isNaN(last.odo) ? `${last.odo} km` : "-";
+      prevInfo.innerHTML = `上一条记录: <span>${date}</span> · End <span>${end}</span> · ODO <span>${odo}</span>`;
+    }
+
+    function renderTable() {
+      recordsBody.innerHTML = "";
+      const sorted = getSortedRecordsDesc();
+      if (!sorted.length) {
+        tableWrapper.style.display = "none";
+        emptyState.style.display = "block";
+        return;
+      }
+      tableWrapper.style.display = "block";
+      emptyState.style.display = "none";
+
+      sorted.forEach((rec) => {
+        const tr = document.createElement("tr");
+
+        const tdDate = document.createElement("td");
+        tdDate.textContent = rec.date || "-";
+        tr.appendChild(tdDate);
+
+        const tdStart = document.createElement("td");
+        tdStart.textContent =
+          rec.start != null && !isNaN(rec.start) ? rec.start : "-";
+        tr.appendChild(tdStart);
+
+        const tdEnd = document.createElement("td");
+        tdEnd.textContent =
+          rec.end != null && !isNaN(rec.end) ? rec.end : "-";
+        tr.appendChild(tdEnd);
+
+        const tdUsed = document.createElement("td");
+        tdUsed.textContent =
+          rec.usedKwh != null ? formatNumber(rec.usedKwh, 2) : "-";
+        tr.appendChild(tdUsed);
+
+        const tdKm = document.createElement("td");
+        tdKm.textContent =
+          rec.driveKm != null ? formatNumber(rec.driveKm, 0) : "-";
+        tr.appendChild(tdKm);
+
+        const tdWh = document.createElement("td");
+        tdWh.textContent =
+          rec.whPerKm != null ? formatNumber(rec.whPerKm, 0) : "-";
+        tr.appendChild(tdWh);
+
+        const tdLoc = document.createElement("td");
+        tdLoc.className = "td-location";
+        tdLoc.textContent = rec.location || "-";
+        tr.appendChild(tdLoc);
+
+        const tdRate = document.createElement("td");
+        tdRate.textContent =
+          rec.rate != null && !isNaN(rec.rate)
+            ? formatNumber(rec.rate, 2)
+            : "-";
+        tr.appendChild(tdRate);
+
+        const tdCost = document.createElement("td");
+        tdCost.textContent =
+          rec.cost != null && !isNaN(rec.cost)
+            ? formatNumber(rec.cost, 2)
+            : "-";
+        tr.appendChild(tdCost);
+
+        const tdActions = document.createElement("td");
+        tdActions.className = "td-actions";
+
+        const editSpan = document.createElement("span");
+        editSpan.className = "action-icon";
+        editSpan.textContent = "✏️";
+        editSpan.dataset.action = "edit";
+        editSpan.dataset.id = rec.id;
+
+        const delSpan = document.createElement("span");
+        delSpan.className = "action-icon";
+        delSpan.textContent = "🗑️";
+        delSpan.dataset.action = "delete";
+        delSpan.dataset.id = rec.id;
+
+        tdActions.appendChild(editSpan);
+        tdActions.appendChild(delSpan);
+        tr.appendChild(tdActions);
+
+        recordsBody.appendChild(tr);
+      });
+    }
+
+    function renderMonthlySummary() {
+      summaryContainer.innerHTML = "";
+      if (!records.length) {
+        const div = document.createElement("div");
+        div.className = "empty-state";
+        div.textContent = "No drive data yet";
+        summaryContainer.appendChild(div);
+        return;
+      }
+
+      const byMonth = {};
+      records.forEach((rec) => {
+        if (!rec.date) return;
+        const ym = rec.date.slice(0, 7);
+        if (!byMonth[ym]) {
+          byMonth[ym] = { totalRm: 0, totalKwh: 0, totalKm: 0 };
+        }
+        const m = byMonth[ym];
+        if (rec.cost) m.totalRm += Number(rec.cost) || 0;
+        if (rec.usedKwh) m.totalKwh += Number(rec.usedKwh) || 0;
+        if (rec.driveKm) m.totalKm += Number(rec.driveKm) || 0;
+      });
+
+      const months = Object.keys(byMonth).sort().reverse();
+      months.forEach((ym) => {
+        const m = byMonth[ym];
+        const wrap = document.createElement("div");
+        wrap.className = "summary-month";
+
+        const header = document.createElement("div");
+        header.className = "summary-header-row";
+
+        const title = document.createElement("div");
+        title.className = "summary-month-title";
+        title.textContent = ym.replace("-", "/");
+
+        const whSpan = document.createElement("div");
+        let wh = "-";
+        if (m.totalKm > 0 && m.totalKwh > 0) {
+          wh = ((m.totalKwh * 1000) / m.totalKm).toFixed(0);
+        }
+        whSpan.textContent = `Wh/km: ${wh}`;
+
+        header.appendChild(title);
+        header.appendChild(whSpan);
+
+        const body = document.createElement("div");
+        body.className = "summary-body";
+
+        const itemRm = document.createElement("div");
+        itemRm.className = "summary-item";
+        itemRm.textContent = `总 RM: ${m.totalRm.toFixed(2)}`;
+
+        const itemKwh = document.createElement("div");
+        itemKwh.className = "summary-item";
+        itemKwh.textContent = `总 used kWh: ${m.totalKwh.toFixed(2)}`;
+
+        const itemKm = document.createElement("div");
+        itemKm.className = "summary-item";
+        itemKm.textContent = `总 KM: ${m.totalKm.toFixed(0)}`;
+
+        body.appendChild(itemRm);
+        body.appendChild(itemKwh);
+        body.appendChild(itemKm);
+
+        wrap.appendChild(header);
+        wrap.appendChild(body);
+
+        summaryContainer.appendChild(wrap);
+      });
+    }
+
+    function clearForm() {
+      startPercentInput.value = "";
+      endPercentInput.value = "";
+      odoInput.value = "";
+      rateInput.value = "";
+      costInput.value = "";
+      editingId = null;
+      addRecordBtn.textContent = "Add Record";
+    }
+
+    function refreshAll() {
+      recomputeDriveStats();
+      renderTable();
+      renderMonthlySummary();
+      renderPrevInfo();
+      saveState();
+    }
+
+    function exportCSV() {
+      if (!records.length && !locations.length) {
+        showToast("没有记录或地点可导出");
+        return;
+      }
+
+      const today = defaultToday();
+
+      if (records.length) {
+        const header =
+          "date,start,end,odo,location,rate,cost,driveKm,usedKwh,whPerKm";
+        const lines = [header];
+        const sorted = getSortedRecordsAsc();
+        sorted.forEach((rec) => {
+          const row = [
+            rec.date || "",
+            rec.start ?? "",
+            rec.end ?? "",
+            rec.odo ?? "",
+            rec.location
+              ? '"' + String(rec.location).replace(/"/g, '""') + '"'
+              : "",
+            rec.rate ?? "",
+            rec.cost ?? "",
+            rec.driveKm ?? "",
+            rec.usedKwh ?? "",
+            rec.whPerKm ?? "",
+          ];
+          lines.push(row.join(","));
+        });
+        const csv = lines.join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `ev_charge_log_pro_${today}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      if (locations.length) {
+        const locLines = ["location"];
+        locations.forEach((loc) => {
+          locLines.push('"' + String(loc).replace(/"/g, '""') + '"');
+        });
+        const locCsv = locLines.join("\n");
+        const locBlob = new Blob([locCsv], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const locUrl = URL.createObjectURL(locBlob);
+        const a2 = document.createElement("a");
+        a2.href = locUrl;
+        a2.download = `ev_charge_log_pro_locations_${today}.csv`;
+        document.body.appendChild(a2);
+        a2.click();
+        document.body.removeChild(a2);
+        URL.revokeObjectURL(locUrl);
+      }
+
+      showToast("CSV 已导出（含 Saved Locations）");
+    }
+
+    function closeImportModal() {
+      importModal.style.display = "none";
+      fileInput.value = "";
+    }
+
+    // 解析一行简单 CSV（支持引号）
+    function parseCsvLine(line) {
+      const cells = [];
+      let current = "";
+      let inQuotes = false;
+      for (let ch of line) {
+        if (ch === '"') {
+          inQuotes = !inQuotes;
+        } else if (ch === "," && !inQuotes) {
+          cells.push(current);
+          current = "";
+        } else {
+          current += ch;
+        }
+      }
+      cells.push(current);
+      return cells;
+    }
+
+    function importCSVText(text, mode) {
+      const lines = text
+        .split(/\r?\n/)
+        .filter((l) => l.trim().length > 0);
+      if (!lines.length) {
+        showToast("CSV 内容为空");
+        return;
+      }
+      const headerLine = lines[0];
+      const headerFields = headerLine
+        .split(",")
+        .map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
+
+      // 🆕 情况 1：Saved Locations CSV（只有一栏：location）
+      if (headerFields.length === 1 && headerFields[0] === "location") {
+        const importedLocs = [];
+        for (let i = 1; i < lines.length; i++) {
+          const cells = parseCsvLine(lines[i]);
+          const raw = (cells[0] || "").replace(/^"|"$/g, "").trim();
+          if (!raw) continue;
+          importedLocs.push(raw);
+        }
+        if (!importedLocs.length) {
+          showToast("没有有效地点被导入");
+          return;
+        }
+
+        if (mode === "replace") {
+          locations = Array.from(new Set(importedLocs));
+        } else {
+          importedLocs.forEach((loc) => {
+            if (!locations.includes(loc)) locations.push(loc);
+          });
+        }
+        locations.sort((a, b) => a.localeCompare(b));
+        saveState();
+        updateLocationSelect();
+        renderLocationsList();
+        showToast(
+          `Saved Locations 已导入 (${mode === "replace" ? "覆盖" : "追加"}) · 共 ${
+            importedLocs.length
+          } 个`
+        );
+        return;
+      }
+
+      // 情况 2：正常 Charge Log CSV
+      const expectedHeader = [
+        "date",
+        "start",
+        "end",
+        "odo",
+        "location",
+        "rate",
+        "cost",
+        "drivekm",
+        "usedkwh",
+        "whperkm",
+      ];
+
+      const matchesHeader =
+        expectedHeader.length === headerFields.length &&
+        expectedHeader.every(
+          (h, idx) => h === headerFields[idx].toLowerCase()
+        );
+
+      let startIdx = 0;
+      if (matchesHeader) startIdx = 1;
+
+      const imported = [];
+      for (let i = startIdx; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.trim()) continue;
+
+        const cells = parseCsvLine(line);
+        const [date, start, end, odo, location, rate, cost] = cells;
+
+        const newRec = {
+          id:
+            "imp_" +
+            Date.now() +
+            "_" +
+            i +
+            "_" +
+            Math.random().toString(16).slice(2),
+          createdAt: Date.now() + i,
+          date: date || defaultToday(),
+          start: start ? Number(start) : null,
+          end: end ? Number(end) : null,
+          odo: odo ? Number(odo) : null,
+          rate: rate ? Number(rate) : null,
+          cost: cost ? Number(cost) : null,
+          location: location ? location.replace(/^"|"$/g, "") : "",
+          driveKm: null,
+          usedKwh: null,
+          whPerKm: null,
+        };
+
+        imported.push(newRec);
+      }
+
+      if (!imported.length) {
+        showToast("没有有效记录被导入");
+        return;
+      }
+
+      if (mode === "replace") {
+        records = imported;
+      } else {
+        records = records.concat(imported);
+      }
+
+      imported.forEach((rec) => {
+        ensureLocationExists(rec.location);
+      });
+
+      refreshAll();
+      showToast(
+        `CSV 已导入 (${mode === "replace" ? "覆盖" : "追加"}) · 共 ${
+          imported.length
+        } 条`
+      );
+    }
+
+    function handleFileChosen(mode) {
+      const file = fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        importCSVText(text, mode);
+      };
+      reader.readAsText(file);
+    }
+
+    // ==== 初始化 ====
+    dateInput.value = defaultToday();
+    loadState();
+    updateLocationSelect();
+    renderLocationsList();
+    refreshAll();
+
+    // Start%：两位自动跳 End%
+    startPercentInput.addEventListener("input", (e) => {
+      let v = e.target.value.replace(/\D/g, "");
+      if (v.length > 2) v = v.slice(0, 2);
+      e.target.value = v;
+      if (v.length >= 2) {
+        endPercentInput.focus();
+        endPercentInput.select?.();
+      }
+    });
+
+    // End%：两位自动跳 ODO，输入 00 直接显示 100 再跳
+    endPercentInput.addEventListener("input", (e) => {
+      let v = e.target.value.replace(/\D/g, "");
+      if (v.length > 2) v = v.slice(0, 2);
+
+      if (v === "00") {
+        endPercentInput.value = "100";
+        odoInput.focus();
+        odoInput.select?.();
+        return;
+      }
+
+      endPercentInput.value = v;
+
+      if (v.length >= 2) {
+        odoInput.focus();
+        odoInput.select?.();
+      }
+    });
+
+    // Rate 快捷 chip
+    rateChips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const val = chip.getAttribute("data-rate");
+        rateInput.value = val === "0" ? "" : val;
+        rateChips.forEach((c) => c.classList.remove("active"));
+        chip.classList.add("active");
+      });
+    });
+
+    // Location 改变 → 带入最新 Rate
+    locationSelect.addEventListener("change", () => {
+      const loc = (locationSelect.value || "").trim();
+      if (!loc) return;
+      const lastRate = getLastRateForLocation(loc, records);
+      if (lastRate != null && !isNaN(lastRate)) {
+        let val = Number(lastRate).toFixed(2).replace(/\.00$/, "");
+        rateInput.value = val;
+      } else {
+        rateInput.value = "";
+      }
+    });
+
+    // 新增 / 更新 Location
+    saveLocationBtn.addEventListener("click", () => {
+      const loc = locationCustom.value.trim();
+      if (!loc) {
+        showToast("地点不能为空");
+        return;
+      }
+      if (editingLocationIndex != null) {
+        locations[editingLocationIndex] = loc;
+        editingLocationIndex = null;
+        saveLocationBtn.textContent = "保存地点";
+      } else if (!locations.includes(loc)) {
+        locations.push(loc);
+      }
+      locations.sort((a, b) => a.localeCompare(b));
+      saveState();
+      updateLocationSelect();
+      renderLocationsList();
+      locationCustom.value = "";
+    });
+
+    locationsList.addEventListener("click", (e) => {
+      const t = e.target;
+      const action = t.dataset.action;
+      const idx = t.dataset.index ? Number(t.dataset.index) : null;
+      if (action === "editLocation" && idx != null) {
+        editingLocationIndex = idx;
+        locationCustom.value = locations[idx];
+        saveLocationBtn.textContent = "更新地点";
+      } else if (action === "deleteLocation" && idx != null) {
+        if (!confirm("删除这个地点？")) return;
+        locations.splice(idx, 1);
+        editingLocationIndex = null;
+        saveState();
+        updateLocationSelect();
+        renderLocationsList();
+      }
+    });
+
+    function parseStartPercent(raw) {
+      const txt = raw.trim();
+      if (txt === "") return null;
+      const n = parseInt(txt, 10);
+      if (isNaN(n)) return null;
+      return n;
+    }
+
+    function parseEndPercent(raw) {
+      const txt = raw.trim();
+      if (txt === "") return null;
+      if (txt === "00") return 100;
+      const n = parseInt(txt, 10);
+      if (isNaN(n)) return null;
+      return n;
+    }
+
+    // Add / Save record
+    addRecordBtn.addEventListener("click", () => {
+      const date = dateInput.value || defaultToday();
+
+      const startNum = parseStartPercent(startPercentInput.value);
+      const endNum = parseEndPercent(endPercentInput.value);
+
+      const odoNum =
+        odoInput.value.trim() === "" ? null : Number(odoInput.value);
+      const location = locationSelect.value.trim();
+      const rateNum =
+        rateInput.value.trim() === "" ? null : Number(rateInput.value);
+      const costNum =
+        costInput.value.trim() === "" ? null : Number(costInput.value);
+
+      if (!location || rateNum === null || costNum === null) {
+        showToast("Location / Rate / Cost 不能为空");
+        return;
+      }
+
+      const now = Date.now();
+
+      if (editingId) {
+        const rec = records.find((r) => r.id === editingId);
+        if (rec) {
+          rec.date = date;
+          rec.start = startNum;
+          rec.end = endNum;
+          rec.odo = odoNum;
+          rec.rate = rateNum;
+          rec.cost = costNum;
+          rec.location = location;
+        }
+        ensureLocationExists(location);
+        refreshAll();
+        clearForm();
+        showToast("记录已更新");
+      } else {
+        const newRec = {
+          id: "rec_" + now + "_" + Math.random().toString(16).slice(2),
+          createdAt: now,
+          date,
+          start: startNum,
+          end: endNum,
+          odo: odoNum,
+          rate: rateNum,
+          cost: costNum,
+          location,
+          driveKm: null,
+          usedKwh: null,
+          whPerKm: null,
+        };
+        records.push(newRec);
+        ensureLocationExists(location);
+        refreshAll();
+        clearForm();
+        showToast("已新增记录");
+        setTimeout(() => {
+          tableWrapper.scrollTop = tableWrapper.scrollHeight;
+        }, 100);
+      }
+    });
+
+    // Edit / Delete record
+    recordsBody.addEventListener("click", (e) => {
+      const t = e.target;
+      const action = t.dataset.action;
+      const id = t.dataset.id;
+      if (!action || !id) return;
+
+      if (action === "edit") {
+        const rec = records.find((r) => r.id === id);
+        if (!rec) return;
+        editingId = id;
+        dateInput.value = rec.date || defaultToday();
+
+        startPercentInput.value =
+          rec.start != null && !isNaN(rec.start) ? String(rec.start) : "";
+        endPercentInput.value =
+          rec.end != null && !isNaN(rec.end) ? String(rec.end) : "";
+
+        odoInput.value =
+          rec.odo != null && !isNaN(rec.odo) ? rec.odo : "";
+        rateInput.value =
+          rec.rate != null && !isNaN(rec.rate)
+            ? String(rec.rate).replace(/\.00$/, "")
+            : "";
+        costInput.value =
+          rec.cost != null && !isNaN(rec.cost)
+            ? String(rec.cost).replace(/\.00$/, "")
+            : "";
+        ensureLocationExists(rec.location);
+        updateLocationSelect();
+        locationSelect.value = rec.location || "";
+        addRecordBtn.textContent = "Save Changes";
+      } else if (action === "delete") {
+        if (!confirm("Delete this record?")) return;
+        records = records.filter((r) => r.id !== id);
+        editingId = null;
+        refreshAll();
+        showToast("记录已删除");
+      }
+    });
+
+    // Bottom bar Import / Export
+    exportBtn.addEventListener("click", exportCSV);
+
+    importBtn.addEventListener("click", () => {
+      importModal.style.display = "flex";
+    });
+
+    importCancelBtn.addEventListener("click", () => {
+      closeImportModal();
+    });
+
+    importConfirmBtn.addEventListener("click", () => {
+      const checked = document.querySelector(
+        'input[name="importMode"]:checked'
+      );
+      currentImportMode = checked ? checked.value : "append";
+      fileInput.click();
+      closeImportModal();
+    });
+
+    fileInput.addEventListener("change", () => {
+      if (!fileInput.files.length) return;
+      handleFileChosen(currentImportMode || "append");
+      currentImportMode = "append";
+    });
+  });
+</script>
+  
+</body>
+</html>
