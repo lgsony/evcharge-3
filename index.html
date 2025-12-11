@@ -42,7 +42,7 @@
         "Segoe UI", sans-serif;
       background: radial-gradient(circle at top, #1a1a1f 0, #050507 55%, #000 100%);
       color: var(--text-main);
-      overflow: hidden; /* 锁住 body，只让内部容器滚动 */
+      overflow: hidden; /* 锁 body，只让内部容器滚动 */
     }
 
     .app-shell {
@@ -579,7 +579,7 @@
     <div class="app-scroll">
       <div class="app">
         <header>
-          <div class="sub">TESLA · MODEL Y RWD VER.0912-2353</div>
+          <div class="sub">TESLA · MODEL Y RWD WEB CLOUD V7</div>
           <h1>EV Charge Log Pro</h1>
         </header>
 
@@ -745,7 +745,7 @@
           </div>
         </section>
 
-        <footer>Version v6-WEB-20251209</footer>
+        <footer>Version v7-WEB-20251212</footer>
       </div>
     </div>
   </div>
@@ -777,7 +777,7 @@
       onSnapshot,
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // 你的 Firebase config
+    // 你的 Firebase config（根据你之前给我的）
     const firebaseConfig = {
       apiKey: "AIzaSyCbqYoEXpNIqq076dCin3vcVzCKP5E3gVY",
       authDomain: "evcharge3-3a6e9.firebaseapp.com",
@@ -1378,7 +1378,7 @@
           saveStateOnlyLocal();
           updateLocationSelect();
           renderLocationsList();
-          refreshAll(); // 同步 cloud
+          refreshAll();
           showToast(
             `Saved Locations 已导入 (${mode === "replace" ? "覆盖" : "追加"}) · 共 ${
               importedLocs.length
@@ -1476,9 +1476,8 @@
         reader.readAsText(file);
       }
 
-      // ========= 事件绑定 =========
+      // ========= 事件 & 初始化 =========
 
-      // 日期默认今天
       dateInput.value = defaultToday();
       loadState();
       updateLocationSelect();
@@ -1708,7 +1707,7 @@
         currentImportMode = "append";
       });
 
-      // ==== 初始化 Cloud，同步策略：谁新听谁的 ====
+      // ==== 初始化 Cloud，同步策略：谁比较新用谁的 ====
       (async () => {
         try {
           const snap = await getDoc(cloudDocRef);
